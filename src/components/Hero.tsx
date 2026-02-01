@@ -15,66 +15,60 @@ const Hero = () => {
           alt="Mascota esperando ser adoptada"
           className="w-full h-full object-cover object-center scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/60 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-background/40 via-transparent to-transparent"></div>
       </div>
 
       <div className="relative z-10 container mx-auto px-4 md:px-6">
-        <div className="max-w-4xl">
+        <div className="max-w-3xl">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 border border-primary/30 text-primary text-xs font-bold tracking-widest uppercase mb-6 animate-fade-in shadow-lg backdrop-blur-sm">
-            <span className="relative flex h-2 w-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold tracking-widest uppercase mb-6 animate-fade-in backdrop-blur-sm">
+            <span className="relative flex h-1.5 w-1.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary"></span>
             </span>
-            Conectando Corazones
+            Huellas Digitales
           </div>
 
           {/* Main Content */}
-          <h1 className="text-5xl md:text-7xl lg:text-9xl font-black mb-6 leading-[0.9] tracking-tighter animate-fade-in drop-shadow-2xl">
-            CADA HUELLA <br />
-            <span className="text-primary italic">CUENTA</span> UNA <br />
-            HISTORIA
+          <h1 className="text-4xl md:text-5xl lg:text-7xl font-black mb-4 leading-[1.1] tracking-tight animate-fade-in text-balance">
+            Cada Huella <span className="text-primary">Cuenta</span> una Historia
           </h1>
 
-          <p className="text-xl md:text-2xl mb-12 max-w-2xl text-foreground/80 leading-relaxed font-medium animate-fade-in-slow">
-            No solo estás adoptando una mascota, estás salvando una vida y ganando un amigo para siempre. Descubrí el impacto de una adopción responsable.
+          <p className="text-base md:text-lg mb-8 max-w-xl text-foreground/70 leading-relaxed font-medium animate-fade-in-slow text-pretty">
+            Conectamos personas con mascotas que necesitan un hogar. Descubrí el impacto de una adopción responsable hoy.
           </p>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 items-start animate-fade-in-slow">
+          <div className="flex flex-col sm:flex-row gap-3 items-start animate-fade-in-slow">
             <Button
               onClick={() => navigate("/adopcion")}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground text-lg py-8 px-10 rounded-2xl shadow-2xl shadow-primary/30 group transition-all duration-500 hover:scale-105 active:scale-95"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground h-14 px-8 rounded-xl shadow-lg shadow-primary/20 group transition-all"
             >
-              <Heart className="w-6 h-6 mr-3 fill-current group-hover:scale-125 transition-transform" />
+              <Heart className="w-5 h-5 mr-2 fill-current" />
               Adoptar Ahora
-              <ChevronRight className="w-5 h-5 ml-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
             </Button>
 
             <Button
               onClick={() => navigate("/perdidos")}
               variant="outline"
-              className="bg-card/40 backdrop-blur-xl border-white/10 hover:bg-white/10 text-lg py-8 px-10 rounded-2xl shadow-xl group transition-all duration-500"
+              className="bg-card/40 backdrop-blur-xl border-white/10 hover:bg-white/10 h-14 px-8 rounded-xl transition-all"
             >
-              <Search className="w-6 h-6 mr-3 text-primary group-hover:rotate-12 transition-transform" />
+              <Search className="w-5 h-5 mr-2 text-primary" />
               Mascotas Perdidas
             </Button>
           </div>
 
-          {/* Trust Elements */}
-          <div className="mt-16 pt-8 border-t border-white/5 flex flex-wrap gap-8 items-center animate-fade-in-slow">
-            <div className="flex -space-x-3">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="w-10 h-10 rounded-full border-2 border-background bg-card flex items-center justify-center overflow-hidden">
-                  <img src={`https://i.pravatar.cc/100?img=${i + 10}`} alt="Adopter" className="w-full h-full object-cover" />
+          {/* Minimal Trust Indicator */}
+          <div className="mt-12 flex items-center gap-4 animate-fade-in-slow opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
+            <div className="flex -space-x-2">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="w-8 h-8 rounded-full border-2 border-background bg-card overflow-hidden">
+                  <img src={`https://i.pravatar.cc/100?img=${i + 20}`} alt="Adopter" className="w-full h-full object-cover" />
                 </div>
               ))}
             </div>
-            <div>
-              <div className="text-lg font-bold">+500 Vidas Unidas</div>
-              <div className="text-sm text-foreground/60 italic">Historias reales de amor incondicional</div>
-            </div>
+            <div className="text-xs font-semibold tracking-wide">+500 Familias Unidas</div>
           </div>
         </div>
       </div>

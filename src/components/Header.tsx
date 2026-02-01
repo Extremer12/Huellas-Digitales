@@ -106,18 +106,18 @@ const Header = () => {
   return (
     <header
       className={`fixed top-0 w-full z-50 transition-all duration-300 border-b ${scrolled
-          ? "bg-card/95 backdrop-blur-md shadow-lg py-2 border-border/50"
-          : "bg-transparent py-4 border-transparent"
+        ? "bg-card/95 backdrop-blur-md shadow-lg py-1.5 border-border/50"
+        : "bg-transparent py-3 border-transparent"
         }`}
     >
       <div className="container mx-auto max-w-7xl">
-        <div className="flex items-center justify-between h-16 px-4 md:px-6">
+        <div className="flex items-center justify-between h-14 px-4 md:px-6">
           {/* Logo */}
-          <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate("/")}>
-            <div className="relative overflow-hidden rounded-full p-1 bg-white/10 group-hover:bg-white/20 transition-colors">
-              <img src={logo} alt="Huellas Digitales" className="h-12 w-12 object-contain" />
+          <div className="flex items-center gap-2 cursor-pointer group" onClick={() => navigate("/")}>
+            <div className="relative overflow-hidden rounded-full p-0.5 bg-white/5 group-hover:bg-white/10 transition-colors">
+              <img src={logo} alt="Huellas Digitales" className="h-10 w-10 object-contain" />
             </div>
-            <span className="text-xl lg:text-2xl font-black tracking-tighter text-foreground hidden sm:block">
+            <span className="text-lg lg:text-xl font-black tracking-tighter text-foreground hidden sm:block">
               HUELLAS <span className="text-primary">DIGITALES</span>
             </span>
           </div>
@@ -223,8 +223,8 @@ const Header = () => {
                         to={link.path}
                         onClick={() => setIsOpen(false)}
                         className={`flex items-center px-4 py-3 rounded-md text-lg font-medium transition-all ${location.pathname === link.path
-                            ? "bg-primary/10 text-primary"
-                            : "hover:bg-primary/5"
+                          ? "bg-primary/10 text-primary"
+                          : "hover:bg-primary/5"
                           }`}
                       >
                         {link.name}
