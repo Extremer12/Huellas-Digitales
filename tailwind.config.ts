@@ -103,7 +103,9 @@ export default {
         "fade-in": "fade-in 0.6s ease-out",
         "fade-in-slow": "fade-in-slow 1s ease-out",
         "scale-in": "scale-in 0.4s ease-out",
-        "float": "float 3s ease-in-out infinite"
+        "float": "float 3s ease-in-out infinite",
+        "pulse-slow": "pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "bounce-slow": "bounce 3s infinite"
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"]

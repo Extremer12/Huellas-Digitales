@@ -1,15 +1,26 @@
-import { Menu, LogIn, LogOut, User, Heart, Shield } from "lucide-react";
+import { Menu, LogIn, LogOut, User, Heart, Shield, PlusCircle, Search, HelpCircle, Mail, MessageSquare } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import logo from "@/assets/logo.png";
+
 const Header = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     checkAuthAndRole();
@@ -46,8 +57,9 @@ const Header = () => {
     const hasAdminAccess = roles?.some(r => r.role === "admin" || r.role === "moderator");
     setIsAdmin(!!hasAdminAccess);
   };
+
   const scrollToSection = (id: string) => {
-    if (window.location.pathname !== "/") {
+    if (location.pathname !== "/") {
       navigate("/");
       setTimeout(() => {
         const element = document.getElementById(id);
@@ -67,6 +79,7 @@ const Header = () => {
     }
     setIsOpen(false);
   };
+
   const handleAuth = async () => {
     if (isAuthenticated) {
       await supabase.auth.signOut();
@@ -76,112 +89,197 @@ const Header = () => {
     }
     setIsOpen(false);
   };
+
   const handleProfile = () => {
     navigate("/profile");
     setIsOpen(false);
   };
-  return <header className="fixed top-0 w-full bg-card/98 backdrop-blur-md shadow-[var(--shadow-soft)] z-50 border-b border-border/50">
+
+  const navLinks = [
+    { name: "Inicio", path: "/", type: "path" },
+    { name: "Adopción", path: "/adopcion", type: "link" },
+    { name: "Perdidos", path: "/perdidos", type: "link" },
+    { name: "Historias", path: "/historias", type: "link" },
+    { name: "Cómo Ayudar", path: "ayudar", type: "section" },
+  ];
+
+  return (
+    <header
+      className={`fixed top-0 w-full z-50 transition-all duration-300 border-b ${scrolled
+          ? "bg-card/95 backdrop-blur-md shadow-lg py-2 border-border/50"
+          : "bg-transparent py-4 border-transparent"
+        }`}
+    >
       <div className="container mx-auto max-w-7xl">
         <div className="flex items-center justify-between h-16 px-4 md:px-6">
           {/* Logo */}
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
-            <img src={logo} alt="Huellas Digitales" className="h-20 w-auto" />
-            <span className="text-2xl font-bold text-foreground hidden sm:block">
-              Huellas Digitales
+          <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate("/")}>
+            <div className="relative overflow-hidden rounded-full p-1 bg-white/10 group-hover:bg-white/20 transition-colors">
+              <img src={logo} alt="Huellas Digitales" className="h-12 w-12 object-contain" />
+            </div>
+            <span className="text-xl lg:text-2xl font-black tracking-tighter text-foreground hidden sm:block">
+              HUELLAS <span className="text-primary">DIGITALES</span>
             </span>
           </div>
 
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center gap-8">
+            {navLinks.map((link) => (
+              link.type === "section" ? (
+                <button
+                  key={link.name}
+                  onClick={() => scrollToSection(link.path)}
+                  className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors py-2 relative group"
+                >
+                  {link.name}
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+                </button>
+              ) : (
+                <Link
+                  key={link.name}
+                  to={link.path}
+                  className={`text-sm font-medium py-2 relative group ${location.pathname === link.path ? "text-primary px-1" : "text-foreground/70 hover:text-primary"
+                    }`}
+                >
+                  {link.name}
+                  <span className={`absolute bottom-0 left-0 h-0.5 bg-primary transition-all duration-300 ${location.pathname === link.path ? "w-full" : "w-0 group-hover:w-full"
+                    }`}></span>
+                </Link>
+              )
+            ))}
+          </nav>
+
           {/* Desktop Actions */}
-          <div className="hidden md:flex items-center gap-3">
-            <Button onClick={handleAuth} variant="outline" size="sm">
-              {isAuthenticated ? <><LogOut className="w-4 h-4 mr-2" />Cerrar Sesión</> : <><LogIn className="w-4 h-4 mr-2" />Iniciar Sesión</>}
-            </Button>
-            <Sheet open={isOpen} onOpenChange={setIsOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="sm">
-                  <Menu className="w-5 h-5" />
+          <div className="hidden md:flex items-center gap-4">
+            {isAuthenticated ? (
+              <div className="flex items-center gap-2">
+                {isAdmin && (
+                  <Button
+                    onClick={() => navigate("/admin")}
+                    variant="ghost"
+                    size="sm"
+                    className="flex items-center gap-2 hover:bg-primary/10 hover:text-primary"
+                  >
+                    <Shield className="w-4 h-4" />
+                    Admin
+                  </Button>
+                )}
+                <Button
+                  onClick={handleProfile}
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center gap-2"
+                >
+                  <User className="w-4 h-4" />
+                  Perfil
                 </Button>
-              </SheetTrigger>
-              <SheetContent>
-                <SheetHeader>
-                  <SheetTitle>Menú</SheetTitle>
-                </SheetHeader>
-                <nav className="flex flex-col gap-4 mt-8">
-                  <Button onClick={() => scrollToSection("hero")} variant="ghost" className="justify-start text-base">
-                    Inicio
-                  </Button>
-                  <Button onClick={() => scrollToSection("publicar")} variant="ghost" className="justify-start text-base">
-                    Compartir
-                  </Button>
-                  <Button onClick={() => scrollToSection("animales")} variant="ghost" className="justify-start text-base">
-                    Ver Animales
-                  </Button>
-                  <Button onClick={() => scrollToSection("adoptados")} variant="ghost" className="justify-start text-base">
-                    <Heart className="w-4 h-4 mr-2" />
-                    Adoptados
-                  </Button>
-                  <Button onClick={() => scrollToSection("ayudar")} variant="ghost" className="justify-start text-base">
-                    Cómo Ayudar
-                  </Button>
-                  <Button onClick={() => scrollToSection("contacto")} variant="ghost" className="justify-start text-base">
-                    Contacto
-                  </Button>
-                {isAuthenticated && <Button onClick={handleProfile} variant="ghost" className="justify-start text-base">
-                    <User className="w-4 h-4 mr-2" />
-                    Mi Perfil
-                  </Button>}
-                {isAdmin && <Button onClick={() => { navigate("/admin"); setIsOpen(false); }} variant="ghost" className="justify-start text-base">
-                    <Shield className="w-4 h-4 mr-2" />
-                    Administración
-                  </Button>}
-                </nav>
-              </SheetContent>
-            </Sheet>
+                <Button
+                  onClick={handleAuth}
+                  variant="outline"
+                  size="sm"
+                  className="border-primary/20 hover:border-primary/50"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Salir
+                </Button>
+              </div>
+            ) : (
+              <Button
+                onClick={handleAuth}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 px-6"
+              >
+                <LogIn className="w-4 h-4 mr-2" />
+                Ingresar
+              </Button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
-          <Sheet open={isOpen} onOpenChange={setIsOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="sm" className="md:hidden">
-                <Menu className="w-6 h-6" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent>
-              <SheetHeader>
-                <SheetTitle>Menú</SheetTitle>
-              </SheetHeader>
-              <nav className="flex flex-col gap-4 mt-8">
-                <Button onClick={() => scrollToSection("hero")} variant="ghost" className="justify-start text-base">
-                  Inicio
+          <div className="lg:hidden flex items-center gap-4">
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="hover:bg-primary/10">
+                  <Menu className="w-6 h-6" />
                 </Button>
-                <Button onClick={() => scrollToSection("publicar")} variant="ghost" className="justify-start text-base">
-                  Compartir
-                </Button>
-                <Button onClick={() => scrollToSection("animales")} variant="ghost" className="justify-start text-base">
-                  Ver Animales
-                </Button>
-                <Button onClick={() => scrollToSection("adoptados")} variant="ghost" className="justify-start text-base">
-                  <Heart className="w-4 h-4 mr-2" />
-                  Adoptados
-                </Button>
-                <Button onClick={() => scrollToSection("ayudar")} variant="ghost" className="justify-start text-base">
-                  Cómo Ayudar
-                </Button>
-                <Button onClick={() => scrollToSection("contacto")} variant="ghost" className="justify-start text-base">
-                  Contacto
-                </Button>
-                {isAuthenticated && <Button onClick={handleProfile} variant="ghost" className="justify-start text-base">
-                    <User className="w-4 h-4 mr-2" />
-                    Mi Perfil
-                  </Button>}
-                <Button onClick={handleAuth} className="mt-4">
-                  {isAuthenticated ? <><LogOut className="w-4 h-4 mr-2" />Cerrar Sesión</> : <><LogIn className="w-4 h-4 mr-2" />Iniciar Sesión</>}
-                </Button>
-              </nav>
-            </SheetContent>
-          </Sheet>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[300px] sm:w-[400px] border-l border-primary/10 bg-card">
+                <SheetHeader className="text-left mb-8">
+                  <SheetTitle className="text-2xl font-black">MENÚ</SheetTitle>
+                </SheetHeader>
+                <div className="flex flex-col gap-2">
+                  {navLinks.map((link) => (
+                    link.type === "section" ? (
+                      <Button
+                        key={link.name}
+                        variant="ghost"
+                        onClick={() => scrollToSection(link.path)}
+                        className="justify-start text-lg h-12 hover:bg-primary/10 hover:text-primary transition-all"
+                      >
+                        {link.name}
+                      </Button>
+                    ) : (
+                      <Link
+                        key={link.name}
+                        to={link.path}
+                        onClick={() => setIsOpen(false)}
+                        className={`flex items-center px-4 py-3 rounded-md text-lg font-medium transition-all ${location.pathname === link.path
+                            ? "bg-primary/10 text-primary"
+                            : "hover:bg-primary/5"
+                          }`}
+                      >
+                        {link.name}
+                      </Link>
+                    )
+                  ))}
+
+                  <div className="h-px bg-border my-4"></div>
+
+                  {isAuthenticated ? (
+                    <>
+                      <Button
+                        onClick={handleProfile}
+                        variant="ghost"
+                        className="justify-start text-lg h-12 hover:bg-primary/10"
+                      >
+                        <User className="w-5 h-5 mr-3" />
+                        Mi Perfil
+                      </Button>
+                      {isAdmin && (
+                        <Button
+                          onClick={() => { navigate("/admin"); setIsOpen(false); }}
+                          variant="ghost"
+                          className="justify-start text-lg h-12 hover:bg-primary/10"
+                        >
+                          <Shield className="w-5 h-5 mr-3" />
+                          Administración
+                        </Button>
+                      )}
+                      <Button
+                        onClick={handleAuth}
+                        variant="destructive"
+                        className="mt-4 h-12"
+                      >
+                        <LogOut className="w-5 h-5 mr-3" />
+                        Cerrar Sesión
+                      </Button>
+                    </>
+                  ) : (
+                    <Button
+                      onClick={handleAuth}
+                      className="mt-4 h-12 bg-primary hover:bg-primary/90"
+                    >
+                      <LogIn className="w-5 h-5 mr-3" />
+                      Iniciar Sesión
+                    </Button>
+                  )}
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </div>
-    </header>;
+    </header>
+  );
 };
+
 export default Header;

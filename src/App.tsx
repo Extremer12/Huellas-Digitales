@@ -12,6 +12,9 @@ import Admin from "./pages/Admin";
 import Messages from "./pages/Messages";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Adopcion from "./pages/Adopcion";
+import Perdidos from "./pages/Perdidos";
+import Historias from "./pages/Historias";
 import DogLoader from "./components/DogLoader";
 
 const queryClient = new QueryClient();
@@ -45,6 +48,9 @@ const App = () => {
             <Route path="/messages" element={<Messages />} />
             <Route path="/terms" element={<TermsAndConditions />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/adopcion" element={<Adopcion />} />
+            <Route path="/perdidos" element={<Perdidos />} />
+            <Route path="/historias" element={<Historias />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

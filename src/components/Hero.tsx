@@ -1,56 +1,93 @@
-import { Heart, PawPrint } from "lucide-react";
+import { Heart, PawPrint, ChevronRight, PlayCircle, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import heroImage from "@/assets/hero-adoption.jpg";
+
 const Hero = () => {
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({
-        behavior: "smooth"
-      });
-    }
-  };
-  return <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background Image */}
+  const navigate = useNavigate();
+
+  return (
+    <section id="hero" className="relative min-h-[90vh] lg:min-h-screen flex items-center justify-center overflow-hidden pt-16">
+      {/* Immersive Background */}
       <div className="absolute inset-0">
-        <img src={heroImage} alt="Mascota esperando ser adoptada" className="w-full h-full object-cover object-center" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-background/95"></div>
+        <img
+          src={heroImage}
+          alt="Mascota esperando ser adoptada"
+          className="w-full h-full object-cover object-center scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 container-custom px-4 sm:px-6 text-center">
-        <div className="max-w-4xl mx-auto">
-          {/* Animated Title */}
-          <h1 className="text-4xl sm:text-5xl lg:text-8xl font-extrabold mb-6 leading-tight tracking-tight drop-shadow-2xl animate-fade-in-out text-orange-300 md:text-7xl">
-            Huellas Digitales
+      <div className="relative z-10 container mx-auto px-4 md:px-6">
+        <div className="max-w-4xl">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 border border-primary/30 text-primary text-xs font-bold tracking-widest uppercase mb-6 animate-fade-in shadow-lg backdrop-blur-sm">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+            </span>
+            Conectando Corazones
+          </div>
+
+          {/* Main Content */}
+          <h1 className="text-5xl md:text-7xl lg:text-9xl font-black mb-6 leading-[0.9] tracking-tighter animate-fade-in drop-shadow-2xl">
+            CADA HUELLA <br />
+            <span className="text-primary italic">CUENTA</span> UNA <br />
+            HISTORIA
           </h1>
-          
-          {/* Subtitle */}
-          <p className="text-lg sm:text-xl mb-12 max-w-2xl mx-auto text-white/95 drop-shadow-lg animate-fade-in-slow md:text-lg font-light">
-            Conectando corazones con mascotas que necesitan un hogar. Cada adopción es una segunda oportunidad.
+
+          <p className="text-xl md:text-2xl mb-12 max-w-2xl text-foreground/80 leading-relaxed font-medium animate-fade-in-slow">
+            No solo estás adoptando una mascota, estás salvando una vida y ganando un amigo para siempre. Descubrí el impacto de una adopción responsable.
           </p>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in-slow">
-            <Button onClick={() => scrollToSection("animales")} size="lg" className="btn-hero text-base sm:text-lg w-full sm:w-auto px-8 sm:px-10 py-5 sm:py-6 shadow-2xl">
-              <Heart className="w-5 h-5 mr-2" />
-              Ver Mascotas
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 items-start animate-fade-in-slow">
+            <Button
+              onClick={() => navigate("/adopcion")}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground text-lg py-8 px-10 rounded-2xl shadow-2xl shadow-primary/30 group transition-all duration-500 hover:scale-105 active:scale-95"
+            >
+              <Heart className="w-6 h-6 mr-3 fill-current group-hover:scale-125 transition-transform" />
+              Adoptar Ahora
+              <ChevronRight className="w-5 h-5 ml-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
             </Button>
-            
-            <Button onClick={() => scrollToSection("publicar")} size="lg" className="btn-secondary text-base sm:text-lg w-full sm:w-auto px-8 sm:px-10 py-5 sm:py-6 shadow-2xl">
-              <PawPrint className="w-5 h-5 mr-2" />
-              Compartir
+
+            <Button
+              onClick={() => navigate("/perdidos")}
+              variant="outline"
+              className="bg-card/40 backdrop-blur-xl border-white/10 hover:bg-white/10 text-lg py-8 px-10 rounded-2xl shadow-xl group transition-all duration-500"
+            >
+              <Search className="w-6 h-6 mr-3 text-primary group-hover:rotate-12 transition-transform" />
+              Mascotas Perdidas
             </Button>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-16 max-w-3xl mx-auto">
-            
-            
-            
+          {/* Trust Elements */}
+          <div className="mt-16 pt-8 border-t border-white/5 flex flex-wrap gap-8 items-center animate-fade-in-slow">
+            <div className="flex -space-x-3">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="w-10 h-10 rounded-full border-2 border-background bg-card flex items-center justify-center overflow-hidden">
+                  <img src={`https://i.pravatar.cc/100?img=${i + 10}`} alt="Adopter" className="w-full h-full object-cover" />
+                </div>
+              ))}
+            </div>
+            <div>
+              <div className="text-lg font-bold">+500 Vidas Unidas</div>
+              <div className="text-sm text-foreground/60 italic">Historias reales de amor incondicional</div>
+            </div>
           </div>
         </div>
       </div>
-    </section>;
+
+      {/* Visual Accents */}
+      <div className="absolute bottom-10 right-10 hidden xl:block">
+        <div className="relative group">
+          <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full scale-150 group-hover:bg-primary/40 transition-colors"></div>
+          <PlayCircle className="w-20 h-20 text-white/50 relative z-10 cursor-pointer hover:text-primary transition-colors hover:scale-110" />
+        </div>
+      </div>
+    </section>
+  );
 };
+
 export default Hero;
