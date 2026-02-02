@@ -164,44 +164,39 @@ const ChatWindow = ({
   // Embedded version for Messages page
   if (embedded) {
     return (
-      <div className="flex flex-col h-full">
-        {/* Enhanced header with profile access */}
-        <div className="p-4 border-b bg-gradient-to-r from-primary to-primary/80 text-primary-foreground">
-          <div className="flex items-center gap-3">
-            <Avatar className="h-10 w-10 border-2 border-primary-foreground/20">
-              <AvatarImage src={otherUserAvatar || undefined} alt={otherUserName} />
-              <AvatarFallback className="bg-primary-foreground/20 text-primary-foreground font-semibold">
+      <div className="flex flex-col h-full bg-transparent">
+        {/* Helper header with profile access */}
+        <div className="h-16 px-4 py-2 border-b border-border/60 bg-muted/30 backdrop-blur-sm flex items-center justify-between shadow-sm z-20">
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => otherUserId && navigate(`/profile?user=${otherUserId}`)}>
+            <Avatar className="h-10 w-10 cursor-pointer">
+              <AvatarImage src={otherUserAvatar || undefined} alt={otherUserName} className="object-cover" />
+              <AvatarFallback className="bg-muted text-muted-foreground font-semibold">
                 {otherUserName?.charAt(0).toUpperCase() || 'U'}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold truncate">{otherUserName}</h3>
-              <p className="text-sm opacity-80 truncate">🐾 {animalName}</p>
+              <h3 className="font-medium text-foreground text-[16px] leading-tight truncate">{otherUserName}</h3>
+              <p className="text-[13px] text-muted-foreground truncate">
+                Interesado en {animalName}
+              </p>
             </div>
-            {otherUserId && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-primary-foreground hover:bg-primary-foreground/20"
-                onClick={() => navigate(`/profile?user=${otherUserId}`)}
-              >
-                <User className="w-4 h-4 mr-1" />
-                Ver perfil
-              </Button>
-            )}
+          </div>
+
+          <div className="flex items-center gap-3">
+            {/* Action buttons could go here */}
           </div>
         </div>
-        
-        <ScrollArea className="flex-1 bg-gradient-to-b from-muted/30 to-transparent" ref={scrollRef}>
-          <div className="p-4">
+
+        <ScrollArea className="flex-1 bg-transparent" ref={scrollRef}>
+          <div className="p-4 md:px-16 lg:px-24 py-6">
             {loading ? (
               <div className="flex items-center justify-center h-64">
-                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
               </div>
             ) : messages.length === 0 ? (
               <ChatEmptyState animalName={animalName} />
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-1">
                 {messages.map((message) => (
                   <ChatMessage
                     key={message.id}
@@ -216,7 +211,9 @@ const ChatWindow = ({
           </div>
         </ScrollArea>
 
-        <ChatInput onSend={sendMessage} disabled={loading} />
+        <div className="p-3 bg-muted/30 border-t border-border/60">
+          <ChatInput onSend={sendMessage} disabled={loading} />
+        </div>
       </div>
     );
   }

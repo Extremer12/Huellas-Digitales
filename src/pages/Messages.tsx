@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MessageCircle, Loader2, ArrowLeft, Trash2, User, Circle } from "lucide-react";
+import { MessageCircle, Loader2, ArrowLeft, Trash2, User, Circle, Search, Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format, isToday, isYesterday } from "date-fns";
 import { es } from "date-fns/locale";
@@ -195,152 +195,134 @@ const Messages = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="h-screen bg-background overflow-hidden flex flex-col">
       <Header />
-      <main className="container mx-auto px-4 py-20 lg:py-24">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center gap-4 mb-6">
-            <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <div>
-              <h1 className="text-2xl lg:text-3xl font-bold">Mis Mensajes</h1>
-              <p className="text-muted-foreground">Gestiona tus conversaciones</p>
+      <div className="flex-1 flex overflow-hidden pt-20"> {/* PT-20 to account for fixed header */}
+        <div className="w-full max-w-[1600px] mx-auto flex h-[calc(100vh-80px)] shadow-2xl overflow-hidden bg-card">
+          {/* Sidebar */}
+          <div className={`w-full md:w-[400px] border-r border-border flex flex-col bg-muted/10 ${selectedConversation ? 'hidden md:flex' : 'flex'}`}>
+            {/* Sidebar Header */}
+            <div className="h-16 px-4 border-b border-border flex items-center justify-between bg-muted/20">
+              <h2 className="text-xl font-bold">Mensajes</h2>
+              <div className="flex gap-2">
+                {/* Future buttons like status, new chat, menu could go here */}
+              </div>
+            </div>
+
+            {/* Search Bar */}
+            <div className="p-3 border-b border-border">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Buscar o empezar un nuevo chat"
+                  className="w-full pl-9 pr-4 py-2 rounded-lg bg-muted text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                />
+              </div>
+            </div>
+
+            {/* Conversations List */}
+            <ScrollArea className="flex-1">
+              {loading ? (
+                <div className="flex flex-col items-center justify-center py-10 gap-2">
+                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                  <p className="text-sm text-muted-foreground">Cargando chats...</p>
+                </div>
+              ) : conversations.length === 0 ? (
+                <div className="p-8 text-center">
+                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <MessageCircle className="w-8 h-8 text-primary" />
+                  </div>
+                  <h3 className="font-semibold mb-2">No tienes mensajes</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Contacta a alguien en la sección de Adopción para comenzar.
+                  </p>
+                </div>
+              ) : (
+                <div className="flex flex-col">
+                  {conversations.map((conv) => {
+                    const isUnread = (conv.unread_count || 0) > 0;
+                    const dateStr = formatConversationDate(conv.updated_at);
+                    const isSelected = selectedConversation?.id === conv.id;
+
+                    return (
+                      <div
+                        key={conv.id}
+                        onClick={() => setSelectedConversation(conv)}
+                        className={`group px-4 py-3 cursor-pointer transition-colors relative flex gap-3 items-center border-b border-border/40 hover:bg-muted/30 ${isSelected ? 'bg-muted/50' : ''
+                          }`}
+                      >
+                        <div className="relative flex-shrink-0">
+                          <Avatar className="h-12 w-12">
+                            <AvatarImage src={conv.other_user_avatar || undefined} className="object-cover" />
+                            <AvatarFallback className="bg-primary/10 text-primary font-bold">
+                              {conv.other_user_name?.charAt(0).toUpperCase() || 'U'}
+                            </AvatarFallback>
+                          </Avatar>
+                          {/* Online status indicator mock - could be real later */}
+                        </div>
+
+                        <div className="flex-1 min-w-0 flex flex-col justify-center">
+                          <div className="flex justify-between items-baseline mb-0.5">
+                            <h3 className="font-medium truncate text-foreground text-[15px]">
+                              {conv.other_user_name}
+                            </h3>
+                            <span className={`text-[11px] ${isUnread ? 'text-primary font-bold' : 'text-muted-foreground'}`}>
+                              {dateStr}
+                            </span>
+                          </div>
+
+                          <div className="flex justify-between items-center">
+                            <p className={`text-[13px] truncate pr-2 ${isUnread ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
+                              {/* Checkmark icon for own last message logic could go here */}
+                              {conv.last_message ? conv.last_message : <span className="italic opacity-70">Imagen o adjunto</span>}
+                            </p>
+                            {isUnread && (
+                              <span className="bg-primary text-primary-foreground text-[10px] font-bold h-5 min-w-[20px] px-1.5 flex items-center justify-center rounded-full">
+                                {conv.unread_count}
+                              </span>
+                            )}
+                            {/* Hidden delete button that shows on hover */}
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="w-7 h-7 absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-background/50 backdrop-blur-sm shadow-sm hover:bg-destructive hover:text-destructive-foreground"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setDeleteConfirm(conv.id);
+                              }}
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
+                          <p className="text-[11px] text-muted-foreground/70 truncate mt-0.5">
+                            Interesado en: {conv.animal_name}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </ScrollArea>
+            <div className="p-3 border-t text-center text-xs text-muted-foreground bg-muted/10">
+              <p>Tus mensajes personales están cifrados de extremo a extremo.</p>
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-[380px_1fr] gap-6">
-            {/* Conversations List */}
-            <Card className="lg:h-[650px] border-0 shadow-lg bg-card/50 backdrop-blur">
-              <CardHeader className="pb-3 border-b bg-gradient-to-r from-primary/5 to-primary/10">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <MessageCircle className="w-5 h-5 text-primary" />
-                  Conversaciones
-                </CardTitle>
-                <CardDescription>
-                  {conversations.length} {conversations.length === 1 ? "chat activo" : "chats activos"}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-0">
-                {conversations.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center p-8 text-center">
-                    <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                      <MessageCircle className="w-8 h-8 text-muted-foreground" />
-                    </div>
-                    <p className="font-medium text-foreground">No tienes conversaciones</p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Inicia una conversación desde la página de un animal
-                    </p>
-                  </div>
-                ) : (
-                  <ScrollArea className="h-[530px]">
-                    <div className="divide-y">
-                      {conversations.map((conv) => {
-                        const isUnread = (conv.unread_count || 0) > 0;
-                        const dateStr = formatConversationDate(conv.updated_at);
-                        
-                        return (
-                          <div
-                            key={conv.id}
-                            className={`group relative transition-all duration-200 ${
-                              selectedConversation?.id === conv.id 
-                                ? 'bg-primary/10 border-l-4 border-l-primary' 
-                                : isUnread 
-                                  ? 'bg-accent/50 hover:bg-accent/80'
-                                  : 'hover:bg-muted/50'
-                            }`}
-                          >
-                            <button
-                              onClick={() => setSelectedConversation(conv)}
-                              className="w-full text-left p-4"
-                            >
-                              <div className="flex items-start gap-3">
-                                {/* Avatar */}
-                                <div className="relative flex-shrink-0">
-                                  <Avatar className="h-12 w-12 border-2 border-background shadow-sm">
-                                    <AvatarImage src={conv.other_user_avatar || undefined} alt={conv.other_user_name} />
-                                    <AvatarFallback className={`${isUnread ? 'bg-primary text-primary-foreground' : 'bg-muted'} font-semibold`}>
-                                      {conv.other_user_name?.charAt(0).toUpperCase() || 'U'}
-                                    </AvatarFallback>
-                                  </Avatar>
-                                  {isUnread && (
-                                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
-                                      <Circle className="w-2 h-2 fill-primary-foreground text-primary-foreground" />
-                                    </span>
-                                  )}
-                                </div>
-                                
-                                {/* Content */}
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center justify-between gap-2 mb-0.5">
-                                    <h4 className={`font-semibold truncate ${isUnread ? 'text-foreground' : 'text-foreground/80'}`}>
-                                      {conv.other_user_name}
-                                    </h4>
-                                    <span className={`text-xs whitespace-nowrap ${isUnread ? 'text-primary font-medium' : 'text-muted-foreground'}`}>
-                                      {dateStr}
-                                    </span>
-                                  </div>
-                                  
-                                  <div className="flex items-center gap-2 mb-1.5">
-                                    <Badge variant="secondary" className="text-xs px-2 py-0 h-5 font-normal">
-                                      🐾 {conv.animal_name}
-                                    </Badge>
-                                    {isUnread && (
-                                      <Badge className="text-xs px-2 py-0 h-5 bg-primary">
-                                        {conv.unread_count} nuevo{conv.unread_count! > 1 ? 's' : ''}
-                                      </Badge>
-                                    )}
-                                  </div>
-                                  
-                                  {conv.last_message && (
-                                    <p className={`text-sm truncate ${isUnread ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
-                                      {conv.last_message}
-                                    </p>
-                                  )}
-                                </div>
-                              </div>
-                            </button>
-                            
-                            {/* Action buttons */}
-                            <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 bg-background/80 hover:bg-background shadow-sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  navigate(`/profile?user=${conv.other_user_id}`);
-                                }}
-                                title="Ver perfil"
-                              >
-                                <User className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 bg-background/80 hover:bg-destructive/10 hover:text-destructive shadow-sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setDeleteConfirm(conv.id);
-                                }}
-                                title="Eliminar"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </ScrollArea>
-                )}
-              </CardContent>
-            </Card>
+          {/* Main Chat Area */}
+          <div className={`flex-1 flex-col bg-[#e5ddd5] dark:bg-[#0b141a] relative ${!selectedConversation ? 'hidden md:flex' : 'flex'}`}>
+            {/* Chat Background Pattern Overlay */}
+            <div className="absolute inset-0 opacity-[0.06] bg-[url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')] pointer-events-none"></div>
 
-            {/* Chat Area */}
-            <Card className="lg:h-[650px] flex flex-col border-0 shadow-lg bg-card/50 backdrop-blur overflow-hidden">
-              {selectedConversation ? (
-                <div className="flex-1 flex flex-col overflow-hidden">
+            {selectedConversation ? (
+              <div className="flex-1 flex flex-col h-full relative z-10">
+                {/* New ChatWindow Header is handled internally if 'embedded' is true? 
+                            Actually, the current ChatWindow 'embedded' mode brings its own header. 
+                            Let's rely on ChatWindow but maybe we need to tweak it to match the WhatsApp style 100%.
+                            For now, let's pass a prop or rely on the embedded mode styling.
+                        */}
+                <div className="h-full w-full">
                   <ChatWindow
                     conversationId={selectedConversation.id}
                     animalName={selectedConversation.animal_name!}
@@ -349,45 +331,48 @@ const Messages = () => {
                     otherUserAvatar={selectedConversation.other_user_avatar}
                     currentUserId={user?.id}
                     onClose={() => setSelectedConversation(null)}
-                    embedded
+                    embedded={true}
                   />
                 </div>
-              ) : (
-                <div className="flex-1 flex flex-col items-center justify-center text-center p-8 bg-gradient-to-b from-muted/20 to-transparent">
-                  <div className="w-20 h-20 rounded-full bg-muted/50 flex items-center justify-center mb-4">
-                    <MessageCircle className="w-10 h-10 text-muted-foreground/50" />
-                  </div>
-                  <h3 className="text-lg font-semibold mb-2">Selecciona una conversación</h3>
-                  <p className="text-muted-foreground text-sm max-w-xs">
-                    Elige una conversación de la lista para ver los mensajes
-                  </p>
+              </div>
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center text-center p-10 bg-muted/5 z-10 relative">
+                <div className="w-64 h-64 bg-primary/5 rounded-full flex items-center justify-center mb-6 animate-pulse">
+                  <MessageCircle className="w-32 h-32 text-primary/20" />
                 </div>
-              )}
-            </Card>
+                <h2 className="text-3xl font-light text-foreground mb-4">Huellas Digitales Web</h2>
+                <p className="text-muted-foreground max-w-md text-lg">
+                  Envía y recibe mensajes para adoptar a tu próxima mascota.
+                  Conecta directamente con refugios y dueños.
+                </p>
+                <div className="mt-8 flex items-center gap-2 text-sm text-muted-foreground">
+                  <Lock className="w-3 h-3" />
+                  <span>Protegido y seguro</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
-      </main>
-      <Footer />
+      </div>
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Eliminar conversación</DialogTitle>
+            <DialogTitle>Eliminar chat</DialogTitle>
             <DialogDescription>
-              ¿Estás seguro de que deseas eliminar esta conversación? Se eliminarán todos los mensajes y esta acción no se puede deshacer.
+              ¿Quieres borrar esta conversación? No podrás recuperarla.
             </DialogDescription>
           </DialogHeader>
-          <div className="flex gap-3 mt-4">
-            <Button variant="outline" onClick={() => setDeleteConfirm(null)} className="flex-1">
+          <div className="flex gap-3 mt-4 justify-end">
+            <Button variant="ghost" onClick={() => setDeleteConfirm(null)}>
               Cancelar
             </Button>
-            <Button 
-              variant="destructive" 
+            <Button
+              variant="destructive"
               onClick={() => deleteConfirm && handleDeleteConversation(deleteConfirm)}
-              className="flex-1"
             >
-              Eliminar
+              Eliminar chat
             </Button>
           </div>
         </DialogContent>

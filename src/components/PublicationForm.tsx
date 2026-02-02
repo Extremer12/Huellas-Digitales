@@ -52,11 +52,13 @@ const PublicationForm = ({ onSuccess }: PublicationFormProps) => {
     healthInfo: "",
     personality: "",
     status: "disponible",
+    lat: null as number | null,
+    lng: null as number | null,
   });
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    
+
     if (imageFiles.length + files.length > 5) {
       toast({
         title: "Máximo de imágenes alcanzado",
@@ -79,7 +81,7 @@ const PublicationForm = ({ onSuccess }: PublicationFormProps) => {
         });
         return;
       }
-      
+
       if (file.size > 5 * 1024 * 1024) {
         toast({
           title: "Archivo muy grande",
@@ -137,7 +139,7 @@ const PublicationForm = ({ onSuccess }: PublicationFormProps) => {
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user) {
         toast({
           title: "Error de autenticación",
@@ -153,7 +155,7 @@ const PublicationForm = ({ onSuccess }: PublicationFormProps) => {
       for (const [index, file] of imageFiles.entries()) {
         const fileExt = file.name.split(".").pop();
         const fileName = `${user.id}/${Date.now()}_${index}.${fileExt}`;
-        
+
         const { error: uploadError } = await supabase.storage
           .from("animal-photos")
           .upload(fileName, file);
@@ -182,6 +184,8 @@ const PublicationForm = ({ onSuccess }: PublicationFormProps) => {
           personality: formData.personality || null,
           image_url: uploadedUrls[0],
           status: formData.status,
+          lat: formData.lat,
+          lng: formData.lng,
         })
         .select('id')
         .single();
@@ -351,15 +355,54 @@ const PublicationForm = ({ onSuccess }: PublicationFormProps) => {
 
         <div>
           <Label htmlFor="location">Ubicación *</Label>
-          <Input
-            id="location"
-            placeholder="Ciudad, Barrio"
-            value={formData.location}
-            onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-            required
-            disabled={loading}
-            maxLength={100}
-          />
+          <div className="flex gap-2">
+            <Input
+              id="location"
+              placeholder="Ciudad, Barrio"
+              value={formData.location}
+              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+              required
+              disabled={loading}
+              maxLength={100}
+              className="flex-1"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              title="Usar mi ubicación actual"
+              onClick={() => {
+                if ("geolocation" in navigator) {
+                  toast({ title: "Obteniendo ubicación...", description: "Por favor permite el acceso a tu ubicación." });
+                  navigator.geolocation.getCurrentPosition(async (position) => {
+                    const { latitude, longitude } = position.coords;
+                    setFormData(prev => ({ ...prev, lat: latitude, lng: longitude }));
+
+                    // Reverse geocoding to get city name (optional but nice)
+                    try {
+                      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+                      const data = await response.json();
+                      const city = data.address.city || data.address.town || data.address.village || data.address.suburb || "";
+                      if (city) {
+                        setFormData(prev => ({ ...prev, location: city, lat: latitude, lng: longitude }));
+                      }
+                      toast({ title: "Ubicación obtenida", description: "Se han guardado las coordenadas correctamente." });
+                    } catch (e) {
+                      toast({ title: "Ubicación guardada", description: "Coordenadas registradas. Puedes escribir el nombre de la ciudad manualmente." });
+                    }
+                  }, (error) => {
+                    console.error("Error getting location:", error);
+                    toast({ variant: "destructive", title: "Error", description: "No se pudo obtener la ubicación. Verifica los permisos." });
+                  });
+                } else {
+                  toast({ variant: "destructive", title: "Error", description: "Geolocalización no soportada en este navegador." });
+                }
+              }}
+            >
+              <span className="text-xl">📍</span>
+            </Button>
+          </div>
+          {formData.lat && <p className="text-xs text-green-600 mt-1 flex items-center gap-1">✓ Coordenadas registradas</p>}
         </div>
 
         <div>
