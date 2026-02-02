@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trash2, Edit, User, Heart, PawPrint, LogOut, Home, MapPin, AlertTriangle, MessageCircle, Bell, BellOff, Plus, Settings, Calendar, Mail, Camera, Loader2 } from "lucide-react";
@@ -75,19 +74,19 @@ const Profile = () => {
       return;
     }
     setUser(session.user);
-    
+
     const { data: profileData } = await supabase
       .from("profiles")
       .select("*")
       .eq("id", session.user.id)
       .single();
-    
+
     setProfile(profileData);
-    
+
     if (!profileData?.country || !profileData?.province) {
       setShowRegionSelector(true);
     }
-    
+
     fetchUserAnimals(session.user.id);
     fetchUserStories(session.user.id);
   };
@@ -126,7 +125,7 @@ const Profile = () => {
       });
     } else {
       setAnimals(data || []);
-      
+
       const disponible = data?.filter(a => a.status === 'disponible').length || 0;
       const adoptado = data?.filter(a => a.status === 'adoptado').length || 0;
       const perdido = data?.filter(a => a.status === 'perdido').length || 0;
@@ -285,7 +284,6 @@ const Profile = () => {
             <span className="text-lg text-muted-foreground">Cargando tu perfil...</span>
           </div>
         </div>
-        <Footer />
       </div>
     );
   }
@@ -295,13 +293,13 @@ const Profile = () => {
       <Header />
       <main className="container mx-auto px-4 py-20 lg:py-24">
         <div className="max-w-7xl mx-auto space-y-8">
-          
+
           {/* Profile Header Card */}
           <Card className="overflow-hidden border-0 shadow-xl bg-gradient-to-br from-card to-card/50">
             <div className="h-32 bg-gradient-to-r from-primary/20 via-primary/10 to-accent/20" />
             <CardContent className="relative pt-0 pb-8 px-6 lg:px-8">
               <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 -mt-16">
-                
+
                 {/* Avatar & Info */}
                 <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 sm:gap-6">
                   <div className="relative group">
@@ -350,7 +348,7 @@ const Profile = () => {
                 {/* Action Buttons */}
                 <div className="flex flex-wrap gap-2">
                   {pushSupported && (
-                    <Button 
+                    <Button
                       variant={pushSubscribed ? "default" : "outline"}
                       size="sm"
                       onClick={pushSubscribed ? unsubscribePush : subscribePush}
@@ -359,7 +357,7 @@ const Profile = () => {
                     >
                       {pushSubscribed ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
                       {pushLoading ? "..." : pushSubscribed ? "Push ON" : "Activar Push"}
-                  </Button>
+                    </Button>
                   )}
                   <Button variant="outline" size="sm" onClick={() => navigate("/")} className="gap-2">
                     <Home className="w-4 h-4" />
@@ -491,9 +489,9 @@ const Profile = () => {
                             <Edit className="w-4 h-4" />
                             Editar
                           </Button>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
+                          <Button
+                            variant="outline"
+                            size="sm"
                             onClick={() => setDeleteConfirm({ type: 'animal', id: animal.id })}
                             className="flex-1 gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10"
                           >
@@ -557,9 +555,9 @@ const Profile = () => {
                             <Edit className="w-4 h-4" />
                             Editar
                           </Button>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
+                          <Button
+                            variant="outline"
+                            size="sm"
                             onClick={() => setDeleteConfirm({ type: 'story', id: story.id })}
                             className="flex-1 gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10"
                           >
@@ -594,7 +592,6 @@ const Profile = () => {
           </Tabs>
         </div>
       </main>
-      <Footer />
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
@@ -609,8 +606,8 @@ const Profile = () => {
             <Button variant="outline" onClick={() => setDeleteConfirm(null)} className="flex-1">
               Cancelar
             </Button>
-            <Button 
-              variant="destructive" 
+            <Button
+              variant="destructive"
               onClick={() => {
                 if (deleteConfirm?.type === 'animal') handleDelete(deleteConfirm.id);
                 else if (deleteConfirm?.type === 'story') handleDeleteStory(deleteConfirm.id);

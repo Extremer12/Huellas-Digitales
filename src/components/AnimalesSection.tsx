@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Dog, Cat, PawPrint, Filter } from "lucide-react";
+import { Search, Dog, Cat, PawPrint, Filter, MapPin } from "lucide-react";
 import AnimalCard from "./AnimalCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -82,7 +82,7 @@ const AnimalesSection = ({ initialSelectedAnimalId }: AnimalesSectionProps) => {
         ascending: false
       });
       if (error) throw error;
-      const formattedAnimals: Animal[] = (data || []).map(animal => ({
+      const formattedAnimals: Animal[] = (data as any[] || []).map(animal => ({
         id: animal.id,
         name: animal.name,
         type: animal.type as "perro" | "gato" | "otro",
@@ -194,84 +194,88 @@ const AnimalesSection = ({ initialSelectedAnimalId }: AnimalesSectionProps) => {
   return <>
     <section id="animales" className="section-padding bg-gradient-to-b from-background to-card scroll-reveal">
       <div className="container-custom">
-        <div className="text-center mb-12">
-
-          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">Animalitos que buscan un hogar</h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Explorá fotos y encontrá a tu nuevo compañero. Cada uno tiene una historia única.
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-6xl font-black text-foreground mb-6 tracking-tighter">
+            Huellas esperando por vos
+          </h2>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            Explorá y encontrá a tu próximo mejor amigo. Cada uno tiene una historia única esperando ser escrita.
           </p>
         </div>
 
-        {/* Type Filters */}
-        <div className="flex justify-center gap-4 mb-6 flex-wrap">
-          <Button onClick={() => setFilter("todos")} variant={filter === "todos" ? "default" : "outline"} className={filter === "todos" ? "btn-hero" : ""} size="lg">
-            Todos
-          </Button>
-          <Button onClick={() => setFilter("perro")} variant={filter === "perro" ? "default" : "outline"} className={filter === "perro" ? "btn-hero" : ""} size="lg">
-            <Dog className="w-5 h-5 mr-2" />
-            Perros
-          </Button>
-          <Button onClick={() => setFilter("gato")} variant={filter === "gato" ? "default" : "outline"} className={filter === "gato" ? "btn-hero" : ""} size="lg">
-            <Cat className="w-5 h-5 mr-2" />
-            Gatos
-          </Button>
-          <Button onClick={() => setFilter("otro")} variant={filter === "otro" ? "default" : "outline"} className={filter === "otro" ? "btn-hero" : ""} size="lg">
-            <PawPrint className="w-5 h-5 mr-2" />
-            Otros
-          </Button>
-        </div>
+        {/* Type Filters and Advanced Toggle */}
+        <div className="flex flex-col items-center gap-6 mb-12">
+          <div className="flex justify-center gap-3 flex-wrap">
+            <Button onClick={() => setFilter("todos")} variant={filter === "todos" ? "default" : "outline"} className={filter === "todos" ? "h-12 px-8 btn-hero" : "h-12 px-8"}>
+              Todos
+            </Button>
+            <Button onClick={() => setFilter("perro")} variant={filter === "perro" ? "default" : "outline"} className={filter === "perro" ? "h-12 px-8 btn-hero" : "h-12 px-8"}>
+              <Dog className="w-5 h-5 mr-2" />
+              Perros
+            </Button>
+            <Button onClick={() => setFilter("gato")} variant={filter === "gato" ? "default" : "outline"} className={filter === "gato" ? "h-12 px-8 btn-hero" : "h-12 px-8"}>
+              <Cat className="w-5 h-5 mr-2" />
+              Gatos
+            </Button>
+            <Button onClick={() => setFilter("otro")} variant={filter === "otro" ? "default" : "outline"} className={filter === "otro" ? "h-12 px-8 btn-hero" : "h-12 px-8"}>
+              <PawPrint className="w-5 h-5 mr-2" />
+              Otros
+            </Button>
+          </div>
 
-        {/* Advanced Filters */}
-        <div className="max-w-4xl mx-auto mb-12 flex flex-col sm:flex-row justify-center gap-4">
-          <Button
-            variant={showFilters ? "secondary" : "outline"}
-            onClick={() => setShowFilters(!showFilters)}
-            className="w-full sm:w-auto"
-          >
-            <Filter className="w-4 h-4 mr-2" />
-            {showFilters ? "Ocultar filtros" : "Filtros avanzados"}
-          </Button>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Button
+              variant={showFilters ? "secondary" : "outline"}
+              onClick={() => setShowFilters(!showFilters)}
+              className="h-11 border-primary/20 hover:border-primary/50"
+            >
+              <Filter className="w-4 h-4 mr-2" />
+              {showFilters ? "Ocultar filtros" : "Filtros avanzados"}
+            </Button>
 
-          <Button
-            variant={proximityFilter ? "default" : "outline"}
-            onClick={toggleProximityFilter}
-            className={`w-full sm:w-auto ${proximityFilter ? "btn-hero ring-2 ring-primary ring-offset-2" : "border-primary/50 text-primary hover:bg-primary/5"}`}
-          >
-            <span className="mr-2">📍</span>
-            {proximityFilter ? "Mostrando cercanos (<1km)" : "Ver cercanos a mí"}
-          </Button>
+            <Button
+              variant={proximityFilter ? "default" : "outline"}
+              onClick={toggleProximityFilter}
+              className={`h-11 ${proximityFilter ? "btn-hero ring-2 ring-primary/20" : "border-primary/20 hover:border-primary/50"}`}
+            >
+              <MapPin className="w-4 h-4 mr-2" />
+              {proximityFilter ? "Más cercanos (<1km)" : "Cerca de mí"}
+            </Button>
+          </div>
         </div>
 
         {showFilters && (
-          <div className="max-w-4xl mx-auto mb-8 grid md:grid-cols-3 gap-4 p-6 bg-card/50 rounded-xl border border-primary/20 animate-in fade-in slide-in-from-top-2">
-            <div>
-              <label className="text-sm font-medium mb-2 block">Buscar</label>
+          <div className="max-w-5xl mx-auto mb-12 grid grid-cols-1 md:grid-cols-3 gap-6 p-8 bg-card/30 backdrop-blur-xl rounded-3xl border border-white/5 animate-in fade-in slide-in-from-top-4">
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Buscador</label>
               <Input
                 placeholder="Nombre, descripción..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-background/50 border-white/5 h-12"
               />
             </div>
-            <div>
-              <label className="text-sm font-medium mb-2 block">Tamaño</label>
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Tamaño</label>
               <Select value={sizeFilter} onValueChange={setSizeFilter}>
-                <SelectTrigger>
+                <SelectTrigger className="bg-background/50 border-white/5 h-12">
                   <SelectValue placeholder="Selecciona tamaño" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="todos">Todos</SelectItem>
-                  <SelectItem value="pequeño">Pequeño</SelectItem>
+                  <SelectItem value="todos">Todos los tamaños</SelectItem>
+                  <SelectItem value="pequeño">Pequeño / Chico</SelectItem>
                   <SelectItem value="mediano">Mediano</SelectItem>
                   <SelectItem value="grande">Grande</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <label className="text-sm font-medium mb-2 block">Ubicación</label>
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Ubicación</label>
               <Input
                 placeholder="Ciudad, barrio..."
                 value={locationFilter}
                 onChange={(e) => setLocationFilter(e.target.value)}
+                className="bg-background/50 border-white/5 h-12"
               />
             </div>
           </div>

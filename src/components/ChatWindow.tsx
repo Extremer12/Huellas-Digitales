@@ -164,7 +164,7 @@ const ChatWindow = ({
   // Embedded version for Messages page
   if (embedded) {
     return (
-      <div className="flex flex-col h-full bg-transparent">
+      <div className="flex flex-col h-full bg-background/30 backdrop-blur-sm">
         {/* Helper header with profile access */}
         <div className="h-16 px-4 py-2 border-b border-border/60 bg-muted/30 backdrop-blur-sm flex items-center justify-between shadow-sm z-20">
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => otherUserId && navigate(`/profile?user=${otherUserId}`)}>
@@ -239,7 +239,7 @@ const ChatWindow = ({
       {!isMinimized && (
         <>
           <ScrollArea
-            className="flex-1 bg-gradient-to-b from-muted/30 to-transparent"
+            className="flex-1 bg-gradient-to-b from-muted/5 to-background"
             ref={scrollRef}
           >
             <div className="p-4">

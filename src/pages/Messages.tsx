@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -189,7 +188,6 @@ const Messages = () => {
             <span className="text-lg text-muted-foreground">Cargando mensajes...</span>
           </div>
         </div>
-        <Footer />
       </div>
     );
   }
@@ -311,9 +309,9 @@ const Messages = () => {
           </div>
 
           {/* Main Chat Area */}
-          <div className={`flex-1 flex-col bg-[#e5ddd5] dark:bg-[#0b141a] relative ${!selectedConversation ? 'hidden md:flex' : 'flex'}`}>
-            {/* Chat Background Pattern Overlay */}
-            <div className="absolute inset-0 opacity-[0.06] bg-[url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')] pointer-events-none"></div>
+          <div className={`flex-1 flex-col bg-background/50 relative ${!selectedConversation ? 'hidden md:flex' : 'flex'}`}>
+            {/* Dark Mode Chat Pattern Overlay */}
+            <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none"></div>
 
             {selectedConversation ? (
               <div className="flex-1 flex flex-col h-full relative z-10">

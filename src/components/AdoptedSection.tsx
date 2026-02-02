@@ -142,122 +142,144 @@ const AdoptedSection = () => {
     }
   };
   return <section id="adoptados" className="py-20 bg-muted/30 scroll-reveal">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold mb-4 flex items-center justify-center gap-3">
-            <Heart className="w-10 h-10 text-primary" />
-            Historias de Adopción
-          </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-6">Conoce las historias felices de animalitos que encontraron su hogar para siempre</p>
-          {isAuthenticated && <Button onClick={() => setShowForm(true)} size="lg">
-              <Plus className="w-5 h-5 mr-2" />
-              Compartir Mi Historia
-            </Button>}
+    <div className="container mx-auto px-4">
+      <div className="text-center mb-16">
+        <div className="inline-flex items-center justify-center p-3 mb-6 rounded-2xl bg-primary/10 text-primary">
+          <Heart className="w-8 h-8 fill-current" />
         </div>
-
-        {stories.length === 0 ? <div className="text-center py-12">
-            <p className="text-muted-foreground">
-              Aún no hay historias de adopción. ¡Sé el primero en compartir!
-            </p>
-          </div> : <>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-              {(showAll ? stories : stories.slice(0, INITIAL_DISPLAY_COUNT)).map((story, index) => <Card key={story.id} className="overflow-hidden animate-fade-in" style={{
-            animationDelay: `${index * 0.1}s`
-          }}>
-                  <CardHeader className="p-0 relative">
-                    <img src={story.story_image_url} alt="Historia de adopción" className="w-full h-64 object-cover" />
-                    {isAuthenticated && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setReportStoryId(story.id)}
-                        className="absolute top-2 right-2 bg-background/80 hover:bg-background/95 text-destructive hover:text-destructive"
-                      >
-                        <AlertTriangle className="w-4 h-4" />
-                      </Button>
-                    )}
-                  </CardHeader>
-                  <CardContent className="p-6">
-                    {story.animal_name && (
-                      <CardTitle className="text-lg mb-2">{story.animal_name}</CardTitle>
-                    )}
-                    <CardDescription className="text-base leading-relaxed">
-                      {story.story_text}
-                    </CardDescription>
-                  </CardContent>
-                </Card>)}
-            </div>
-
-            {stories.length > INITIAL_DISPLAY_COUNT && <div className="text-center mt-12">
-                <Button onClick={() => setShowAll(!showAll)} size="lg" className="btn-hero">
-                  {showAll ? "Ver menos" : `Ver más (${stories.length - INITIAL_DISPLAY_COUNT} más)`}
-                </Button>
-              </div>}
-          </>}
+        <h2 className="text-4xl md:text-6xl font-black text-foreground mb-6 tracking-tighter">
+          Finales Felices
+        </h2>
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-10">
+          Conocé las hermosas historias de amiguitos que ya están disfrutando de su hogar para siempre.
+        </p>
+        {isAuthenticated && (
+          <Button onClick={() => setShowForm(true)} size="lg" className="h-14 px-10 text-lg font-bold btn-hero shadow-xl">
+            <Plus className="w-5 h-5 mr-3" />
+            Tu historia también cuenta
+          </Button>
+        )}
       </div>
 
-      {/* Form Dialog */}
-      <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Compartir Historia de Adopción</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="animalName">Nombre del Animal Adoptado</Label>
-              <Input 
-                id="animalName" 
-                placeholder="Ej: Max, Luna, Firulais..." 
-                value={formData.animalName} 
-                onChange={e => setFormData({
-                  ...formData,
-                  animalName: e.target.value
-                })} 
-                required 
-                minLength={2}
-                maxLength={50}
-              />
-            </div>
-            <div>
-              <Label htmlFor="storyText">Cuéntanos tu historia</Label>
-              <Textarea 
-                id="storyText" 
-                placeholder="Comparte cómo fue el proceso de adopción y cómo ha cambiado tu vida..." 
-                value={formData.storyText} 
-                onChange={e => setFormData({
-                  ...formData,
-                  storyText: e.target.value
-                })} 
-                rows={6} 
-                required 
-                minLength={20}
-                maxLength={1000}
-              />
-            </div>
-            <div>
-              <Label htmlFor="image">Foto de tu nuevo amigo</Label>
-              <Input id="image" type="file" accept="image/*" onChange={e => setFormData({
+      {stories.length === 0 ? <div className="text-center py-12">
+        <p className="text-muted-foreground">
+          Aún no hay historias de adopción. ¡Sé el primero en compartir!
+        </p>
+      </div> : <>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+          {(showAll ? stories : stories.slice(0, INITIAL_DISPLAY_COUNT)).map((story, index) => (
+            <Card
+              key={story.id}
+              className="group overflow-hidden border-white/5 bg-card/30 backdrop-blur-sm hover:border-primary/20 transition-all duration-500 hover:shadow-2xl animate-fade-in rounded-3xl"
+              style={{ animationDelay: `${index * 0.1}s` }}
+            >
+              <CardHeader className="p-0 relative h-72 overflow-hidden">
+                <img
+                  src={story.story_image_url}
+                  alt="Historia de adopción"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-300" />
+
+                {isAuthenticated && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setReportStoryId(story.id)}
+                    className="absolute top-4 right-4 bg-background/50 backdrop-blur-md border-white/10 hover:bg-destructive hover:text-white transition-all hover:scale-110"
+                  >
+                    <AlertTriangle className="w-4 h-4" />
+                  </Button>
+                )}
+
+                {story.animal_name && (
+                  <div className="absolute bottom-6 left-6">
+                    <span className="text-2xl font-black text-white tracking-tight">
+                      {story.animal_name}
+                    </span>
+                  </div>
+                )}
+              </CardHeader>
+              <CardContent className="p-8">
+                <CardDescription className="text-lg leading-relaxed text-foreground/80 first-letter:text-3xl first-letter:font-black first-letter:text-primary">
+                  {story.story_text}
+                </CardDescription>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {stories.length > INITIAL_DISPLAY_COUNT && <div className="text-center mt-12">
+          <Button onClick={() => setShowAll(!showAll)} size="lg" className="btn-hero">
+            {showAll ? "Ver menos" : `Ver más (${stories.length - INITIAL_DISPLAY_COUNT} más)`}
+          </Button>
+        </div>}
+      </>}
+    </div>
+
+    {/* Form Dialog */}
+    <Dialog open={showForm} onOpenChange={setShowForm}>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Compartir Historia de Adopción</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <Label htmlFor="animalName">Nombre del Animal Adoptado</Label>
+            <Input
+              id="animalName"
+              placeholder="Ej: Max, Luna, Firulais..."
+              value={formData.animalName}
+              onChange={e => setFormData({
+                ...formData,
+                animalName: e.target.value
+              })}
+              required
+              minLength={2}
+              maxLength={50}
+            />
+          </div>
+          <div>
+            <Label htmlFor="storyText">Cuéntanos tu historia</Label>
+            <Textarea
+              id="storyText"
+              placeholder="Comparte cómo fue el proceso de adopción y cómo ha cambiado tu vida..."
+              value={formData.storyText}
+              onChange={e => setFormData({
+                ...formData,
+                storyText: e.target.value
+              })}
+              rows={6}
+              required
+              minLength={20}
+              maxLength={1000}
+            />
+          </div>
+          <div>
+            <Label htmlFor="image">Foto de tu nuevo amigo</Label>
+            <Input id="image" type="file" accept="image/*" onChange={e => setFormData({
               ...formData,
               imageFile: e.target.files?.[0] || null
             })} required />
-            </div>
-            <div className="flex gap-2 pt-4">
-              <Button type="submit" disabled={loading} className="flex-1">
-                {loading ? "Publicando..." : "Publicar Historia"}
-              </Button>
-              <Button type="button" variant="outline" onClick={() => setShowForm(false)} className="flex-1">
-                Cancelar
-              </Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
+          </div>
+          <div className="flex gap-2 pt-4">
+            <Button type="submit" disabled={loading} className="flex-1">
+              {loading ? "Publicando..." : "Publicar Historia"}
+            </Button>
+            <Button type="button" variant="outline" onClick={() => setShowForm(false)} className="flex-1">
+              Cancelar
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
 
-      {/* Report Modal */}
-      <StoryReportModal 
-        storyId={reportStoryId}
-        onClose={() => setReportStoryId(null)}
-      />
-    </section>;
+    {/* Report Modal */}
+    <StoryReportModal
+      storyId={reportStoryId}
+      onClose={() => setReportStoryId(null)}
+    />
+  </section>;
 };
 export default AdoptedSection;

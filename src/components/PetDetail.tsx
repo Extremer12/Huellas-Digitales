@@ -10,7 +10,6 @@ import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "./Header";
-import Footer from "./Footer";
 import ReportModal from "./ReportModal";
 import { Animal } from "./AnimalesSection";
 
@@ -216,12 +215,13 @@ const PetDetail = () => {
                 <div className="grid lg:grid-cols-2 gap-10">
                     {/* Left Column: Images */}
                     <div className="space-y-4">
-                        <div className="relative aspect-square rounded-3xl overflow-hidden shadow-2xl border border-white/5 bg-card">
+                        <div className="relative aspect-[16/9] md:aspect-[21/9] lg:aspect-[3/1] rounded-3xl overflow-hidden bg-muted shadow-2xl border border-white/5">
                             <img
-                                src={images[currentImageIndex]}
+                                src={animal.image}
                                 alt={animal.name}
-                                className="w-full h-full object-cover transition-all duration-500"
+                                className="w-full h-full object-cover"
                             />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
                             {images.length > 1 && (
                                 <>
                                     <Button
@@ -385,8 +385,6 @@ const PetDetail = () => {
                     </div>
                 </div>
             </main>
-
-            <Footer />
 
             <ReportModal
                 animalId={reportModalOpen ? animal.id : null}

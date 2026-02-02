@@ -20,16 +20,20 @@ const AnimalCard = ({ animal, onClick }: AnimalCardProps) => {
   };
 
   return (
-    <div className="card-animal group cursor-pointer" onClick={handleCardClick}>
-      {/* Image */}
-      <div className="relative overflow-hidden aspect-square">
+    <div className="card-animal group cursor-pointer overflow-hidden border border-white/5 hover:border-primary/20 transition-all duration-300 shadow-lg hover:shadow-2xl" onClick={handleCardClick}>
+      {/* Image Container */}
+      <div className="relative overflow-hidden aspect-square bg-muted">
         <img
           src={animal.image}
           alt={animal.name}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+          loading="lazy"
         />
-        <div className="absolute top-4 right-4 bg-card/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-semibold">
-          {animal.type === "perro" ? "🐕 Perro" : animal.type === "gato" ? "🐈 Gato" : "🐾 Otro"}
+        {/* Subtle overlay for better text contrast if needed, or just aesthetics */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+        <div className="absolute top-4 right-4 bg-background/80 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-bold tracking-tight shadow-lg border border-white/10">
+          {animal.type === "perro" ? "🐶 PERRO" : animal.type === "gato" ? "🐱 GATO" : "🐾 OTRO"}
         </div>
       </div>
 
@@ -55,9 +59,9 @@ const AnimalCard = ({ animal, onClick }: AnimalCardProps) => {
           </span>
         </div>
 
-        <Button className="w-full btn-hero group-hover:shadow-[var(--shadow-hover)]">
+        <Button className="w-full btn-hero h-12 text-base font-bold shadow-lg hover:shadow-xl transition-all">
           <Eye className="w-4 h-4 mr-2" />
-          Ver más
+          Ver más detalles
         </Button>
       </div>
     </div>
