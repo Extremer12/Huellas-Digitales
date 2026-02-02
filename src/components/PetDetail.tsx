@@ -49,21 +49,22 @@ const PetDetail = () => {
 
             if (error) throw error;
 
+            const typedData = data as any;
             const formattedAnimal: Animal = {
-                id: data.id,
-                name: data.name,
-                type: data.type as "perro" | "gato" | "otro",
-                age: data.age,
-                size: data.size,
-                location: data.location,
-                description: data.description,
-                fullDescription: data.description,
-                image: data.image_url,
-                healthInfo: data.health_info || undefined,
-                personality: data.personality || undefined,
-                userId: data.user_id,
-                lat: data.lat,
-                lng: data.lng
+                id: typedData.id,
+                name: typedData.name,
+                type: typedData.type as "perro" | "gato" | "otro",
+                age: typedData.age,
+                size: typedData.size,
+                location: typedData.location,
+                description: typedData.description,
+                fullDescription: typedData.description,
+                image: typedData.image_url,
+                healthInfo: typedData.health_info || undefined,
+                personality: typedData.personality || undefined,
+                userId: typedData.user_id,
+                lat: typedData.lat,
+                lng: typedData.lng
             };
 
             setAnimal(formattedAnimal);
@@ -202,20 +203,21 @@ const PetDetail = () => {
         <div className="min-h-screen bg-background pb-20">
             <Header />
 
-            <main className="pt-24 container-custom">
+            <main className="pt-20 container-custom">
                 <Button
                     variant="ghost"
-                    className="mb-6 hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors"
+                    size="sm"
+                    className="mb-4 hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors h-8"
                     onClick={() => navigate(-1)}
                 >
-                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    <ArrowLeft className="w-3.5 h-3.5 mr-2" />
                     Volver
                 </Button>
 
-                <div className="grid lg:grid-cols-2 gap-10">
+                <div className="grid lg:grid-cols-12 gap-8 items-start">
                     {/* Left Column: Images */}
-                    <div className="space-y-6">
-                        <div className="relative aspect-square md:aspect-[4/3] rounded-[2.5rem] overflow-hidden bg-muted shadow-2xl border border-white/5 ring-8 ring-white/5">
+                    <div className="lg:col-span-7 space-y-4">
+                        <div className="relative aspect-square md:aspect-video lg:aspect-[4/3] max-h-[60vh] rounded-[2rem] overflow-hidden bg-muted shadow-2xl border border-white/5 ring-4 ring-white/5">
                             <img
                                 src={images[currentImageIndex]}
                                 alt={animal.name}
@@ -227,92 +229,68 @@ const PetDetail = () => {
                                     <Button
                                         variant="secondary"
                                         size="icon"
-                                        className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 backdrop-blur-md hover:bg-white/20 border-none text-white rounded-full h-12 w-12"
+                                        className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/10 backdrop-blur-md hover:bg-white/20 border-none text-white rounded-full h-10 w-10"
                                         onClick={() => setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length)}
                                     >
-                                        <ChevronLeft className="w-6 h-6" />
+                                        <ChevronLeft className="w-5 h-5" />
                                     </Button>
                                     <Button
                                         variant="secondary"
                                         size="icon"
-                                        className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 backdrop-blur-md hover:bg-white/20 border-none text-white rounded-full h-12 w-12"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/10 backdrop-blur-md hover:bg-white/20 border-none text-white rounded-full h-10 w-10"
                                         onClick={() => setCurrentImageIndex((prev) => (prev + 1) % images.length)}
                                     >
-                                        <ChevronRight className="w-6 h-6" />
+                                        <ChevronRight className="w-5 h-5" />
                                     </Button>
                                 </>
                             )}
                         </div>
-
-                        {/* Thumbnail Navigation */}
-                        {images.length > 1 && (
-                            <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
-                                {images.map((img, idx) => (
-                                    <button
-                                        key={idx}
-                                        onClick={() => setCurrentImageIndex(idx)}
-                                        className={`relative shrink-0 w-24 aspect-square rounded-xl overflow-hidden border-2 transition-all ${idx === currentImageIndex ? 'border-primary' : 'border-transparent opacity-60 hover:opacity-100'
-                                            }`}
-                                    >
-                                        <img src={img} alt="Thumbnail" className="w-full h-full object-cover" />
-                                    </button>
-                                ))}
-                            </div>
-                        )}
                     </div>
 
                     {/* Right Column: Info */}
-                    <div className="flex flex-col">
-                        <div className="flex flex-wrap items-center gap-2 mb-6">
-                            <span className="bg-primary/10 text-primary px-4 py-2 rounded-xl text-sm font-bold tracking-tight border border-primary/20">
+                    <div className="lg:col-span-5 flex flex-col lg:sticky lg:top-24">
+                        <div className="flex flex-wrap items-center gap-2 mb-4">
+                            <span className="bg-primary/10 text-primary px-3 py-1.5 rounded-lg text-[10px] font-black tracking-widest border border-primary/20">
                                 {animal.type === "perro" ? "🐶 PERRO" : animal.type === "gato" ? "🐱 GATO" : "🐾 OTRO"}
                             </span>
-                            <span className="bg-secondary/10 text-secondary px-4 py-2 rounded-xl text-sm font-bold tracking-tight border border-secondary/20">
+                            <span className="bg-secondary/10 text-secondary px-3 py-1.5 rounded-lg text-[10px] font-black tracking-widest border border-secondary/20">
                                 {animal.location}
                             </span>
                         </div>
 
-                        <h1 className="text-6xl md:text-8xl font-black mb-8 text-foreground tracking-[ -0.05em] leading-[0.9]">
+                        <h1 className="text-5xl md:text-7xl font-black mb-4 text-foreground tracking-[-0.04em] leading-[0.85]">
                             {animal.name}
                         </h1>
 
-                        <div className="grid grid-cols-2 gap-4 mb-8">
-                            <div className="bg-card/50 p-4 rounded-2xl border border-white/5 flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                                    <Calendar className="w-6 h-6" />
+                        <div className="grid grid-cols-2 gap-3 mb-6">
+                            <div className="bg-card/50 p-3 rounded-xl border border-white/5 flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                                    <Calendar className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <p className="text-xs text-muted-foreground uppercase font-bold">Edad</p>
-                                    <p className="font-bold text-lg">{animal.age}</p>
+                                    <p className="text-[10px] text-muted-foreground uppercase font-black">Edad</p>
+                                    <p className="font-bold text-base">{animal.age}</p>
                                 </div>
                             </div>
-                            <div className="bg-card/50 p-4 rounded-2xl border border-white/5 flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary">
-                                    <Info className="w-6 h-6" />
+                            <div className="bg-card/50 p-3 rounded-xl border border-white/5 flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary">
+                                    <Info className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <p className="text-xs text-muted-foreground uppercase font-bold">Tamaño</p>
-                                    <p className="font-bold text-lg">{animal.size}</p>
+                                    <p className="text-[10px] text-muted-foreground uppercase font-black">Tamaño</p>
+                                    <p className="font-bold text-base">{animal.size}</p>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="bg-card/40 rounded-3xl p-8 border border-white/5 mb-8">
-                            <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                                <HeartPulse className="w-5 h-5 text-primary" />
+                        <div className="bg-card/30 rounded-2xl p-6 border border-white/5 mb-6">
+                            <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
+                                <HeartPulse className="w-4 h-4 text-primary" />
                                 Sobre {animal.name}
                             </h3>
-                            <p className="text-muted-foreground leading-relaxed text-lg italic whitespace-pre-wrap">
+                            <p className="text-muted-foreground leading-relaxed text-base italic whitespace-pre-wrap">
                                 "{animal.fullDescription || animal.description}"
                             </p>
-
-                            {animal.personality && (
-                                <div className="mt-6">
-                                    <h4 className="font-bold text-foreground mb-2">Personalidad:</h4>
-                                    <p className="text-muted-foreground">{animal.personality}</p>
-                                </div>
-                            )}
-
                             {animal.healthInfo && (
                                 <div className="mt-4">
                                     <h4 className="font-bold text-foreground mb-2">Salud:</h4>
@@ -333,13 +311,13 @@ const PetDetail = () => {
                         </div>
 
                         {/* Actions */}
-                        <div className="flex flex-col gap-4">
+                        <div className="flex flex-col gap-3">
                             <Button
                                 onClick={startConversation}
                                 size="lg"
-                                className="h-16 text-lg font-black btn-hero shadow-xl"
+                                className="h-14 text-base font-black btn-hero shadow-xl"
                             >
-                                <MessageCircle className="w-6 h-6 mr-3" />
+                                <MessageCircle className="w-5 h-5 mr-2" />
                                 Contactar ahora
                             </Button>
 

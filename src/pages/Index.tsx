@@ -97,27 +97,6 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Highlight Section */}
-        <section className="py-20">
-          <div className="container mx-auto px-4 md:px-6">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-              <div className="max-w-xl">
-                <h2 className="text-2xl md:text-4xl font-black tracking-tight mb-3 uppercase">Nuevos Ingresos</h2>
-                <p className="text-muted-foreground font-medium text-sm md:text-base">Mascotas que se sumaron recientemente buscando una familia.</p>
-              </div>
-              <Button
-                onClick={() => navigate("/adopcion")}
-                variant="outline"
-                className="rounded-xl h-11 px-6 text-sm font-bold border-primary/20 hover:bg-primary/5 hover:text-primary transition-all shadow-sm"
-              >
-                Ver Galería Completa
-              </Button>
-            </div>
-            <div className="w-full">
-              <AnimalesSection />
-            </div>
-          </div>
-        </section>
 
         <section id="ayudar" className="py-16 bg-card/20 min-h-0">
           <ComoAyudarSection />

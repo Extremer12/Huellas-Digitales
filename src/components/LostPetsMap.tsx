@@ -49,7 +49,7 @@ const LostPetsMap = () => {
                 .not('lng', 'is', null);
 
             if (error) throw error;
-            setPets(data || []);
+            setPets(data as any[] || []);
         } catch (error) {
             console.error('Error fetching lost pets for map:', error);
         }
@@ -57,13 +57,6 @@ const LostPetsMap = () => {
 
     return (
         <div className="container-custom py-10 animate-fade-in relative z-10">
-            <div className="mb-6">
-                <h3 className="text-2xl font-bold flex items-center gap-2">
-                    <MapPin className="text-primary" />
-                    Vista de Mapa (Leaflet)
-                </h3>
-                <p className="text-muted-foreground">Localizá mascotas perdidas cerca de tu zona (Versión libre sin tarjetas).</p>
-            </div>
 
             <div className="h-[500px] w-full rounded-[24px] overflow-hidden shadow-2xl border border-white/5 bg-muted/20">
                 <MapContainer
