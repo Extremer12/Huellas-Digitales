@@ -143,23 +143,6 @@ const AdoptedSection = () => {
   };
   return <section id="adoptados" className="py-20 bg-muted/30 scroll-reveal">
     <div className="container mx-auto px-4">
-      <div className="text-center mb-16">
-        <div className="inline-flex items-center justify-center p-3 mb-6 rounded-2xl bg-primary/10 text-primary">
-          <Heart className="w-8 h-8 fill-current" />
-        </div>
-        <h2 className="text-4xl md:text-6xl font-black text-foreground mb-6 tracking-tighter">
-          Finales Felices
-        </h2>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-10">
-          Conocé las hermosas historias de amiguitos que ya están disfrutando de su hogar para siempre.
-        </p>
-        {isAuthenticated && (
-          <Button onClick={() => setShowForm(true)} size="lg" className="h-14 px-10 text-lg font-bold btn-hero shadow-xl">
-            <Plus className="w-5 h-5 mr-3" />
-            Tu historia también cuenta
-          </Button>
-        )}
-      </div>
 
       {stories.length === 0 ? <div className="text-center py-12">
         <p className="text-muted-foreground">
