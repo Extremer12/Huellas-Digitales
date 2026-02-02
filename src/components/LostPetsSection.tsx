@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import AnimalCard from "./AnimalCard";
-import AnimalModal from "./AnimalModal";
 import { Button } from "./ui/button";
 import { ChevronDown, Search } from "lucide-react";
 import { Input } from "./ui/input";
@@ -20,7 +19,6 @@ interface LostAnimal extends Animal {
 
 export default function LostPetsSection() {
   const [animals, setAnimals] = useState<LostAnimal[]>([]);
-  const [selectedAnimal, setSelectedAnimal] = useState<LostAnimal | null>(null);
   const [filter, setFilter] = useState<string>("todos");
   const [sizeFilter, setSizeFilter] = useState<string>("todos");
   const [locationFilter, setLocationFilter] = useState<string>("todos");
@@ -34,7 +32,7 @@ export default function LostPetsSection() {
     try {
       const { data, error } = await supabase
         .from("animals")
-        .select("id, name, type, age, size, location, description, image_url, health_info, personality, status, user_id, created_at")
+        .select("id, name, type, age, size, location, description, image_url, health_info, personality, status, user_id, created_at, lat, lng")
         .eq("status", "perdido")
         .order("created_at", { ascending: false });
 
@@ -43,7 +41,7 @@ export default function LostPetsSection() {
       const formattedAnimals: LostAnimal[] = data.map((animal) => ({
         id: animal.id,
         name: animal.name,
-        type: animal.type,
+        type: animal.type as "perro" | "gato" | "otro",
         age: animal.age,
         size: animal.size,
         location: animal.location,
@@ -53,6 +51,8 @@ export default function LostPetsSection() {
         personality: animal.personality || undefined,
         status: animal.status,
         userId: animal.user_id,
+        lat: animal.lat,
+        lng: animal.lng
       }));
 
       setAnimals(formattedAnimals);
@@ -69,7 +69,7 @@ export default function LostPetsSection() {
       setCurrentUserId(user?.id || null);
     };
     loadUser();
-    
+
     fetchLostPets();
 
     const channel = supabase
@@ -106,7 +106,6 @@ export default function LostPetsSection() {
   });
 
   const displayedAnimals = showAll ? filteredAnimals : filteredAnimals.slice(0, 6);
-  const uniqueLocations = Array.from(new Set(animals.map((a) => a.location)));
 
   return (
     <section id="perdidos" className="py-16 px-4 md:px-8 bg-muted/30">
@@ -116,7 +115,7 @@ export default function LostPetsSection() {
           <p className="text-muted-foreground text-lg mb-6">
             Ayuda a reunir mascotas perdidas con sus familias
           </p>
-          <Button 
+          <Button
             onClick={() => {
               const element = document.getElementById("publicar");
               if (element) element.scrollIntoView({ behavior: "smooth" });
@@ -147,7 +146,7 @@ export default function LostPetsSection() {
                   className="animate-fade-in"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  <AnimalCard animal={animal} onClick={() => setSelectedAnimal(animal)} />
+                  <AnimalCard animal={animal} />
                 </div>
               ))}
             </div>
@@ -162,13 +161,6 @@ export default function LostPetsSection() {
           </>
         )}
 
-        {selectedAnimal && (
-          <AnimalModal
-            animal={selectedAnimal}
-            onClose={() => setSelectedAnimal(null)}
-            currentUserId={currentUserId || undefined}
-          />
-        )}
       </div>
     </section>
   );

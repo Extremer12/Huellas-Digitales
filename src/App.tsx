@@ -15,6 +15,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Adopcion from "./pages/Adopcion";
 import Perdidos from "./pages/Perdidos";
 import Historias from "./pages/Historias";
+import PetDetail from "./components/PetDetail";
 import DogLoader from "./components/DogLoader";
 
 const queryClient = new QueryClient();
@@ -51,6 +52,7 @@ const App = () => {
             <Route path="/adopcion" element={<Adopcion />} />
             <Route path="/perdidos" element={<Perdidos />} />
             <Route path="/historias" element={<Historias />} />
+            <Route path="/pet/:id" element={<PetDetail />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

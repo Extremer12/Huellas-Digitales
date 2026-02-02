@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Search, Dog, Cat, PawPrint, Filter } from "lucide-react";
 import AnimalCard from "./AnimalCard";
-import AnimalModal from "./AnimalModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -31,7 +30,6 @@ interface AnimalesSectionProps {
 const AnimalesSection = ({ initialSelectedAnimalId }: AnimalesSectionProps) => {
   const { toast } = useToast();
   const [filter, setFilter] = useState<"todos" | "perro" | "gato" | "otro">("todos");
-  const [selectedAnimal, setSelectedAnimal] = useState<Animal | null>(null);
   const [animals, setAnimals] = useState<Animal[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAll, setShowAll] = useState(false);
@@ -68,7 +66,9 @@ const AnimalesSection = ({ initialSelectedAnimalId }: AnimalesSectionProps) => {
     if (initialSelectedAnimalId && animals.length > 0) {
       const animal = animals.find(a => a.id === initialSelectedAnimalId);
       if (animal) {
-        setSelectedAnimal(animal);
+        // Since we decided to go full screen, we should navigate if there's an initial ID
+        // but for now, the section usually just shows a list.
+        // If it was meant to open the modal, we now just let the user click.
       }
     }
   }, [initialSelectedAnimalId, animals]);
@@ -285,7 +285,7 @@ const AnimalesSection = ({ initialSelectedAnimalId }: AnimalesSectionProps) => {
             {displayedAnimals.map((animal, index) => <div key={animal.id} className="animate-fade-in" style={{
               animationDelay: `${index * 0.1}s`
             }}>
-              <AnimalCard animal={animal} onClick={() => setSelectedAnimal(animal)} />
+              <AnimalCard animal={animal} />
             </div>)}
           </div>
 
@@ -310,13 +310,6 @@ const AnimalesSection = ({ initialSelectedAnimalId }: AnimalesSectionProps) => {
         </>}
       </div>
     </section>
-
-    {/* Modal */}
-    <AnimalModal
-      animal={selectedAnimal}
-      onClose={() => setSelectedAnimal(null)}
-      currentUserId={currentUserId || undefined}
-    />
   </>;
 };
 export default AnimalesSection;

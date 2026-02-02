@@ -1,15 +1,26 @@
 import { MapPin, Eye } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Animal } from "./AnimalesSection";
 
 interface AnimalCardProps {
   animal: Animal;
-  onClick: () => void;
+  onClick?: () => void;
 }
 
 const AnimalCard = ({ animal, onClick }: AnimalCardProps) => {
+  const navigate = useNavigate();
+
+  const handleCardClick = () => {
+    if (onClick) {
+      onClick();
+    } else {
+      navigate(`/pet/${animal.id}`);
+    }
+  };
+
   return (
-    <div className="card-animal group cursor-pointer" onClick={onClick}>
+    <div className="card-animal group cursor-pointer" onClick={handleCardClick}>
       {/* Image */}
       <div className="relative overflow-hidden aspect-square">
         <img
@@ -25,7 +36,7 @@ const AnimalCard = ({ animal, onClick }: AnimalCardProps) => {
       {/* Content */}
       <div className="p-6">
         <h3 className="text-2xl font-bold text-foreground mb-2">{animal.name}</h3>
-        
+
         <div className="flex items-center gap-2 text-muted-foreground mb-3">
           <MapPin className="w-4 h-4" />
           <span className="text-sm">{animal.location}</span>

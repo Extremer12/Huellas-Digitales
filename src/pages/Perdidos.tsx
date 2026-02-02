@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import LostPetsSection from "@/components/LostPetsSection";
+import LostPetsMap from "@/components/LostPetsMap";
 import PublicarSection from "@/components/PublicarSection";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
