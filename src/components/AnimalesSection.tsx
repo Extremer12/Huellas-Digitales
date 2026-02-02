@@ -194,12 +194,12 @@ const AnimalesSection = ({ initialSelectedAnimalId }: AnimalesSectionProps) => {
   return <>
     <section id="animales" className="section-padding bg-gradient-to-b from-background to-card scroll-reveal">
       <div className="container-custom">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-6xl font-black text-foreground mb-6 tracking-tighter">
-            Huellas esperando por vos
+        <div className="text-center mb-16 px-4">
+          <h2 className="text-4xl md:text-7xl font-black text-foreground mb-6 tracking-tighter">
+            Encontrá tu <span className="text-primary">Huella</span>
           </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Explorá y encontrá a tu próximo mejor amigo. Cada uno tiene una historia única esperando ser escrita.
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed font-medium">
+            Cientos de animalitos buscan un hogar lleno de amor. Explorá y encontrá a tu próximo mejor amigo.
           </p>
         </div>
 

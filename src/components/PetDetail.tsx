@@ -214,14 +214,14 @@ const PetDetail = () => {
 
                 <div className="grid lg:grid-cols-2 gap-10">
                     {/* Left Column: Images */}
-                    <div className="space-y-4">
-                        <div className="relative aspect-[16/9] md:aspect-[21/9] lg:aspect-[3/1] rounded-3xl overflow-hidden bg-muted shadow-2xl border border-white/5">
+                    <div className="space-y-6">
+                        <div className="relative aspect-square md:aspect-[4/3] rounded-[2.5rem] overflow-hidden bg-muted shadow-2xl border border-white/5 ring-8 ring-white/5">
                             <img
-                                src={animal.image}
+                                src={images[currentImageIndex]}
                                 alt={animal.name}
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-cover transition-all duration-700 hover:scale-105"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
                             {images.length > 1 && (
                                 <>
                                     <Button
@@ -263,16 +263,16 @@ const PetDetail = () => {
 
                     {/* Right Column: Info */}
                     <div className="flex flex-col">
-                        <div className="flex items-center gap-3 mb-4">
-                            <span className="bg-primary/20 text-primary px-4 py-1.5 rounded-full text-sm font-bold tracking-wide uppercase">
-                                {animal.type === "perro" ? "🐶 Perro" : animal.type === "gato" ? "🐱 Gato" : "🐾 Otro"}
+                        <div className="flex flex-wrap items-center gap-2 mb-6">
+                            <span className="bg-primary/10 text-primary px-4 py-2 rounded-xl text-sm font-bold tracking-tight border border-primary/20">
+                                {animal.type === "perro" ? "🐶 PERRO" : animal.type === "gato" ? "🐱 GATO" : "🐾 OTRO"}
                             </span>
-                            <span className="bg-secondary/20 text-secondary px-4 py-1.5 rounded-full text-sm font-bold tracking-wide uppercase">
-                                En {animal.location}
+                            <span className="bg-secondary/10 text-secondary px-4 py-2 rounded-xl text-sm font-bold tracking-tight border border-secondary/20">
+                                {animal.location}
                             </span>
                         </div>
 
-                        <h1 className="text-5xl md:text-6xl font-black mb-6 text-foreground tracking-tighter">
+                        <h1 className="text-6xl md:text-8xl font-black mb-8 text-foreground tracking-[ -0.05em] leading-[0.9]">
                             {animal.name}
                         </h1>
 

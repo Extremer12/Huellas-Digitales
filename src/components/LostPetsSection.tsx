@@ -110,10 +110,12 @@ export default function LostPetsSection() {
   return (
     <section id="perdidos" className="py-16 px-4 md:px-8 bg-muted/30">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16 animate-fade-in">
-          <h2 className="text-4xl md:text-6xl font-black mb-6 tracking-tighter">Mascotas Perdidas</h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-10">
-            Ayudanos a reunir a estos amiguitos con sus familias. El tiempo es clave en estos casos.
+        <div className="text-center mb-16 animate-fade-in px-4">
+          <h2 className="text-4xl md:text-7xl font-black mb-6 tracking-tighter text-foreground">
+            Mascotas <span className="text-destructive font-black">Perdidas</span>
+          </h2>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-10 font-medium">
+            Ayudanos a reunir a estos amiguitos con sus familias. Si viste a alguno de ellos, tu ayuda es clave para su regreso.
           </p>
           <Button
             size="lg"

@@ -73,13 +73,6 @@ const Hero = () => {
         </div>
       </div>
 
-      {/* Visual Accents */}
-      <div className="absolute bottom-10 right-10 hidden xl:block">
-        <div className="relative group">
-          <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full scale-150 group-hover:bg-primary/40 transition-colors"></div>
-          <PlayCircle className="w-20 h-20 text-white/50 relative z-10 cursor-pointer hover:text-primary transition-colors hover:scale-110" />
-        </div>
-      </div>
     </section>
   );
 };
