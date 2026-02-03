@@ -128,7 +128,12 @@ const MedicalRecords = ({ animalId, isOwner }: MedicalRecordsProps) => {
                     <Activity className="w-5 h-5 text-primary" />
                     Historia Clínica
                 </h3>
-                {isOwner && (
+
+                {/* 
+                   User requested to remove this button from the Detail View. 
+                   "eliminalo eso debe estar solo en el formulario" 
+                */}
+                {/* {isOwner && (
                     <Button
                         size="sm"
                         variant={showForm ? "ghost" : "outline"}
@@ -141,77 +146,79 @@ const MedicalRecords = ({ animalId, isOwner }: MedicalRecordsProps) => {
                             </>
                         )}
                     </Button>
-                )}
+                )} */}
             </div>
 
-            {showForm && (
-                <Card className="bg-primary/5 border-primary/20 animate-in fade-in slide-in-from-top-2 duration-300">
-                    <CardContent className="pt-6">
-                        <form onSubmit={handleAddRecord} className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label>Tipo</Label>
-                                    <Select
-                                        value={newRecord.type}
-                                        onValueChange={(v: any) => setNewRecord({ ...newRecord, type: v })}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="vaccine">Vacuna</SelectItem>
-                                            <SelectItem value="sterilization">Castración</SelectItem>
-                                            <SelectItem value="checkup">Control</SelectItem>
-                                            <SelectItem value="surgery">Cirugía</SelectItem>
-                                            <SelectItem value="other">Otro</SelectItem>
-                                        </SelectContent>
-                                    </Select>
+            {
+                showForm && (
+                    <Card className="bg-primary/5 border-primary/20 animate-in fade-in slide-in-from-top-2 duration-300">
+                        <CardContent className="pt-6">
+                            <form onSubmit={handleAddRecord} className="space-y-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label>Tipo</Label>
+                                        <Select
+                                            value={newRecord.type}
+                                            onValueChange={(v: any) => setNewRecord({ ...newRecord, type: v })}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="vaccine">Vacuna</SelectItem>
+                                                <SelectItem value="sterilization">Castración</SelectItem>
+                                                <SelectItem value="checkup">Control</SelectItem>
+                                                <SelectItem value="surgery">Cirugía</SelectItem>
+                                                <SelectItem value="other">Otro</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Fecha</Label>
+                                        <Input
+                                            type="date"
+                                            value={newRecord.date}
+                                            onChange={e => setNewRecord({ ...newRecord, date: e.target.value })}
+                                            required
+                                        />
+                                    </div>
                                 </div>
+
                                 <div className="space-y-2">
-                                    <Label>Fecha</Label>
+                                    <Label>Profesional / Clínica</Label>
                                     <Input
-                                        type="date"
-                                        value={newRecord.date}
-                                        onChange={e => setNewRecord({ ...newRecord, date: e.target.value })}
-                                        required
+                                        placeholder="Nombre del veterinario"
+                                        value={newRecord.vet_name}
+                                        onChange={e => setNewRecord({ ...newRecord, vet_name: e.target.value })}
                                     />
                                 </div>
-                            </div>
 
-                            <div className="space-y-2">
-                                <Label>Profesional / Clínica</Label>
-                                <Input
-                                    placeholder="Nombre del veterinario"
-                                    value={newRecord.vet_name}
-                                    onChange={e => setNewRecord({ ...newRecord, vet_name: e.target.value })}
-                                />
-                            </div>
+                                <div className="space-y-2">
+                                    <Label>Descripción / Notas</Label>
+                                    <Textarea
+                                        placeholder="Detalles del procedimiento..."
+                                        value={newRecord.description}
+                                        onChange={e => setNewRecord({ ...newRecord, description: e.target.value })}
+                                    />
+                                </div>
 
-                            <div className="space-y-2">
-                                <Label>Descripción / Notas</Label>
-                                <Textarea
-                                    placeholder="Detalles del procedimiento..."
-                                    value={newRecord.description}
-                                    onChange={e => setNewRecord({ ...newRecord, description: e.target.value })}
-                                />
-                            </div>
+                                <div className="space-y-2">
+                                    <Label>Próximo Turno (Opcional)</Label>
+                                    <Input
+                                        type="date"
+                                        value={newRecord.next_due_date}
+                                        onChange={e => setNewRecord({ ...newRecord, next_due_date: e.target.value })}
+                                    />
+                                </div>
 
-                            <div className="space-y-2">
-                                <Label>Próximo Turno (Opcional)</Label>
-                                <Input
-                                    type="date"
-                                    value={newRecord.next_due_date}
-                                    onChange={e => setNewRecord({ ...newRecord, next_due_date: e.target.value })}
-                                />
-                            </div>
-
-                            <Button type="submit" className="w-full" disabled={adding}>
-                                {adding ? "Guardando..." : "Guardar Registro"}
-                            </Button>
-                        </form>
-                    </CardContent>
-                </Card>
-            )}
+                                <Button type="submit" className="w-full" disabled={adding}>
+                                    {adding ? "Guardando..." : "Guardar Registro"}
+                                </Button>
+                            </form>
+                        </CardContent>
+                    </Card>
+                )
+            }
 
             <div className="space-y-3">
                 {records.length === 0 ? (
@@ -265,7 +272,7 @@ const MedicalRecords = ({ animalId, isOwner }: MedicalRecordsProps) => {
                     ))
                 )}
             </div>
-        </div>
+        </div >
     );
 };
 

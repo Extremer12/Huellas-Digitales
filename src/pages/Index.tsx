@@ -10,18 +10,24 @@ import { ChevronRight, Heart, Search, Star, MapPin, Shield, Users, ArrowRight } 
 import { Button } from "@/components/ui/button";
 import heroImage from "@/assets/hero-adoption.jpg";
 import ComoAyudarSection from "@/components/ComoAyudarSection";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import SmartPublicationWizard from "@/components/SmartPublicationWizard";
 
 const Index = () => {
   useScrollAnimation();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [user, setUser] = useState<any>(null);
   const [showRegionSelector, setShowRegionSelector] = useState(false);
   const [viewLanding, setViewLanding] = useState(true);
   const [loadingUser, setLoadingUser] = useState(true);
+  const [showWizard, setShowWizard] = useState(false);
 
   useEffect(() => {
     checkUser();
+    if (searchParams.get("action") === "publish") {
+      setShowWizard(true);
+    }
   }, [searchParams]);
 
   const checkUser = async () => {
@@ -54,17 +60,15 @@ const Index = () => {
     }
   };
 
-  // Callback to toggle back to landing if user wants to see it
-  // This could be passed to Header if Header supports it, 
-  // currently Header handles its own nav. 
-  // To implement "View Landing" from toggle menu while logged in, 
-  // we might need to use a query param or global state, 
-  // OR just let the user log out? 
-  // The user asked: "deja en el menu toggle un boton para ver la landing"
-  // Since Header is generic, maybe we can add a simple specific button here if in Feed mode?
-  // Or simply rely on the fact that "Feed" IS the home for them. 
-  // If they really want the landing, maybe a temporary button or just logout.
-  // For now, I will prioritize the "Feed" experience.
+  const handleWizardClose = (open: boolean) => {
+    setShowWizard(open);
+    if (!open) {
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete("action");
+      newParams.delete("type");
+      setSearchParams(newParams);
+    }
+  };
 
   if (loadingUser) {
     return <div className="min-h-screen flex items-center justify-center bg-background"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>;
@@ -76,19 +80,26 @@ const Index = () => {
       <div className="min-h-screen bg-background flex flex-col">
         <Header />
         <main className="pt-20 flex-1">
-          <UnifiedFeed />
+          <UnifiedFeed onOpenWizard={(type) => {
+            if (type) {
+              // Update URL for consistency/shareability without reload
+              const newParams = new URLSearchParams(searchParams);
+              newParams.set("action", "publish");
+              newParams.set("type", type === "adopcion" ? "adoption" : "lost");
+              setSearchParams(newParams);
+            }
+            setShowWizard(true);
+          }} />
         </main>
-        {/* Minimal footer or no footer for app-like feel? 
-                User said "remove footer from non-home pages". 
-                Technically this IS home. 
-                But for infinite scroll feed, footer is annoying. 
-                I will leave it OUT for the feed view to make it truly 'app-like'. 
-            */}
 
-        {/* Temporary button to view landing if needed for demo purposes, 
-              or maybe the user meant a permanent link. 
-              For a cleaner UI, I'll stick to just the Feed. 
-          */}
+        <Dialog open={showWizard} onOpenChange={handleWizardClose}>
+          <DialogContent className="sm:max-w-3xl p-6 overflow-y-auto max-h-[90vh] rounded-[2rem]">
+            <SmartPublicationWizard onSuccess={() => {
+              setShowWizard(false);
+              window.location.href = "/"; // Force reload to see new post
+            }} />
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
@@ -229,22 +240,34 @@ const Index = () => {
           <ComoAyudarSection />
         </section>
 
-        {/* PublicarSection REMOVED from Landing */}
+        </main>
 
-      </main>
+        {/* Shared Wizard Dialog for specific landing actions that link to ?action=publish */}
+        <Dialog open={showWizard} onOpenChange={handleWizardClose}>
+            <DialogContent className="sm:max-w-3xl p-6 overflow-y-auto max-h-[90vh] rounded-[2rem]">
+                <SmartPublicationWizard onSuccess={() => {
+                   setShowWizard(false);
+                   window.location.href = "/"; // Force reload to see new post
+                }} />
+            </DialogContent>
+        </Dialog>
+      </div>
+
       <Footer />
 
-      {showRegionSelector && user && !searchParams.get("forceLanding") && (
-        <RegionSelector
-          open={showRegionSelector}
-          userId={user.id}
-          onRegionSet={() => {
-            setShowRegionSelector(false);
-            checkUser();
-          }}
-        />
-      )}
-    </div>
+      {
+    showRegionSelector && user && !searchParams.get("forceLanding") && (
+      <RegionSelector
+        open={showRegionSelector}
+        userId={user.id}
+        onRegionSet={() => {
+          setShowRegionSelector(false);
+          checkUser();
+        }}
+      />
+    )
+  }
+    </div >
   );
 };
 

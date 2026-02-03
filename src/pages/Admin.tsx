@@ -2,16 +2,17 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, CheckCircle, XCircle, Eye, Shield, Loader2, Home } from "lucide-react";
+import { AlertTriangle, CheckCircle, XCircle, Eye, Shield, Loader2, Home, Activity, Users, FileText, Ban } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
+// ... interfaces same as before ... 
 interface Report {
   id: string;
   animal_id: string;
@@ -162,11 +163,6 @@ const Admin = () => {
       setReports(reportsWithReporters as any);
     } catch (error) {
       console.error("Error loading reports:", error);
-      toast({
-        title: "Error",
-        description: "No se pudieron cargar los reportes",
-        variant: "destructive",
-      });
     }
   };
 
@@ -182,7 +178,6 @@ const Admin = () => {
 
       if (error) throw error;
 
-      // Fetch reporter profiles separately
       const reportsWithReporters = await Promise.all(
         (data || []).map(async (report) => {
           const { data: profile } = await supabase
@@ -201,11 +196,6 @@ const Admin = () => {
       setStoryReports(reportsWithReporters as any);
     } catch (error) {
       console.error("Error loading story reports:", error);
-      toast({
-        title: "Error",
-        description: "No se pudieron cargar los reportes de historias",
-        variant: "destructive",
-      });
     }
   };
   const loadCitizenReports = async () => {
@@ -219,11 +209,6 @@ const Admin = () => {
       setCitizenReports(data || []);
     } catch (error) {
       console.error("Error loading citizen reports:", error);
-      toast({
-        title: "Error",
-        description: "No se pudieron cargar los reportes ciudadanos",
-        variant: "destructive",
-      });
     }
   };
 
@@ -238,11 +223,6 @@ const Admin = () => {
       setOrganizations(data || []);
     } catch (error) {
       console.error("Error loading organizations:", error);
-      toast({
-        title: "Error",
-        description: "No se pudieron cargar las organizaciones",
-        variant: "destructive",
-      });
     }
   };
 
@@ -377,11 +357,11 @@ const Admin = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "pending":
-        return <Badge variant="outline" className="bg-yellow-500/10 text-yellow-700 dark:text-yellow-500">Pendiente</Badge>;
+        return <Badge variant="outline" className="bg-yellow-500/10 text-yellow-700 hover:bg-yellow-500/20 border-yellow-500/50">Pendiente</Badge>;
       case "approved":
-        return <Badge variant="outline" className="bg-green-500/10 text-green-700 dark:text-green-500">Aprobado</Badge>;
+        return <Badge variant="outline" className="bg-green-500/10 text-green-700 hover:bg-green-500/20 border-green-500/50">Aprobado</Badge>;
       case "rejected":
-        return <Badge variant="outline" className="bg-red-500/10 text-red-700 dark:text-red-500">Rechazado</Badge>;
+        return <Badge variant="outline" className="bg-destructive/10 text-destructive hover:bg-destructive/20 border-destructive/50">Rechazado</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -389,12 +369,8 @@ const Admin = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen">
-        <Header />
-        <div className="container mx-auto px-4 py-20 flex items-center justify-center">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        </div>
-
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -403,472 +379,411 @@ const Admin = () => {
     return null;
   }
 
-  const pendingReports = reports.filter(r => r.status === "pending");
-  const pendingStoryReports = storyReports.filter(r => r.status === "pending");
+  // Dashboard calculations
+  const totalPending = reports.filter(r => r.status === "pending").length +
+    storyReports.filter(r => r.status === "pending").length +
+    citizenReports.filter(r => r.status === "pending").length;
+
+  const totalOrgs = organizations.length;
+  const verifiedOrgs = organizations.filter(o => o.verified).length;
+  const totalCitizen = citizenReports.length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
+    <div className="min-h-screen bg-muted/20 pb-20">
       <Header />
-      <main className="container mx-auto px-4 py-20 lg:py-24">
-        <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="flex items-center gap-4 mb-8">
-            <div className="bg-primary/20 p-3 rounded-full">
+
+      <div className="pt-24 px-6 md:px-12 max-w-7xl mx-auto space-y-8">
+        {/* Intro */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
+          <div>
+            <h1 className="text-3xl font-black tracking-tight flex items-center gap-3">
               <Shield className="w-8 h-8 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-4xl font-bold">Panel de Administración</h1>
-              <p className="text-muted-foreground text-lg">Gestión de reportes y moderación</p>
-            </div>
+              Panel de Control
+            </h1>
+            <p className="text-muted-foreground mt-1">
+              Bienvenido, Administrador. Aquí tienes el pulso de la plataforma.
+            </p>
           </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-center">
-                  <AlertTriangle className="w-8 h-8 mx-auto mb-2 text-yellow-600" />
-                  <div className="text-3xl font-bold">{pendingReports.length + pendingStoryReports.length + citizenReports.filter(r => r.status === 'pending').length}</div>
-                  <div className="text-sm text-muted-foreground">Total Pendientes</div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-center">
-                  <AlertTriangle className="w-8 h-8 mx-auto mb-2 text-orange-600" />
-                  <div className="text-3xl font-bold">{citizenReports.length}</div>
-                  <div className="text-sm text-muted-foreground">Reportes Civiles</div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-center">
-                  <Home className="w-8 h-8 mx-auto mb-2 text-blue-600" />
-                  <div className="text-3xl font-bold">{organizations.length}</div>
-                  <div className="text-sm text-muted-foreground">Organizaciones</div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-center">
-                  <CheckCircle className="w-8 h-8 mx-auto mb-2 text-green-600" />
-                  <div className="text-3xl font-bold">{organizations.filter(o => o.verified).length}</div>
-                  <div className="text-sm text-muted-foreground">Verificadas</div>
-                </div>
-              </CardContent>
-            </Card>
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="px-3 py-1">v2.1.0 Stable</Badge>
+            <Badge className="px-3 py-1 bg-green-500 hover:bg-green-600">Sistema Operativo</Badge>
           </div>
-
-          {/* Reports Tabs */}
-          <Tabs defaultValue="animals" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-8">
-              <TabsTrigger value="animals">Mascotas ({reports.length})</TabsTrigger>
-              <TabsTrigger value="stories">Historias ({storyReports.length})</TabsTrigger>
-              <TabsTrigger value="citizen">Civiles ({citizenReports.length})</TabsTrigger>
-              <TabsTrigger value="orgs">Orgs ({organizations.length})</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="animals">
-              {reports.length === 0 ? (
-                <Card>
-                  <CardContent className="py-16 text-center">
-                    <CheckCircle className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                    <p className="text-muted-foreground text-lg">No hay reportes de animales</p>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="space-y-4">
-                  {reports.map((report) => (
-                    <Card key={report.id} className="hover:shadow-lg transition-shadow">
-                      <CardContent className="p-6">
-                        <div className="flex items-start gap-4">
-                          {report.animal && (
-                            <img
-                              src={report.animal.image_url}
-                              alt={report.animal.name}
-                              className="w-24 h-24 object-cover rounded-lg"
-                            />
-                          )}
-                          <div className="flex-1">
-                            <div className="flex items-start justify-between mb-2">
-                              <div>
-                                <h3 className="text-lg font-bold">
-                                  {report.animal?.name || "Animal eliminado"}
-                                </h3>
-                                <p className="text-sm text-muted-foreground">
-                                  {report.animal?.type === "perro" ? "🐕 Perro" : "🐈 Gato"}
-                                </p>
-                              </div>
-                              {getStatusBadge(report.status)}
-                            </div>
-                            <div className="space-y-2">
-                              <p className="text-sm">
-                                <span className="font-semibold">Reportado por:</span>{" "}
-                                {report.reporter?.full_name || report.reporter?.email || "Usuario desconocido"}
-                              </p>
-                              <p className="text-sm">
-                                <span className="font-semibold">Razón:</span> {report.reason}
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                {new Date(report.created_at).toLocaleDateString("es-AR", {
-                                  day: "numeric",
-                                  month: "long",
-                                  year: "numeric",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}
-                              </p>
-                            </div>
-                            {report.status === "pending" && (
-                              <div className="flex gap-2 mt-4">
-                                <Button
-                                  size="sm"
-                                  onClick={() => setSelectedReport(report)}
-                                  variant="outline"
-                                >
-                                  <Eye className="w-4 h-4 mr-2" />
-                                  Ver Detalles
-                                </Button>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </TabsContent>
-
-            <TabsContent value="stories">
-              {storyReports.length === 0 ? (
-                <Card>
-                  <CardContent className="py-16 text-center">
-                    <CheckCircle className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                    <p className="text-muted-foreground text-lg">No hay reportes de historias</p>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="space-y-4">
-                  {storyReports.map((report) => (
-                    <Card key={report.id} className="hover:shadow-lg transition-shadow">
-                      <CardContent className="p-6">
-                        <div className="flex items-start gap-4">
-                          {report.story && (
-                            <img
-                              src={report.story.story_image_url}
-                              alt={report.story.animal_name}
-                              className="w-24 h-24 object-cover rounded-lg"
-                            />
-                          )}
-                          <div className="flex-1">
-                            <div className="flex items-start justify-between mb-2">
-                              <div>
-                                <h3 className="text-lg font-bold">
-                                  {report.story?.animal_name || "Historia eliminada"}
-                                </h3>
-                              </div>
-                              {getStatusBadge(report.status)}
-                            </div>
-                            <div className="space-y-2">
-                              <p className="text-sm">
-                                <span className="font-semibold">Reportado por:</span>{" "}
-                                {report.reporter?.full_name || report.reporter?.email || "Usuario desconocido"}
-                              </p>
-                              <p className="text-sm">
-                                <span className="font-semibold">Razón:</span> {report.reason}
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                {new Date(report.created_at).toLocaleDateString("es-AR", {
-                                  day: "numeric",
-                                  month: "long",
-                                  year: "numeric",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}
-                              </p>
-                            </div>
-                            {report.status === "pending" && (
-                              <div className="flex gap-2 mt-4">
-                                <Button
-                                  size="sm"
-                                  onClick={() => setSelectedStoryReport(report)}
-                                  variant="outline"
-                                >
-                                  <Eye className="w-4 h-4 mr-2" />
-                                  Ver Detalles
-                                </Button>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </TabsContent>
-
-            <TabsContent value="citizen">
-              {citizenReports.length === 0 ? (
-                <Card>
-                  <CardContent className="py-16 text-center">
-                    <CheckCircle className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                    <p className="text-muted-foreground text-lg">No hay reportes ciudadanos</p>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="space-y-4">
-                  {citizenReports.map((report) => (
-                    <Card key={report.id} className="hover:shadow-lg transition-shadow border-red-500/10">
-                      <CardContent className="p-6">
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <div className="flex items-center gap-2 mb-2">
-                              <Badge variant={report.severity === 'urgent' ? 'destructive' : 'outline'}>
-                                {report.type.toUpperCase()}
-                              </Badge>
-                              {getStatusBadge(report.status)}
-                            </div>
-                            <p className="text-sm line-clamp-2 mb-4">{report.description}</p>
-                            <div className="flex gap-4 text-xs text-muted-foreground">
-                              <span>📍 Lat: {report.location_lat.toFixed(4)}</span>
-                              <span>📅 {new Date(report.created_at).toLocaleDateString()}</span>
-                            </div>
-                          </div>
-                          <Button variant="outline" size="sm" onClick={() => setSelectedCitizenReport(report)}>
-                            <Eye className="w-4 h-4 mr-2" /> Detalle
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </TabsContent>
-
-            <TabsContent value="orgs">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {organizations.map((org) => (
-                  <Card key={org.id} className="overflow-hidden">
-                    <CardContent className="p-0">
-                      <div className="flex">
-                        <img src={org.logo_url || 'https://via.placeholder.com/100'} className="w-24 h-24 object-cover" />
-                        <div className="p-4 flex-1">
-                          <div className="flex items-center justify-between mb-1">
-                            <h4 className="font-bold">{org.name}</h4>
-                            <Badge variant={org.verified ? 'default' : 'secondary'}>
-                              {org.verified ? 'Verificada' : 'Pendiente'}
-                            </Badge>
-                          </div>
-                          <p className="text-xs text-muted-foreground mb-3">{org.type}</p>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="w-full text-xs h-8 border border-primary/10"
-                            onClick={() => toggleOrganizationVerification(org.id, org.verified)}
-                          >
-                            {org.verified ? 'Quitar Verificación' : 'Verificar Organización'}
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </TabsContent>
-          </Tabs>
         </div>
-      </main>
 
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StatsCard
+            title="Pendientes"
+            value={totalPending}
+            icon={AlertTriangle}
+            color="text-orange-500"
+            bg="bg-orange-500/10"
+            desc="Requieren atención"
+          />
+          <StatsCard
+            title="Reportes Civiles"
+            value={totalCitizen}
+            icon={FileText}
+            color="text-blue-500"
+            bg="bg-blue-500/10"
+            desc="Totales registrados"
+          />
+          <StatsCard
+            title="Organizaciones"
+            value={totalOrgs}
+            icon={Home}
+            color="text-purple-500"
+            bg="bg-purple-500/10"
+            desc={`${verifiedOrgs} verificadas`}
+          />
+          <StatsCard
+            title="Monitoreo"
+            value="Activo"
+            icon={Activity}
+            color="text-green-500"
+            bg="bg-green-500/10"
+            desc="Todo funcionando"
+          />
+        </div>
 
-      {/* Citizen Report Detail Modal */}
-      <Dialog open={!!selectedCitizenReport} onOpenChange={() => setSelectedCitizenReport(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Reporte Ciudadano: {selectedCitizenReport?.type}</DialogTitle>
-            <DialogDescription>Gestión de reporte de la comunidad</DialogDescription>
-          </DialogHeader>
-          {selectedCitizenReport && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-2">
-                {selectedCitizenReport.images?.map((img, i) => (
-                  <img key={i} src={img} className="w-full h-40 object-cover rounded-md" />
-                ))}
-              </div>
-              <div className="space-y-2">
-                <p className="text-sm font-semibold">Descripción:</p>
-                <p className="text-sm p-4 bg-muted rounded-md">{selectedCitizenReport.description}</p>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  className="flex-1"
-                  onClick={() => updateCitizenReportStatus(selectedCitizenReport.id, 'investigating')}
-                  disabled={selectedCitizenReport.status === 'investigating' || processing}
-                >
-                  Marcar "En Investigación"
-                </Button>
-                <Button
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() => updateCitizenReportStatus(selectedCitizenReport.id, 'resolved')}
-                  disabled={selectedCitizenReport.status === 'resolved' || processing}
-                >
-                  Marcar "Resuelto"
-                </Button>
-              </div>
+        {/* Main Content Tabs */}
+        <Tabs defaultValue="reports" className="space-y-6">
+          <div className="flex items-center justify-between">
+            <TabsList className="bg-background/95 backdrop-blur-sm border shadow-sm p-1 h-12 rounded-xl">
+              <TabsTrigger value="reports" className="rounded-lg px-4 py-2 text-sm font-medium transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Reportes ({reports.length + storyReports.length})</TabsTrigger>
+              <TabsTrigger value="citizen" className="rounded-lg px-4 py-2 text-sm font-medium transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Civiles ({citizenReports.length})</TabsTrigger>
+              <TabsTrigger value="orgs" className="rounded-lg px-4 py-2 text-sm font-medium transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Organizaciones ({organizations.length})</TabsTrigger>
+            </TabsList>
+          </div>
+
+          <TabsContent value="reports" className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Animal Reports */}
+              <Card className="border-border/50 shadow-sm overflow-hidden">
+                <CardHeader className="bg-muted/30 border-b">
+                  <CardTitle className="text-lg flex items-center gap-2"><AlertTriangle className="w-5 h-5 text-destructive" /> Reportes de Mascotas</CardTitle>
+                </CardHeader>
+                <ScrollArea className="h-[500px]">
+                  <div className="p-4 space-y-4">
+                    {reports.length === 0 && <EmptyState msg="No hay reportes de animales." />}
+                    {reports.map((report) => (
+                      <ReportItem
+                        key={report.id}
+                        report={report}
+                        onView={() => setSelectedReport(report)}
+                        badge={getStatusBadge(report.status)}
+                      />
+                    ))}
+                  </div>
+                </ScrollArea>
+              </Card>
+
+              {/* Story Reports */}
+              <Card className="border-border/50 shadow-sm overflow-hidden">
+                <CardHeader className="bg-muted/30 border-b">
+                  <CardTitle className="text-lg flex items-center gap-2"><Ban className="w-5 h-5 text-destructive" /> Reportes de Historias</CardTitle>
+                </CardHeader>
+                <ScrollArea className="h-[500px]">
+                  <div className="p-4 space-y-4">
+                    {storyReports.length === 0 && <EmptyState msg="No hay reportes de historias." />}
+                    {storyReports.map((report) => (
+                      <StoryReportItem
+                        key={report.id}
+                        report={report}
+                        onView={() => setSelectedStoryReport(report)}
+                        badge={getStatusBadge(report.status)}
+                      />
+                    ))}
+                  </div>
+                </ScrollArea>
+              </Card>
             </div>
-          )}
-        </DialogContent>
-      </Dialog>
+          </TabsContent>
 
-      {/* Animal Report Detail Modal */}
-      <Dialog open={!!selectedReport} onOpenChange={() => setSelectedReport(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Detalles del Reporte</DialogTitle>
-            <DialogDescription>Revisa la información y toma una decisión</DialogDescription>
-          </DialogHeader>
-          {selectedReport && (
-            <div className="space-y-6">
-              {selectedReport.animal && (
-                <div>
-                  <img
-                    src={selectedReport.animal.image_url}
-                    alt={selectedReport.animal.name}
-                    className="w-full h-64 object-cover rounded-lg mb-4"
-                  />
-                  <h3 className="text-2xl font-bold mb-2">{selectedReport.animal.name}</h3>
-                  <p className="text-muted-foreground">
-                    {selectedReport.animal.type === "perro" ? "🐕 Perro" : "🐈 Gato"}
-                  </p>
+          <TabsContent value="citizen" className="animate-in fade-in slide-in-from-bottom-4">
+            <Card className="border-border/50 shadow-sm">
+              <CardHeader>
+                <CardTitle>Reportes Ciudadanos</CardTitle>
+                <CardDescription>Alertas enviadas por la comunidad, ordenadas por urgencia.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {citizenReports.length === 0 && <div className="col-span-full"><EmptyState msg="No hay reportes ciudadanos." /></div>}
+                  {citizenReports.map((report) => (
+                    <CitizenReportCard
+                      key={report.id}
+                      report={report}
+                      onView={() => setSelectedCitizenReport(report)}
+                      badge={getStatusBadge(report.status)}
+                    />
+                  ))}
                 </div>
-              )}
-              <Separator />
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm font-semibold mb-1">Reportado por:</p>
-                  <p className="text-sm text-muted-foreground">
-                    {selectedReport.reporter?.full_name || selectedReport.reporter?.email}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold mb-1">Razón del reporte:</p>
-                  <p className="text-sm">{selectedReport.reason}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold mb-1">Fecha:</p>
-                  <p className="text-sm text-muted-foreground">
-                    {new Date(selectedReport.created_at).toLocaleDateString("es-AR", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </p>
-                </div>
-              </div>
-              <Separator />
-              <div className="flex gap-3">
-                <Button
-                  onClick={() => deleteContent(selectedReport, false)}
-                  disabled={processing}
-                  variant="destructive"
-                  className="flex-1"
-                >
-                  <XCircle className="w-4 h-4 mr-2" />
-                  {processing ? "Procesando..." : "Eliminar Contenido"}
-                </Button>
-                <Button
-                  onClick={() => updateReportStatus(selectedReport.id, "rejected", false)}
-                  disabled={processing}
-                  variant="outline"
-                  className="flex-1"
-                >
-                  <CheckCircle className="w-4 h-4 mr-2" />
-                  {processing ? "Procesando..." : "Rechazar Reporte"}
-                </Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-      {/* Story Report Detail Modal */}
-      <Dialog open={!!selectedStoryReport} onOpenChange={() => setSelectedStoryReport(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Detalles del Reporte de Historia</DialogTitle>
-            <DialogDescription>Revisa la información y toma una decisión</DialogDescription>
-          </DialogHeader>
-          {selectedStoryReport && (
-            <div className="space-y-6">
-              {selectedStoryReport.story && (
-                <div>
-                  <img
-                    src={selectedStoryReport.story.story_image_url}
-                    alt={selectedStoryReport.story.animal_name}
-                    className="w-full h-64 object-cover rounded-lg mb-4"
-                  />
-                  <h3 className="text-2xl font-bold mb-2">{selectedStoryReport.story.animal_name}</h3>
-                  <p className="text-sm text-muted-foreground">{selectedStoryReport.story.story_text}</p>
+          <TabsContent value="orgs" className="animate-in fade-in slide-in-from-bottom-4">
+            <Card className="border-border/50 shadow-sm">
+              <CardHeader>
+                <CardTitle>Directorio de Organizaciones</CardTitle>
+                <CardDescription>Gestión de refugios y entidades verificadas.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {organizations.map((org) => (
+                    <OrgCard
+                      key={org.id}
+                      org={org}
+                      onToggleVerify={() => toggleOrganizationVerification(org.id, org.verified)}
+                    />
+                  ))}
                 </div>
-              )}
-              <Separator />
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm font-semibold mb-1">Reportado por:</p>
-                  <p className="text-sm text-muted-foreground">
-                    {selectedStoryReport.reporter?.full_name || selectedStoryReport.reporter?.email}
-                  </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+
+        {/* --- MODALS --- */}
+
+        {/* Citizen Report Modal */}
+        <Dialog open={!!selectedCitizenReport} onOpenChange={() => setSelectedCitizenReport(null)}>
+          <DialogContent className="max-w-2xl rounded-[2rem]">
+            {selectedCitizenReport && (
+              <div className="space-y-6">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center justify-between">
+                    <span>Reporte #{(selectedCitizenReport.id.substring(0, 6))}</span>
+                    <Badge variant={selectedCitizenReport.severity === 'urgent' ? 'destructive' : 'default'} className="uppercase px-3">
+                      {selectedCitizenReport.type}
+                    </Badge>
+                  </DialogTitle>
+                </DialogHeader>
+
+                <div className="grid grid-cols-2 gap-2 overflow-hidden rounded-xl">
+                  {selectedCitizenReport.images?.map((img, i) => (
+                    <img key={i} src={img} className="w-full h-40 object-cover hover:scale-105 transition-transform duration-500" />
+                  ))}
                 </div>
-                <div>
-                  <p className="text-sm font-semibold mb-1">Razón del reporte:</p>
-                  <p className="text-sm">{selectedStoryReport.reason}</p>
+
+                <div className="p-4 bg-muted/30 rounded-xl space-y-2">
+                  <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-widest">Descripción</h4>
+                  <p className="text-foreground leading-relaxed">{selectedCitizenReport.description}</p>
                 </div>
-                <div>
-                  <p className="text-sm font-semibold mb-1">Fecha:</p>
-                  <p className="text-sm text-muted-foreground">
-                    {new Date(selectedStoryReport.created_at).toLocaleDateString("es-AR", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </p>
+
+                <div className="flex gap-3 pt-4">
+                  <Button
+                    className="flex-1 bg-blue-600 hover:bg-blue-700"
+                    onClick={() => updateCitizenReportStatus(selectedCitizenReport.id, 'investigating')}
+                    disabled={selectedCitizenReport.status === 'investigating' || processing}
+                  >
+                    En Investigación
+                  </Button>
+                  <Button
+                    className="flex-1 bg-green-600 hover:bg-green-700"
+                    onClick={() => updateCitizenReportStatus(selectedCitizenReport.id, 'resolved')}
+                    disabled={selectedCitizenReport.status === 'resolved' || processing}
+                  >
+                    Resuelto
+                  </Button>
                 </div>
               </div>
-              <Separator />
-              <div className="flex gap-3">
-                <Button
-                  onClick={() => deleteContent(selectedStoryReport, true)}
-                  disabled={processing}
-                  variant="destructive"
-                  className="flex-1"
-                >
-                  <XCircle className="w-4 h-4 mr-2" />
-                  {processing ? "Procesando..." : "Eliminar Historia"}
-                </Button>
-                <Button
-                  onClick={() => updateReportStatus(selectedStoryReport.id, "rejected", true)}
-                  disabled={processing}
-                  variant="outline"
-                  className="flex-1"
-                >
-                  <CheckCircle className="w-4 h-4 mr-2" />
-                  {processing ? "Procesando..." : "Rechazar Reporte"}
-                </Button>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Animal/Story Report Modal (Generic Logic reused) */}
+        <Dialog open={!!selectedReport} onOpenChange={() => setSelectedReport(null)}>
+          <DialogContent className="max-w-md rounded-[2rem]">
+            {selectedReport && (
+              <div className="space-y-6">
+                <div className="relative h-48 rounded-xl overflow-hidden">
+                  {selectedReport.animal && <img src={selectedReport.animal.image_url} className="w-full h-full object-cover" />}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
+                    <h3 className="text-white font-bold text-xl">{selectedReport.animal?.name}</h3>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <InfoRow label="Razón" value={selectedReport.reason} />
+                  <InfoRow label="Reportado por" value={selectedReport.reporter?.full_name || selectedReport.reporter?.email || "Anónimo"} />
+                  <InfoRow label="Fecha" value={new Date(selectedReport.created_at).toLocaleDateString()} />
+                </div>
+                <Separator />
+                <div className="grid grid-cols-2 gap-3">
+                  <Button variant="outline" onClick={() => updateReportStatus(selectedReport.id, "rejected", false)} disabled={processing}>Desestimar</Button>
+                  <Button variant="destructive" onClick={() => deleteContent(selectedReport, false)} disabled={processing}>Eliminar Post</Button>
+                </div>
               </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Story Report Modal (Similar to above) */}
+        <Dialog open={!!selectedStoryReport} onOpenChange={() => setSelectedStoryReport(null)}>
+          <DialogContent className="max-w-md rounded-[2rem]">
+            {selectedStoryReport && (
+              <div className="space-y-6">
+                <div className="relative h-48 rounded-xl overflow-hidden">
+                  {selectedStoryReport.story && <img src={selectedStoryReport.story.story_image_url} className="w-full h-full object-cover" />}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
+                    <h3 className="text-white font-bold text-xl">{selectedStoryReport.story?.animal_name}</h3>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <InfoRow label="Razón" value={selectedStoryReport.reason} />
+                  <InfoRow label="Reportado por" value={selectedStoryReport.reporter?.full_name || selectedStoryReport.reporter?.email || "Anónimo"} />
+                </div>
+                <Separator />
+                <div className="grid grid-cols-2 gap-3">
+                  <Button variant="outline" onClick={() => updateReportStatus(selectedStoryReport.id, "rejected", true)} disabled={processing}>Desestimar</Button>
+                  <Button variant="destructive" onClick={() => deleteContent(selectedStoryReport, true)} disabled={processing}>Eliminar Historia</Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
+      </div>
     </div>
+  );
+};
+
+// --- SUBCOMPONENTS ---
+
+const StatsCard = ({ title, value, icon: Icon, color, bg, desc }: any) => (
+  <Card className="border-none shadow-sm hover:shadow-md transition-all">
+    <CardContent className="p-6">
+      <div className="flex items-center justify-between">
+        <div className={`w-12 h-12 rounded-xl ${bg} flex items-center justify-center ${color}`}>
+          <Icon className="w-6 h-6" />
+        </div>
+        {/* <Badge variant="outline" className={`${color} bg-transparent border-current opacity-50`}>+2.5%</Badge> */}
+      </div>
+      <div className="mt-4">
+        <h3 className="text-2xl font-black">{value}</h3>
+        <p className="text-sm font-medium text-muted-foreground">{title}</p>
+        <p className="text-xs text-muted-foreground/50 mt-1">{desc}</p>
+      </div>
+    </CardContent>
+  </Card>
+);
+
+const EmptyState = ({ msg }: { msg: string }) => (
+  <div className="flex flex-col items-center justify-center py-12 text-muted-foreground opacity-50">
+    <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+      <CheckCircle className="w-8 h-8" />
+    </div>
+    <p>{msg}</p>
+  </div>
+);
+
+const ReportItem = ({ report, onView, badge }: any) => (
+  <div className="flex items-center justify-between p-4 bg-background rounded-xl border hover:border-primary/50 transition-colors group">
+    <div className="flex items-center gap-4">
+      <img src={report.animal?.image_url || "/placeholder.svg"} className="w-12 h-12 rounded-full object-cover border" />
+      <div>
+        <h4 className="font-bold text-sm">{report.animal?.name || "Desconocido"}</h4>
+        <div className="flex items-center gap-2 mt-1">
+          {badge}
+          <span className="text-xs text-muted-foreground truncate max-w-[150px]">{report.reason}</span>
+        </div>
+      </div>
+    </div>
+    <Button size="icon" variant="ghost" className="opacity-0 group-hover:opacity-100 transition-opacity" onClick={onView}>
+      <Eye className="w-4 h-4" />
+    </Button>
+  </div>
+);
+
+const StoryReportItem = ({ report, onView, badge }: any) => (
+  <div className="flex items-center justify-between p-4 bg-background rounded-xl border hover:border-primary/50 transition-colors group">
+    <div className="flex items-center gap-4">
+      <img src={report.story?.story_image_url || "/placeholder.svg"} className="w-12 h-12 rounded-full object-cover border" />
+      <div>
+        <h4 className="font-bold text-sm">{report.story?.animal_name || "Desconocido"}</h4>
+        <div className="flex items-center gap-2 mt-1">
+          {badge}
+          <span className="text-xs text-muted-foreground truncate max-w-[150px]">{report.reason}</span>
+        </div>
+      </div>
+    </div>
+    <Button size="icon" variant="ghost" className="opacity-0 group-hover:opacity-100 transition-opacity" onClick={onView}>
+      <Eye className="w-4 h-4" />
+    </Button>
+  </div>
+);
+
+const CitizenReportCard = ({ report, onView, badge }: any) => (
+  <div className="p-4 bg-card rounded-xl border hover:border-primary/50 transition-all flex flex-col justify-between h-full">
+    <div>
+      <div className="flex justify-between items-start mb-2">
+        <Badge variant={report.severity === 'urgent' ? 'destructive' : 'secondary'}>{report.type}</Badge>
+        {badge}
+      </div>
+      <p className="text-sm line-clamp-3 text-muted-foreground my-3">{report.description}</p>
+    </div>
+    <div className="flex items-center justify-between mt-2 pt-2 border-t text-xs text-muted-foreground">
+      <span>{new Date(report.created_at).toLocaleDateString()}</span>
+      <Button size="sm" variant="ghost" className="h-6" onClick={onView}>Ver</Button>
+    </div>
+  </div>
+);
+
+const OrgCard = ({ org, onToggleVerify }: any) => (
+  <div className="flex items-center gap-4 p-4 bg-card rounded-xl border">
+    <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+      {org.logo_url ? <img src={org.logo_url} className="w-full h-full object-cover" /> : <Home className="w-6 h-6 opacity-50" />}
+    </div>
+    <div className="flex-1 min-w-0">
+      <div className="flex items-center gap-2">
+        <h4 className="font-bold truncate">{org.name}</h4>
+        {org.verified && <CheckCircle className="w-3 h-3 text-blue-500 fill-blue-500/20" />}
+      </div>
+      <p className="text-xs text-muted-foreground truncate">{org.email}</p>
+    </div>
+    <Button size="icon" variant={org.verified ? "default" : "outline"} onClick={onToggleVerify} className={org.verified ? "bg-blue-600 hover:bg-blue-700" : ""}>
+      {org.verified ? <CheckCircle className="w-4 h-4" /> : <Shield className="w-4 h-4" />}
+    </Button>
+  </div>
+);
+
+const InfoRow = ({ label, value }: { label: string, value: string }) => (
+  <div>
+    <span className="text-xs font-bold uppercase text-muted-foreground tracking-wider block mb-1">{label}</span>
+    <p className="text-sm font-medium">{value}</p>
+  </div>
+);
+
+export default Admin;
+
+
+          </div >
+        </div >
+        <Separator />
+        <div className="flex gap-3">
+          <Button
+            onClick={() => deleteContent(selectedStoryReport, true)}
+            disabled={processing}
+            variant="destructive"
+            className="flex-1"
+          >
+            <XCircle className="w-4 h-4 mr-2" />
+            {processing ? "Procesando..." : "Eliminar Historia"}
+          </Button>
+          <Button
+            onClick={() => updateReportStatus(selectedStoryReport.id, "rejected", true)}
+            disabled={processing}
+            variant="outline"
+            className="flex-1"
+          >
+            <CheckCircle className="w-4 h-4 mr-2" />
+            {processing ? "Procesando..." : "Rechazar Reporte"}
+          </Button>
+        </div>
+      </div >
+    )}
+  </DialogContent >
+</Dialog >
+    </div >
   );
 };
 

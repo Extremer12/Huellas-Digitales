@@ -26,7 +26,7 @@ const Adopcion = () => {
                                 Adopción Responsable
                             </div>
                             <h1 className="text-4xl md:text-6xl font-black tracking-tight text-foreground">
-                                Encuentra a tu <span className="text-primary">videojuego 2</span> de cuatro patas
+                                Encuentra a tu <span className="text-primary">compañero ideal</span> de cuatro patas
                             </h1>
                             <p className="text-xl text-muted-foreground leading-relaxed">
                                 Adoptar es un acto de amor que cambia vidas. Aquí te explicamos cómo funciona nuestro proceso para garantizar finales felices.

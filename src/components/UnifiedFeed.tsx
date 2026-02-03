@@ -32,7 +32,11 @@ export type Animal = {
     status: string;
 };
 
-const UnifiedFeed = () => {
+interface UnifiedFeedProps {
+    onOpenWizard?: (type: "adopcion" | "perdido" | null) => void;
+}
+
+const UnifiedFeed = ({ onOpenWizard }: UnifiedFeedProps) => {
     const { toast } = useToast();
     const [animals, setAnimals] = useState<Animal[]>([]);
     const [loading, setLoading] = useState(true);
@@ -225,14 +229,14 @@ const UnifiedFeed = () => {
                 {/* Quick Publish Actions */}
                 <div className="flex flex-col sm:flex-row gap-4 mb-8 justify-center">
                     <Button
-                        onClick={() => window.location.href = "/?action=publish&type=adoption"}
+                        onClick={() => onOpenWizard?.("adopcion")}
                         className="rounded-full h-12 px-6 shadow-lg shadow-primary/20 hover:scale-105 transition-transform font-bold"
                     >
                         <Heart className="w-5 h-5 mr-2" />
                         Publicar Adopción
                     </Button>
                     <Button
-                        onClick={() => window.location.href = "/?action=publish&type=lost"}
+                        onClick={() => onOpenWizard?.("perdido")}
                         variant="secondary"
                         className="rounded-full h-12 px-6 shadow-lg hover:scale-105 transition-transform font-bold bg-white text-black border border-border/50"
                     >
