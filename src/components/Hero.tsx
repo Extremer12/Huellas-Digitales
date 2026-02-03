@@ -20,7 +20,7 @@ const Hero = () => {
       </div>
 
       <div className="relative z-10 container mx-auto px-4 md:px-6">
-        <div className="max-w-3xl">
+        <div className="max-w-2xl mr-auto"> {/* Left aligned */}
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold tracking-widest uppercase mb-6 animate-fade-in backdrop-blur-sm">
             <span className="relative flex h-1.5 w-1.5">
@@ -32,11 +32,12 @@ const Hero = () => {
 
           {/* Main Content */}
           <h1 className="text-4xl md:text-5xl lg:text-7xl font-black mb-4 leading-[1.1] tracking-tight animate-fade-in text-balance">
-            Cada Huella <span className="text-primary">Cuenta</span> una Historia
+            Tu ayuda <br />
+            <span className="text-primary">cambia vidas</span>
           </h1>
 
-          <p className="text-base md:text-lg mb-8 max-w-xl text-foreground/70 leading-relaxed font-medium animate-fade-in-slow text-pretty">
-            Conectamos personas con mascotas que necesitan un hogar. Descubrí el impacto de una adopción responsable hoy.
+          <p className="text-base md:text-lg mb-8 max-w-lg text-foreground/80 leading-relaxed font-medium animate-fade-in-slow text-pretty bg-background/50 backdrop-blur-sm p-4 rounded-xl border border-white/10">
+            Conectamos corazones. Adoptá, reportá o encontrá a tu mascota hoy.
           </p>
 
           {/* Action Buttons */}

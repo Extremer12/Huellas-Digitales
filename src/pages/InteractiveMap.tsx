@@ -309,7 +309,7 @@ const InteractiveMap = () => {
                     </div>
                 </div>
             </main>
-            <Footer />
+            {/* Footer removed for full-screen map experience */}
 
             <style>{`
         .leaflet-container {
