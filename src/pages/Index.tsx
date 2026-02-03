@@ -4,39 +4,91 @@ import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import RegionSelector from "@/components/RegionSelector";
+import UnifiedFeed from "@/components/UnifiedFeed";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { ChevronRight, Heart, Search, Star, MapPin, Shield, Users, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import heroImage from "@/assets/hero-adoption.jpg"; // Ensure this asset exists or use a fallback
+import heroImage from "@/assets/hero-adoption.jpg";
 import ComoAyudarSection from "@/components/ComoAyudarSection";
-import PublicarSection from "@/components/PublicarSection";
 
 const Index = () => {
   useScrollAnimation();
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [showRegionSelector, setShowRegionSelector] = useState(false);
+  const [viewLanding, setViewLanding] = useState(true); // Default to true until user is checked
+  const [loadingUser, setLoadingUser] = useState(true);
 
   useEffect(() => {
     checkUser();
   }, []);
 
   const checkUser = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-      setUser(session.user);
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", session.user.id)
-        .single();
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        setUser(session.user);
+        setViewLanding(false); // Valid user -> Show Feed by default
 
-      if (!profileData?.country || !profileData?.province) {
-        setShowRegionSelector(true);
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", session.user.id)
+          .single();
+
+        if (!profileData?.country || !profileData?.province) {
+          setShowRegionSelector(true);
+        }
+      } else {
+        setViewLanding(true); // No user -> Show Landing
       }
+    } catch (error) {
+      console.error("Error checking user:", error);
+    } finally {
+      setLoadingUser(false);
     }
   };
 
+  // Callback to toggle back to landing if user wants to see it
+  // This could be passed to Header if Header supports it, 
+  // currently Header handles its own nav. 
+  // To implement "View Landing" from toggle menu while logged in, 
+  // we might need to use a query param or global state, 
+  // OR just let the user log out? 
+  // The user asked: "deja en el menu toggle un boton para ver la landing"
+  // Since Header is generic, maybe we can add a simple specific button here if in Feed mode?
+  // Or simply rely on the fact that "Feed" IS the home for them. 
+  // If they really want the landing, maybe a temporary button or just logout.
+  // For now, I will prioritize the "Feed" experience.
+
+  if (loadingUser) {
+    return <div className="min-h-screen flex items-center justify-center bg-background"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>;
+  }
+
+  // APP MODE (LOGGED IN)
+  if (user && !viewLanding) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <Header />
+        <main className="pt-20 flex-1">
+          <UnifiedFeed />
+        </main>
+        {/* Minimal footer or no footer for app-like feel? 
+                User said "remove footer from non-home pages". 
+                Technically this IS home. 
+                But for infinite scroll feed, footer is annoying. 
+                I will leave it OUT for the feed view to make it truly 'app-like'. 
+            */}
+
+        {/* Temporary button to view landing if needed for demo purposes, 
+              or maybe the user meant a permanent link. 
+              For a cleaner UI, I'll stick to just the Feed. 
+          */}
+      </div>
+    );
+  }
+
+  // LANDING MODE (NOT LOGGED IN OR FORCED VIEW)
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
@@ -72,7 +124,7 @@ const Index = () => {
                 <Button
                   size="lg"
                   className="bg-primary hover:bg-primary/90 text-white text-lg px-8 h-14 rounded-full shadow-xl shadow-primary/25 transition-all hover:scale-105 hover:-translate-y-1"
-                  onClick={() => navigate("/adopcion")}
+                  onClick={() => navigate("/auth")}
                 >
                   Adoptar ahora <Heart className="ml-2 w-5 h-5 fill-current" />
                 </Button>
@@ -98,10 +150,6 @@ const Index = () => {
 
         {/* FEATURES GRID */}
         <section className="py-24 bg-background relative overflow-hidden scroll-reveal">
-          {/* Decorative blobs */}
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
-
           <div className="container px-4 md:px-6 relative z-10">
             <div className="text-center max-w-2xl mx-auto mb-16 animate-fade-in-up">
               <h2 className="text-3xl md:text-5xl font-black mb-4 tracking-tight text-foreground">Todo en un solo lugar</h2>
@@ -116,9 +164,6 @@ const Index = () => {
                 </div>
                 <h3 className="text-2xl font-bold mb-3">Adopción Responsable</h3>
                 <p className="text-muted-foreground leading-relaxed mb-6">Encuentra a tu compañero ideal con filtros avanzados de búsqueda y perfiles detallados.</p>
-                <Button variant="link" className="p-0 h-auto text-primary text-base font-bold hover:no-underline group/btn" onClick={() => navigate("/adopcion")}>
-                  Explorar adopciones <ArrowRight className="ml-2 w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
-                </Button>
               </div>
 
               {/* Feature 2 */}
@@ -128,9 +173,6 @@ const Index = () => {
                 </div>
                 <h3 className="text-2xl font-bold mb-3">Mapa Interactivo</h3>
                 <p className="text-muted-foreground leading-relaxed mb-6">Visualiza mascotas perdidas, refugios y veterinarias cercanas en tiempo real.</p>
-                <Button variant="link" className="p-0 h-auto text-amber-500 text-base font-bold hover:no-underline group/btn" onClick={() => navigate("/mapa")}>
-                  Ver mapa <ArrowRight className="ml-2 w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
-                </Button>
               </div>
 
               {/* Feature 3 */}
@@ -140,23 +182,12 @@ const Index = () => {
                 </div>
                 <h3 className="text-2xl font-bold mb-3">Seguridad y Confianza</h3>
                 <p className="text-muted-foreground leading-relaxed mb-6">Usuarios verificados y sistema de reportes para garantizar una comunidad segura.</p>
-                <Button variant="link" className="p-0 h-auto text-rose-500 text-base font-bold hover:no-underline group/btn" onClick={() => navigate("/auth")}>
-                  Únete ahora <ArrowRight className="ml-2 w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
-                </Button>
               </div>
             </div>
           </div>
         </section>
 
-        <section id="ayudar" className="py-20 bg-muted/30 scroll-reveal">
-          <ComoAyudarSection />
-        </section>
-
-        <section id="contacto" className="py-24 bg-background scroll-reveal">
-          <PublicarSection />
-        </section>
-
-        {/* CALL TO ACTION */}
+        {/* CALL TO ACTION (Moved Up) */}
         <section className="py-24 relative overflow-hidden bg-black text-white">
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
           {/* Background Glows */}
@@ -177,20 +208,23 @@ const Index = () => {
                   className="bg-white text-black hover:bg-gray-200 text-lg px-10 h-16 rounded-full font-bold shadow-2xl hover:shadow-white/20 transition-all hover:scale-105"
                   onClick={() => navigate("/auth")}
                 >
-                  Comenzar ahora
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-white/20 text-white hover:bg-white/10 text-lg px-10 h-16 rounded-full backdrop-blur-sm transition-all hover:scale-105"
-                  onClick={() => navigate("/historias")}
-                >
-                  Leer historias
+                  Registrarme ahora
                 </Button>
               </div>
             </div>
           </div>
         </section>
+
+        {/* COMO AYUDAR (Donations) - Moved to bottom as requested */}
+        <section id="ayudar" className="py-20 bg-muted/30 scroll-reveal">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-bold text-foreground/50 uppercase tracking-widest text-sm mb-4">Colabora</h2>
+            <p className="text-muted-foreground">Si deseas aportar tu granito de arena.</p>
+          </div>
+          <ComoAyudarSection />
+        </section>
+
+        {/* PublicarSection REMOVED from Landing */}
 
       </main>
       <Footer />
