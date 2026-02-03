@@ -754,37 +754,3 @@ const InfoRow = ({ label, value }: { label: string, value: string }) => (
 );
 
 export default Admin;
-
-
-          </div >
-        </div >
-        <Separator />
-        <div className="flex gap-3">
-          <Button
-            onClick={() => deleteContent(selectedStoryReport, true)}
-            disabled={processing}
-            variant="destructive"
-            className="flex-1"
-          >
-            <XCircle className="w-4 h-4 mr-2" />
-            {processing ? "Procesando..." : "Eliminar Historia"}
-          </Button>
-          <Button
-            onClick={() => updateReportStatus(selectedStoryReport.id, "rejected", true)}
-            disabled={processing}
-            variant="outline"
-            className="flex-1"
-          >
-            <CheckCircle className="w-4 h-4 mr-2" />
-            {processing ? "Procesando..." : "Rechazar Reporte"}
-          </Button>
-        </div>
-      </div >
-    )}
-  </DialogContent >
-</Dialog >
-    </div >
-  );
-};
-
-export default Admin;
