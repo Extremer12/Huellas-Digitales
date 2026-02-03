@@ -292,7 +292,7 @@ const Profile = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
 
-      <main className="flex-1 container max-w-5xl mx-auto px-4 py-8 lg:py-12 space-y-8">
+      <main className="flex-1 container max-w-5xl mx-auto px-4 py-12 lg:py-16 space-y-8 mt-4">
 
         {/* Modern Profile Header */}
         <section className="flex flex-col md:flex-row gap-6 md:items-center justify-between p-6 rounded-3xl bg-card border border-border/50 shadow-sm relative overflow-hidden">
@@ -308,7 +308,7 @@ const Profile = () => {
                 className="hidden"
               />
               <Avatar className="w-20 h-20 md:w-24 md:h-24 rounded-full border-4 border-background shadow-md cursor-pointer transition-transform group-hover:scale-105" onClick={() => avatarInputRef.current?.click()}>
-                <AvatarImage src={profile?.avatar_url} alt="Avatar" className="object-cover" />
+                {profile?.avatar_url && <AvatarImage src={profile.avatar_url} alt="Avatar" className="object-cover" />}
                 <AvatarFallback className="text-2xl font-bold bg-primary/10 text-primary">
                   {getInitials(user?.email)}
                 </AvatarFallback>
