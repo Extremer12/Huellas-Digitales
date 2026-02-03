@@ -26,7 +26,6 @@ const Adopcion = () => {
                     <PublicarSection />
                 </div>
             </main>
-            <Footer />
         </div>
     );
 };

@@ -394,7 +394,7 @@ const Admin = () => {
         <div className="container mx-auto px-4 py-20 flex items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
-        <Footer />
+
       </div>
     );
   }
@@ -683,7 +683,7 @@ const Admin = () => {
           </Tabs>
         </div>
       </main>
-      <Footer />
+
 
       {/* Citizen Report Detail Modal */}
       <Dialog open={!!selectedCitizenReport} onOpenChange={() => setSelectedCitizenReport(null)}>

@@ -20,7 +20,7 @@ const Historias = () => {
                 </div>
                 <AdoptedSection />
             </main>
-            <Footer />
+
         </div>
     );
 };

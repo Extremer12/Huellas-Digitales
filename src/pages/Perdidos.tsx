@@ -40,7 +40,7 @@ const Perdidos = () => {
                     <PublicarSection />
                 </div>
             </main>
-            <Footer />
+
         </div>
     );
 };

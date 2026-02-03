@@ -8,7 +8,7 @@ const PrivacyPolicy = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      
+
       <main className="flex-1 section-padding">
         <div className="container-custom max-w-4xl">
           <Link to="/">
@@ -19,13 +19,13 @@ const PrivacyPolicy = () => {
           </Link>
 
           <h1 className="text-4xl font-bold mb-8">Política de Privacidad</h1>
-          
+
           <div className="space-y-6 text-muted-foreground">
             <section>
               <h2 className="text-2xl font-semibold text-foreground mb-3">1. Introducción</h2>
               <p>
-                En Huellas Digitales, nos comprometemos a proteger su privacidad y sus datos personales. 
-                Esta política de privacidad explica cómo recopilamos, usamos, compartimos y protegemos 
+                En Huellas Digitales, nos comprometemos a proteger su privacidad y sus datos personales.
+                Esta política de privacidad explica cómo recopilamos, usamos, compartimos y protegemos
                 su información cuando utiliza nuestros servicios.
               </p>
             </section>
@@ -72,8 +72,8 @@ const PrivacyPolicy = () => {
             <section>
               <h2 className="text-2xl font-semibold text-foreground mb-3">5. Almacenamiento de Datos</h2>
               <p>
-                Sus datos se almacenan de forma segura en servidores protegidos. Implementamos medidas 
-                de seguridad técnicas y organizativas para proteger su información contra acceso no 
+                Sus datos se almacenan de forma segura en servidores protegidos. Implementamos medidas
+                de seguridad técnicas y organizativas para proteger su información contra acceso no
                 autorizado, pérdida o alteración.
               </p>
             </section>
@@ -81,8 +81,8 @@ const PrivacyPolicy = () => {
             <section>
               <h2 className="text-2xl font-semibold text-foreground mb-3">6. Retención de Datos</h2>
               <p>
-                Conservamos su información personal mientras su cuenta esté activa o según sea necesario 
-                para proporcionar servicios. Puede solicitar la eliminación de su cuenta y datos asociados 
+                Conservamos su información personal mientras su cuenta esté activa o según sea necesario
+                para proporcionar servicios. Puede solicitar la eliminación de su cuenta y datos asociados
                 en cualquier momento.
               </p>
             </section>
@@ -103,8 +103,8 @@ const PrivacyPolicy = () => {
             <section>
               <h2 className="text-2xl font-semibold text-foreground mb-3">8. Cookies y Tecnologías Similares</h2>
               <p>
-                Utilizamos cookies y tecnologías similares para mejorar su experiencia, analizar el uso 
-                de la plataforma y personalizar el contenido. Puede configurar su navegador para rechazar 
+                Utilizamos cookies y tecnologías similares para mejorar su experiencia, analizar el uso
+                de la plataforma y personalizar el contenido. Puede configurar su navegador para rechazar
                 cookies, aunque esto puede afectar la funcionalidad del sitio.
               </p>
             </section>
@@ -112,8 +112,8 @@ const PrivacyPolicy = () => {
             <section>
               <h2 className="text-2xl font-semibold text-foreground mb-3">9. Seguridad de Menores</h2>
               <p>
-                Nuestros servicios no están dirigidos a menores de 18 años. No recopilamos 
-                intencionalmente información de menores. Si descubrimos que hemos recopilado 
+                Nuestros servicios no están dirigidos a menores de 18 años. No recopilamos
+                intencionalmente información de menores. Si descubrimos que hemos recopilado
                 información de un menor, la eliminaremos de inmediato.
               </p>
             </section>
@@ -121,8 +121,8 @@ const PrivacyPolicy = () => {
             <section>
               <h2 className="text-2xl font-semibold text-foreground mb-3">10. Enlaces a Terceros</h2>
               <p>
-                Nuestra plataforma puede contener enlaces a sitios web de terceros. No somos responsables 
-                de las prácticas de privacidad de estos sitios. Le recomendamos revisar sus políticas de 
+                Nuestra plataforma puede contener enlaces a sitios web de terceros. No somos responsables
+                de las prácticas de privacidad de estos sitios. Le recomendamos revisar sus políticas de
                 privacidad.
               </p>
             </section>
@@ -130,8 +130,8 @@ const PrivacyPolicy = () => {
             <section>
               <h2 className="text-2xl font-semibold text-foreground mb-3">11. Transferencias Internacionales</h2>
               <p>
-                Sus datos pueden ser transferidos y almacenados en servidores ubicados fuera de su país. 
-                Nos aseguramos de que estas transferencias cumplan con las leyes de protección de datos 
+                Sus datos pueden ser transferidos y almacenados en servidores ubicados fuera de su país.
+                Nos aseguramos de que estas transferencias cumplan con las leyes de protección de datos
                 aplicables.
               </p>
             </section>
@@ -139,8 +139,8 @@ const PrivacyPolicy = () => {
             <section>
               <h2 className="text-2xl font-semibold text-foreground mb-3">12. Cambios en esta Política</h2>
               <p>
-                Podemos actualizar esta política de privacidad ocasionalmente. Le notificaremos sobre 
-                cambios significativos publicando la nueva política en esta página y actualizando la 
+                Podemos actualizar esta política de privacidad ocasionalmente. Le notificaremos sobre
+                cambios significativos publicando la nueva política en esta página y actualizando la
                 fecha de "última actualización".
               </p>
             </section>
@@ -186,11 +186,11 @@ const PrivacyPolicy = () => {
             <section>
               <h2 className="text-2xl font-semibold text-foreground mb-3">16. Contacto y Oficial de Protección de Datos</h2>
               <p>
-                Si tiene preguntas o inquietudes sobre esta política de privacidad o el manejo de sus 
+                Si tiene preguntas o inquietudes sobre esta política de privacidad o el manejo de sus
                 datos personales, puede contactarnos en:
               </p>
               <p className="mt-2">
-                Email: 
+                Email:
                 <a href="mailto:zioncode25@gmail.com" className="text-primary hover:underline ml-1">
                   zioncode25@gmail.com
                 </a>
@@ -205,7 +205,7 @@ const PrivacyPolicy = () => {
             <section>
               <h2 className="text-2xl font-semibold text-foreground mb-3">14. Consentimiento</h2>
               <p>
-                Al utilizar Huellas Digitales, usted consiente la recopilación y uso de su información 
+                Al utilizar Huellas Digitales, usted consiente la recopilación y uso de su información
                 según se describe en esta política de privacidad.
               </p>
             </section>
@@ -219,7 +219,7 @@ const PrivacyPolicy = () => {
         </div>
       </main>
 
-      <Footer />
+
     </div>
   );
 };
