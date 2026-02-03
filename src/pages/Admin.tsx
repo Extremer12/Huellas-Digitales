@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, CheckCircle, XCircle, Eye, Shield, Loader2 } from "lucide-react";
+import { AlertTriangle, CheckCircle, XCircle, Eye, Shield, Loader2, Home } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
@@ -665,9 +665,9 @@ const Admin = () => {
                             </Badge>
                           </div>
                           <p className="text-xs text-muted-foreground mb-3">{org.type}</p>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             className="w-full text-xs h-8 border border-primary/10"
                             onClick={() => toggleOrganizationVerification(org.id, org.verified)}
                           >
@@ -704,15 +704,15 @@ const Admin = () => {
                 <p className="text-sm p-4 bg-muted rounded-md">{selectedCitizenReport.description}</p>
               </div>
               <div className="flex gap-2">
-                <Button 
-                  className="flex-1" 
+                <Button
+                  className="flex-1"
                   onClick={() => updateCitizenReportStatus(selectedCitizenReport.id, 'investigating')}
                   disabled={selectedCitizenReport.status === 'investigating' || processing}
                 >
                   Marcar "En Investigación"
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="flex-1"
                   onClick={() => updateCitizenReportStatus(selectedCitizenReport.id, 'resolved')}
                   disabled={selectedCitizenReport.status === 'resolved' || processing}
