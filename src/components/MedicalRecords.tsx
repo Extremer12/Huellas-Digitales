@@ -272,7 +272,7 @@ const MedicalRecords = ({ animalId, isOwner }: MedicalRecordsProps) => {
                     ))
                 )}
             </div>
-        </div >
+        </div>
     );
 };
 
