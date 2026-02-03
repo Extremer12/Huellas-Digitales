@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -14,33 +14,38 @@ import ComoAyudarSection from "@/components/ComoAyudarSection";
 const Index = () => {
   useScrollAnimation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [user, setUser] = useState<any>(null);
   const [showRegionSelector, setShowRegionSelector] = useState(false);
-  const [viewLanding, setViewLanding] = useState(true); // Default to true until user is checked
+  const [viewLanding, setViewLanding] = useState(true);
   const [loadingUser, setLoadingUser] = useState(true);
 
   useEffect(() => {
     checkUser();
-  }, []);
+  }, [searchParams]);
 
   const checkUser = async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
+      const forceLanding = searchParams.get("forceLanding") === "true";
+
       if (session) {
         setUser(session.user);
-        setViewLanding(false); // Valid user -> Show Feed by default
+        setViewLanding(forceLanding);
 
-        const { data: profileData } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", session.user.id)
-          .single();
+        if (!forceLanding) {
+          const { data: profileData } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", session.user.id)
+            .single();
 
-        if (!profileData?.country || !profileData?.province) {
-          setShowRegionSelector(true);
+          if (!profileData?.country || !profileData?.province) {
+            setShowRegionSelector(true);
+          }
         }
       } else {
-        setViewLanding(true); // No user -> Show Landing
+        setViewLanding(true);
       }
     } catch (error) {
       console.error("Error checking user:", error);
@@ -88,10 +93,10 @@ const Index = () => {
     );
   }
 
-  // LANDING MODE (NOT LOGGED IN OR FORCED VIEW)
+  // LANDING MODE
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <Header />
+      <Header minimal={true} />
 
       <main className="flex-1">
 
@@ -229,7 +234,7 @@ const Index = () => {
       </main>
       <Footer />
 
-      {showRegionSelector && user && (
+      {showRegionSelector && user && !searchParams.get("forceLanding") && (
         <RegionSelector
           open={showRegionSelector}
           userId={user.id}

@@ -1,4 +1,4 @@
-import { Menu, LogIn, LogOut, User, Heart, Shield, PlusCircle, Search, HelpCircle, Mail, MessageSquare } from "lucide-react";
+import { Menu, LogIn, LogOut, User, Heart, Shield, PlusCircle, Search, HelpCircle, Mail, MessageSquare, LayoutTemplate } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate, Link, useLocation } from "react-router-dom";
@@ -6,7 +6,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import logo from "@/assets/logo.png";
 
-const Header = () => {
+interface HeaderProps {
+  minimal?: boolean;
+}
+
+const Header = ({ minimal = false }: HeaderProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
@@ -101,7 +105,8 @@ const Header = () => {
     { name: "Perdidos", path: "/perdidos", type: "link" },
     { name: "Mapa", path: "/mapa", type: "link" },
     { name: "Historias", path: "/historias", type: "link" },
-    { name: "Cómo Ayudar", path: "ayudar", type: "section" },
+    // Use /colaborar route if minimal (app mode) or logged in, otherwise section
+    { name: "Cómo Ayudar", path: isAuthenticated ? "/colaborar" : "ayudar", type: isAuthenticated ? "link" : "section" },
   ];
 
   return (
@@ -124,31 +129,33 @@ const Header = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-8">
-            {navLinks.map((link) => (
-              link.type === "section" ? (
-                <button
-                  key={link.name}
-                  onClick={() => scrollToSection(link.path)}
-                  className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors py-2 relative group"
-                >
-                  {link.name}
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
-                </button>
-              ) : (
-                <Link
-                  key={link.name}
-                  to={link.path}
-                  className={`text-sm font-medium py-2 relative group ${location.pathname === link.path ? "text-primary px-1" : "text-foreground/70 hover:text-primary"
-                    }`}
-                >
-                  {link.name}
-                  <span className={`absolute bottom-0 left-0 h-0.5 bg-primary transition-all duration-300 ${location.pathname === link.path ? "w-full" : "w-0 group-hover:w-full"
-                    }`}></span>
-                </Link>
-              )
-            ))}
-          </nav>
+          {!minimal && (
+            <nav className="hidden lg:flex items-center gap-8">
+              {navLinks.map((link) => (
+                link.type === "section" ? (
+                  <button
+                    key={link.name}
+                    onClick={() => scrollToSection(link.path)}
+                    className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors py-2 relative group"
+                  >
+                    {link.name}
+                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
+                  </button>
+                ) : (
+                  <Link
+                    key={link.name}
+                    to={link.path}
+                    className={`text-sm font-medium py-2 relative group ${location.pathname === link.path ? "text-primary px-1" : "text-foreground/70 hover:text-primary"
+                      }`}
+                  >
+                    {link.name}
+                    <span className={`absolute bottom-0 left-0 h-0.5 bg-primary transition-all duration-300 ${location.pathname === link.path ? "w-full" : "w-0 group-hover:w-full"
+                      }`}></span>
+                  </Link>
+                )
+              ))}
+            </nav>
+          )}
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-4">
@@ -208,7 +215,7 @@ const Header = () => {
                   <SheetTitle className="text-2xl font-black">MENÚ</SheetTitle>
                 </SheetHeader>
                 <div className="flex flex-col gap-2">
-                  {navLinks.map((link) => (
+                  {!minimal && navLinks.map((link) => (
                     link.type === "section" ? (
                       <Button
                         key={link.name}
@@ -245,6 +252,24 @@ const Header = () => {
                         <User className="w-5 h-5 mr-3" />
                         Mi Perfil
                       </Button>
+
+                      {/* View Landing Option */}
+                      <Button
+                        onClick={() => {
+                          // Logic to force landing view? 
+                          // Ideally we should have a route for landing or use state.
+                          // But since user requested "boton para ver la landing", 
+                          // we can navigate to "?landing=true" or let Index handle it.
+                          navigate("/?forceLanding=true");
+                          setIsOpen(false);
+                        }}
+                        variant="ghost"
+                        className="justify-start text-lg h-12 hover:bg-primary/10"
+                      >
+                        <LayoutTemplate className="w-5 h-5 mr-3" />
+                        Ver Landing Page
+                      </Button>
+
                       {isAdmin && (
                         <Button
                           onClick={() => { navigate("/admin"); setIsOpen(false); }}
@@ -255,6 +280,7 @@ const Header = () => {
                           Administración
                         </Button>
                       )}
+
                       <Button
                         onClick={handleAuth}
                         variant="destructive"
