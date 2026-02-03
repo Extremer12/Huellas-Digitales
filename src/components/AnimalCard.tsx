@@ -1,4 +1,4 @@
-import { MapPin, Eye } from "lucide-react";
+import { MapPin, Eye, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Animal } from "./AnimalesSection";

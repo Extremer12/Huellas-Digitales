@@ -219,8 +219,28 @@ const UnifiedFeed = () => {
                 </div>
             </div>
 
-            {/* FEED GRID */}
+            {/* Quick Actions & Feed Grid */}
             <div className="container mx-auto px-4 py-6">
+
+                {/* Quick Publish Actions */}
+                <div className="flex flex-col sm:flex-row gap-4 mb-8 justify-center">
+                    <Button
+                        onClick={() => window.location.href = "/?action=publish&type=adoption"}
+                        className="rounded-full h-12 px-6 shadow-lg shadow-primary/20 hover:scale-105 transition-transform font-bold"
+                    >
+                        <Heart className="w-5 h-5 mr-2" />
+                        Publicar Adopción
+                    </Button>
+                    <Button
+                        onClick={() => window.location.href = "/?action=publish&type=lost"}
+                        variant="secondary"
+                        className="rounded-full h-12 px-6 shadow-lg hover:scale-105 transition-transform font-bold bg-white text-black border border-border/50"
+                    >
+                        <AlertTriangle className="w-5 h-5 mr-2 text-destructive" />
+                        Reportar Perdido
+                    </Button>
+                </div>
+
                 {loading ? (
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                         {[...Array(8)].map((_, i) => (

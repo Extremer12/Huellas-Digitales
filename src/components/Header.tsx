@@ -87,7 +87,7 @@ const Header = ({ minimal = false }: HeaderProps) => {
   const handleAuth = async () => {
     if (isAuthenticated) {
       await supabase.auth.signOut();
-      navigate("/");
+      window.location.href = "/"; // Force full reload to Ensure Landing View
     } else {
       navigate("/auth");
     }
@@ -251,23 +251,6 @@ const Header = ({ minimal = false }: HeaderProps) => {
                       >
                         <User className="w-5 h-5 mr-3" />
                         Mi Perfil
-                      </Button>
-
-                      {/* View Landing Option */}
-                      <Button
-                        onClick={() => {
-                          // Logic to force landing view? 
-                          // Ideally we should have a route for landing or use state.
-                          // But since user requested "boton para ver la landing", 
-                          // we can navigate to "?landing=true" or let Index handle it.
-                          navigate("/?forceLanding=true");
-                          setIsOpen(false);
-                        }}
-                        variant="ghost"
-                        className="justify-start text-lg h-12 hover:bg-primary/10"
-                      >
-                        <LayoutTemplate className="w-5 h-5 mr-3" />
-                        Ver Landing Page
                       </Button>
 
                       {isAdmin && (
