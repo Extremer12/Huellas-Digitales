@@ -7,6 +7,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -149,10 +150,53 @@ const InteractiveMap = () => {
     return (
         <div className="min-h-screen bg-background">
             <Header />
-            <main className="pt-20 lg:pt-24 pb-10">
-                <div className="container mx-auto px-4">
-                    <div className="flex flex-col lg:flex-row gap-6 mb-8">
-                        <div className="lg:w-1/4 space-y-6">
+            <main className="pt-20 lg:pt-24 pb-0 lg:pb-10 h-[calc(100vh)] lg:h-auto flex flex-col">
+                <div className="container mx-auto px-0 lg:px-4 h-full flex flex-col lg:block">
+                    {/* Mobile Filters Trigger */}
+                    <div className="lg:hidden px-4 py-2 border-b flex justify-between items-center bg-background z-10 shrink-0">
+                        <h1 className="font-bold text-lg">Mapa de Huellas</h1>
+                        <Sheet>
+                            <SheetTrigger asChild>
+                                <Button variant="outline" size="sm" className="gap-2">
+                                    <Filter className="w-4 h-4" />
+                                    Filtros
+                                </Button>
+                            </SheetTrigger>
+                            <SheetContent side="left" className="w-[300px]">
+                                <SheetHeader>
+                                    <SheetTitle>Filtros del Mapa</SheetTitle>
+                                </SheetHeader>
+                                <div className="py-6 space-y-6">
+                                    {/* Reuse Filter Logic */}
+                                    {/* ... (Checkbox Groups) ... */}
+                                    <div className="space-y-4">
+                                        <div className="flex items-center space-x-2">
+                                            <Checkbox id="pets-m" checked={filters.pets} onCheckedChange={(c) => setFilters({ ...filters, pets: !!c })} />
+                                            <Label htmlFor="pets-m" className="flex items-center gap-2">
+                                                <div className="w-3 h-3 rounded-full bg-blue-500"></div> Mascotas
+                                            </Label>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            <Checkbox id="orgs-m" checked={filters.orgs} onCheckedChange={(c) => setFilters({ ...filters, orgs: !!c })} />
+                                            <Label htmlFor="orgs-m" className="flex items-center gap-2">
+                                                <div className="w-3 h-3 rounded-full bg-green-500"></div> Organizaciones
+                                            </Label>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            <Checkbox id="reports-m" checked={filters.reports} onCheckedChange={(c) => setFilters({ ...filters, reports: !!c })} />
+                                            <Label htmlFor="reports-m" className="flex items-center gap-2">
+                                                <div className="w-3 h-3 rounded-full bg-red-500"></div> Reportes
+                                            </Label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </SheetContent>
+                        </Sheet>
+                    </div>
+
+                    <div className="flex flex-col lg:flex-row gap-6 lg:mb-8 h-full lg:h-auto">
+                        {/* Desktop Sidebar */}
+                        <div className="hidden lg:block lg:w-1/4 space-y-6">
                             <Card className="bg-card/50 backdrop-blur-sm border-primary/10">
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2">
@@ -239,8 +283,9 @@ const InteractiveMap = () => {
                             </Card>
                         </div>
 
-                        <div className="lg:w-3/4">
-                            <div className="h-[600px] w-full rounded-2xl overflow-hidden shadow-2xl border border-primary/10 relative z-10">
+                        <div className="lg:w-3/4 flex-1 h-full relative">
+                            {/* Map Wrapper with Mobile Height Fix */}
+                            <div className="h-full lg:h-[600px] w-full rounded-none lg:rounded-2xl overflow-hidden shadow-2xl border-0 lg:border border-primary/10 relative z-0">
                                 {loading ? (
                                     <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm z-50">
                                         <div className="flex flex-col items-center gap-4">

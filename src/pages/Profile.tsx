@@ -276,12 +276,12 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background flex flex-col">
         <Header />
-        <div className="container mx-auto px-4 py-32 text-center">
-          <div className="inline-flex items-center gap-3">
-            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-            <span className="text-lg text-muted-foreground">Cargando tu perfil...</span>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4 animate-pulse">
+            <div className="w-16 h-16 bg-muted rounded-full" />
+            <div className="h-4 w-32 bg-muted rounded" />
           </div>
         </div>
       </div>
@@ -289,321 +289,240 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <Header />
-      <main className="container mx-auto px-4 py-20 lg:py-24">
-        <div className="max-w-7xl mx-auto space-y-8">
 
-          {/* Profile Header Card */}
-          <Card className="overflow-hidden border-0 shadow-xl bg-gradient-to-br from-card to-card/50">
-            <div className="h-32 bg-gradient-to-r from-primary/20 via-primary/10 to-accent/20" />
-            <CardContent className="relative pt-0 pb-8 px-6 lg:px-8">
-              <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 -mt-16">
+      <main className="flex-1 container max-w-5xl mx-auto px-4 py-8 lg:py-12 space-y-8">
 
-                {/* Avatar & Info */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 sm:gap-6">
-                  <div className="relative group">
-                    <input
-                      type="file"
-                      ref={avatarInputRef}
-                      onChange={handleAvatarUpload}
-                      accept="image/*"
-                      className="hidden"
-                    />
-                    <Avatar className="w-28 h-28 rounded-2xl shadow-2xl border-4 border-background cursor-pointer" onClick={() => avatarInputRef.current?.click()}>
-                      <AvatarImage src={profile?.avatar_url} alt="Avatar" className="object-cover" />
-                      <AvatarFallback className="rounded-2xl bg-gradient-to-br from-primary to-primary/60 text-4xl font-bold text-primary-foreground">
-                        {getInitials(user?.email)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <button
-                      onClick={() => avatarInputRef.current?.click()}
-                      disabled={uploadingAvatar}
-                      className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      {uploadingAvatar ? (
-                        <Loader2 className="w-8 h-8 text-white animate-spin" />
-                      ) : (
-                        <Camera className="w-8 h-8 text-white" />
-                      )}
-                    </button>
-                  </div>
-                  <div className="space-y-2 pb-2">
-                    <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">Mi Perfil</h1>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground">
-                      <span className="flex items-center gap-1.5">
-                        <Mail className="w-4 h-4" />
-                        {user?.email}
-                      </span>
-                      {profile?.province && (
-                        <span className="flex items-center gap-1.5">
-                          <MapPin className="w-4 h-4" />
-                          {profile.province}, {profile.country}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
+        {/* Modern Profile Header */}
+        <section className="flex flex-col md:flex-row gap-6 md:items-center justify-between p-6 rounded-3xl bg-card border border-border/50 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
-                {/* Action Buttons */}
-                <div className="flex flex-wrap gap-2">
-                  {pushSupported && (
-                    <Button
-                      variant={pushSubscribed ? "default" : "outline"}
-                      size="sm"
-                      onClick={pushSubscribed ? unsubscribePush : subscribePush}
-                      disabled={pushLoading}
-                      className="gap-2"
-                    >
-                      {pushSubscribed ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
-                      {pushLoading ? "..." : pushSubscribed ? "Push ON" : "Activar Push"}
-                    </Button>
-                  )}
-                  <Button variant="outline" size="sm" onClick={() => navigate("/")} className="gap-2">
-                    <Home className="w-4 h-4" />
-                    Inicio
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={handleSignOut} className="gap-2 text-destructive hover:text-destructive">
-                    <LogOut className="w-4 h-4" />
-                    Salir
-                  </Button>
-                </div>
+          <div className="flex items-center gap-5 relative z-10">
+            <div className="relative group shrink-0">
+              <input
+                type="file"
+                ref={avatarInputRef}
+                onChange={handleAvatarUpload}
+                accept="image/*"
+                className="hidden"
+              />
+              <Avatar className="w-20 h-20 md:w-24 md:h-24 rounded-full border-4 border-background shadow-md cursor-pointer transition-transform group-hover:scale-105" onClick={() => avatarInputRef.current?.click()}>
+                <AvatarImage src={profile?.avatar_url} alt="Avatar" className="object-cover" />
+                <AvatarFallback className="text-2xl font-bold bg-primary/10 text-primary">
+                  {getInitials(user?.email)}
+                </AvatarFallback>
+              </Avatar>
+              <button
+                onClick={() => avatarInputRef.current?.click()}
+                disabled={uploadingAvatar}
+                className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                {uploadingAvatar ? <Loader2 className="w-6 h-6 text-white animate-spin" /> : <Camera className="w-6 h-6 text-white" />}
+              </button>
+            </div>
+
+            <div className="space-y-1">
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+                Mi Perfil
+              </h1>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-sm text-muted-foreground">
+                <span className="flex items-center gap-1.5 bg-muted/50 px-2 py-0.5 rounded-md">
+                  <Mail className="w-3.5 h-3.5" />
+                  {user?.email}
+                </span>
+                {profile?.province && (
+                  <span className="flex items-center gap-1.5 bg-muted/50 px-2 py-0.5 rounded-md">
+                    <MapPin className="w-3.5 h-3.5" />
+                    {profile.province}, {profile.country}
+                  </span>
+                )}
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Stats Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {[
-              { label: "Total", value: stats.total, icon: PawPrint, color: "primary" },
-              { label: "Disponibles", value: stats.disponible, icon: Heart, color: "emerald" },
-              { label: "Adoptados", value: stats.adoptado, icon: Home, color: "amber" },
-              { label: "Perdidos", value: stats.perdido, icon: AlertTriangle, color: "rose" },
-            ].map((stat) => (
-              <Card key={stat.label} className="relative overflow-hidden group hover:shadow-lg transition-all duration-300">
-                <CardContent className="p-5">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-3xl lg:text-4xl font-bold">{stat.value}</p>
-                      <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
-                    </div>
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center bg-${stat.color}-500/10 group-hover:scale-110 transition-transform`}>
-                      <stat.icon className={`w-6 h-6 text-${stat.color}-500`} />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+            </div>
           </div>
 
-          {/* Quick Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button onClick={() => setShowPublicationForm(true)} size="lg" className="h-14 gap-3 text-base">
-              <Plus className="w-5 h-5" />
-              Nueva Publicación
-            </Button>
-            <Button variant="outline" size="lg" className="h-14 gap-3 text-base" onClick={() => {
-              navigate("/");
-              setTimeout(() => document.getElementById("adoptados")?.scrollIntoView({ behavior: "smooth" }), 100);
-            }}>
-              <Heart className="w-5 h-5" />
-              Historias de Adopción
-            </Button>
-            <Button variant="outline" size="lg" className="h-14 gap-3 text-base" onClick={() => {
-              navigate("/");
-              setTimeout(() => document.getElementById("perdidos")?.scrollIntoView({ behavior: "smooth" }), 100);
-            }}>
-              <AlertTriangle className="w-5 h-5" />
-              Mascotas Perdidas
+          <div className="flex flex-wrap gap-2 relative z-10">
+            {pushSupported && (
+              <Button
+                variant={pushSubscribed ? "secondary" : "outline"}
+                size="sm"
+                onClick={pushSubscribed ? unsubscribePush : subscribePush}
+                disabled={pushLoading}
+                className="gap-2 rounded-full"
+              >
+                {pushSubscribed ? <Bell className="w-4 h-4 text-primary" /> : <BellOff className="w-4 h-4" />}
+                {pushLoading ? "..." : pushSubscribed ? "Notificaciones Activas" : "Activar Notificaciones"}
+              </Button>
+            )}
+            <Button variant="ghost" size="sm" onClick={handleSignOut} className="gap-2 text-destructive hover:text-destructive hover:bg-destructive/10 rounded-full">
+              <LogOut className="w-4 h-4" />
+              <span className="hidden sm:inline">Cerrar Sesión</span>
             </Button>
           </div>
+        </section>
 
-          {/* Tabs */}
-          <Tabs defaultValue="animals" className="w-full">
-            <TabsList className="w-full h-auto p-1 grid grid-cols-3 gap-1 bg-muted/50">
-              <TabsTrigger value="animals" className="gap-2 py-3 data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                <PawPrint className="w-4 h-4" />
-                <span className="hidden sm:inline">Publicaciones</span>
-                <Badge variant="secondary" className="ml-1">{animals.length}</Badge>
-              </TabsTrigger>
-              <TabsTrigger value="stories" className="gap-2 py-3 data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                <Heart className="w-4 h-4" />
-                <span className="hidden sm:inline">Historias</span>
-                <Badge variant="secondary" className="ml-1">{adoptionStories.length}</Badge>
-              </TabsTrigger>
-              <TabsTrigger value="chats" className="gap-2 py-3 data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                <MessageCircle className="w-4 h-4" />
-                <span className="hidden sm:inline">Chats</span>
-              </TabsTrigger>
-            </TabsList>
-
-            {/* Animals Tab */}
-            <TabsContent value="animals" className="mt-6">
-              {animals.length === 0 ? (
-                <Card className="border-dashed">
-                  <CardContent className="py-16 text-center">
-                    <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
-                      <PawPrint className="w-10 h-10 text-muted-foreground" />
-                    </div>
-                    <h3 className="text-xl font-semibold mb-2">Sin publicaciones</h3>
-                    <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
-                      Aún no has publicado ningún animal. ¡Comienza ahora y ayuda a encontrar hogares!
-                    </p>
-                    <Button onClick={() => setShowPublicationForm(true)} size="lg" className="gap-2">
-                      <Plus className="w-5 h-5" />
-                      Crear publicación
-                    </Button>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {animals.map((animal) => (
-                    <Card key={animal.id} className="group overflow-hidden hover:shadow-xl transition-all duration-300">
-                      <div className="relative aspect-[4/3] overflow-hidden">
-                        <img
-                          src={animal.image_url}
-                          alt={animal.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                        <div className="absolute top-3 right-3">
-                          {getStatusBadge(animal.status)}
-                        </div>
-                        <div className="absolute bottom-3 left-3 right-3">
-                          <h3 className="text-xl font-bold text-white mb-1">{animal.name}</h3>
-                          <p className="text-white/80 text-sm">
-                            {animal.type === "perro" ? "🐕" : animal.type === "gato" ? "🐈" : "🐾"} {animal.age} • {animal.size}
-                          </p>
-                        </div>
-                      </div>
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
-                          <MapPin className="w-4 h-4" />
-                          {animal.location}
-                        </div>
-                        <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
-                          {animal.description}
-                        </p>
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm" onClick={() => handleEdit(animal)} className="flex-1 gap-1.5">
-                            <Edit className="w-4 h-4" />
-                            Editar
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setDeleteConfirm({ type: 'animal', id: animal.id })}
-                            className="flex-1 gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                            Eliminar
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </TabsContent>
-
-            {/* Stories Tab */}
-            <TabsContent value="stories" className="mt-6">
-              {adoptionStories.length === 0 ? (
-                <Card className="border-dashed">
-                  <CardContent className="py-16 text-center">
-                    <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
-                      <Heart className="w-10 h-10 text-muted-foreground" />
-                    </div>
-                    <h3 className="text-xl font-semibold mb-2">Sin historias</h3>
-                    <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
-                      ¿Adoptaste una mascota? ¡Comparte tu historia y motiva a otros!
-                    </p>
-                    <Button onClick={() => {
-                      navigate("/");
-                      setTimeout(() => document.getElementById("adoptados")?.scrollIntoView({ behavior: "smooth" }), 100);
-                    }} size="lg" className="gap-2">
-                      <Heart className="w-5 h-5" />
-                      Compartir historia
-                    </Button>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {adoptionStories.map((story) => (
-                    <Card key={story.id} className="group overflow-hidden hover:shadow-xl transition-all duration-300">
-                      <div className="relative aspect-[4/3] overflow-hidden">
-                        <img
-                          src={story.story_image_url}
-                          alt={story.animal_name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                        <div className="absolute bottom-3 left-3 right-3">
-                          <h3 className="text-xl font-bold text-white mb-1">{story.animal_name}</h3>
-                          <p className="text-white/80 text-sm flex items-center gap-1.5">
-                            <Calendar className="w-3.5 h-3.5" />
-                            {formatDate(story.created_at)}
-                          </p>
-                        </div>
-                      </div>
-                      <CardContent className="p-4">
-                        <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
-                          {story.story_text}
-                        </p>
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm" onClick={() => handleEditStory(story)} className="flex-1 gap-1.5">
-                            <Edit className="w-4 h-4" />
-                            Editar
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setDeleteConfirm({ type: 'story', id: story.id })}
-                            className="flex-1 gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                            Eliminar
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </TabsContent>
-
-            {/* Chats Tab */}
-            <TabsContent value="chats" className="mt-6">
-              <Card>
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center gap-2">
-                    <MessageCircle className="w-5 h-5" />
-                    Mis Conversaciones
-                  </CardTitle>
-                  <CardDescription>
-                    Gestiona tus conversaciones con adoptantes y publicadores
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {user && <ChatList userId={user.id} />}
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+        {/* Floating Action Button for Mobile / Toolbar for Desktop */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Button onClick={() => setShowPublicationForm(true)} size="lg" className="flex-1 shadow-md bg-primary hover:bg-primary/90 rounded-xl h-12 text-base">
+            <Plus className="w-5 h-5 mr-2" />
+            Nueva Publicación
+          </Button>
+          <Button variant="outline" onClick={() => navigate("/")} className="flex-1 rounded-xl h-12 border-dashed border-primary/30 hover:border-primary/60 hover:bg-primary/5">
+            <Home className="w-4 h-4 mr-2" />
+            Ir al Inicio
+          </Button>
         </div>
+
+        {/* Content Tabs */}
+        <Tabs defaultValue="animals" className="w-full">
+          <TabsList className="w-full justify-start h-auto p-0 bg-transparent border-b border-border mb-6 gap-6">
+            <TabsTrigger
+              value="animals"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none px-0 py-3 bg-transparent transition-all"
+            >
+              <div className="flex items-center gap-2">
+                <PawPrint className="w-4 h-4" />
+                <span>Mis Publicaciones</span>
+                <Badge variant="secondary" className="ml-1 text-[10px] h-5 px-1.5 min-w-[1.25rem]">{animals.length}</Badge>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger
+              value="stories"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none px-0 py-3 bg-transparent transition-all"
+            >
+              <div className="flex items-center gap-2">
+                <Heart className="w-4 h-4" />
+                <span>Historias</span>
+                <Badge variant="secondary" className="ml-1 text-[10px] h-5 px-1.5 min-w-[1.25rem]">{adoptionStories.length}</Badge>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger
+              value="chats"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none px-0 py-3 bg-transparent transition-all"
+            >
+              <div className="flex items-center gap-2">
+                <MessageCircle className="w-4 h-4" />
+                <span>Mensajes</span>
+              </div>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="animals" className="animate-in fade-in-50 duration-500 slide-in-from-bottom-2">
+            {animals.length === 0 ? (
+              <div className="text-center py-20 bg-muted/30 rounded-3xl border border-dashed border-muted-foreground/20">
+                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                  <PawPrint className="w-8 h-8 text-muted-foreground" />
+                </div>
+                <h3 className="text-lg font-semibold">Aún no tienes publicaciones</h3>
+                <p className="text-muted-foreground max-w-sm mx-auto mt-2 mb-6">
+                  Publica un animal en adopción o reporta una mascota perdida para ayudar a la comunidad.
+                </p>
+                <Button variant="outline" onClick={() => setShowPublicationForm(true)}>
+                  Crear mi primera publicación
+                </Button>
+              </div>
+            ) : (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {animals.map((animal) => (
+                  <Card key={animal.id} className="group overflow-hidden border-border/50 hover:border-primary/30 transition-all hover:shadow-lg">
+                    <div className="relative aspect-video overflow-hidden bg-muted">
+                      <img src={animal.image_url} alt={animal.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                      <div className="absolute top-2 right-2">
+                        {getStatusBadge(animal.status)}
+                      </div>
+                    </div>
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h3 className="font-bold text-lg">{animal.name}</h3>
+                          <p className="text-xs text-muted-foreground flex items-center gap-1">
+                            <MapPin className="w-3 h-3" /> {animal.location}
+                          </p>
+                        </div>
+                        <Badge variant="outline" className="text-[10px]">{animal.type}</Badge>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 mt-4">
+                        <Button size="sm" variant="outline" onClick={() => handleEdit(animal)} className="w-full text-xs h-8">
+                          <Edit className="w-3 h-3 mr-1.5" /> Editar
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => setDeleteConfirm({ type: 'animal', id: animal.id })} className="w-full text-xs h-8 text-destructive hover:text-destructive hover:bg-destructive/10">
+                          <Trash2 className="w-3 h-3 mr-1.5" /> Eliminar
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="stories" className="animate-in fade-in-50 duration-500 slide-in-from-bottom-2">
+            {adoptionStories.length === 0 ? (
+              <div className="text-center py-20 bg-muted/30 rounded-3xl border border-dashed border-muted-foreground/20">
+                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Heart className="w-8 h-8 text-muted-foreground" />
+                </div>
+                <h3 className="text-lg font-semibold">Sin historias compartidas</h3>
+                <p className="text-muted-foreground max-w-sm mx-auto mt-2 mb-6">
+                  ¿Adoptaste? ¡Inspira a otros compartiendo tu final feliz!
+                </p>
+              </div>
+            ) : (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {adoptionStories.map((story) => (
+                  <Card key={story.id} className="group overflow-hidden border-border/50 hover:border-primary/30 transition-all hover:shadow-lg">
+                    <div className="relative aspect-video overflow-hidden bg-muted">
+                      <img src={story.story_image_url} alt={story.animal_name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                        <p className="text-white text-xs font-medium truncate">{story.animal_name}</p>
+                      </div>
+                    </div>
+                    <CardContent className="p-4">
+                      <p className="text-sm text-muted-foreground line-clamp-2 mb-4 italic">"{story.story_text}"</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button size="sm" variant="outline" onClick={() => handleEditStory(story)} className="w-full text-xs h-8">
+                          <Edit className="w-3 h-3 mr-1.5" /> Editar
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => setDeleteConfirm({ type: 'story', id: story.id })} className="w-full text-xs h-8 text-destructive hover:text-destructive hover:bg-destructive/10">
+                          <Trash2 className="w-3 h-3 mr-1.5" /> Eliminar
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="chats" className="animate-in fade-in-50 duration-500 slide-in-from-bottom-2">
+            <div className="bg-card border border-border/50 rounded-3xl overflow-hidden shadow-sm">
+              <div className="p-6 border-b border-border/50 bg-muted/10">
+                <h3 className="font-semibold flex items-center gap-2">
+                  <MessageCircle className="w-4 h-4 text-primary" />
+                  Mensajería Privada
+                </h3>
+                <p className="text-sm text-muted-foreground mt-1">Conecta con otros usuarios para coordinar adopciones o reencuentros.</p>
+              </div>
+              <div className="p-0">
+                {user && <ChatList userId={user.id} />}
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+
       </main>
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md rounded-2xl">
           <DialogHeader>
-            <DialogTitle>Confirmar eliminación</DialogTitle>
+            <DialogTitle>¿Estás seguro?</DialogTitle>
             <DialogDescription>
-              ¿Estás seguro de que deseas eliminar {deleteConfirm?.type === 'animal' ? 'esta publicación' : 'esta historia'}? Esta acción no se puede deshacer.
+              Esta acción no se puede deshacer. Se eliminará permanentemente.
             </DialogDescription>
           </DialogHeader>
-          <div className="flex gap-3 mt-4">
-            <Button variant="outline" onClick={() => setDeleteConfirm(null)} className="flex-1">
+          <div className="flex gap-3 mt-4 justify-end">
+            <Button variant="ghost" onClick={() => setDeleteConfirm(null)}>
               Cancelar
             </Button>
             <Button
@@ -612,9 +531,8 @@ const Profile = () => {
                 if (deleteConfirm?.type === 'animal') handleDelete(deleteConfirm.id);
                 else if (deleteConfirm?.type === 'story') handleDeleteStory(deleteConfirm.id);
               }}
-              className="flex-1"
             >
-              Eliminar
+              Sí, Eliminar
             </Button>
           </div>
         </DialogContent>
@@ -622,7 +540,7 @@ const Profile = () => {
 
       {/* Edit Animal Dialog */}
       <Dialog open={!!editingAnimal} onOpenChange={() => setEditingAnimal(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl">
           <DialogHeader>
             <DialogTitle className="text-xl">Editar Publicación</DialogTitle>
           </DialogHeader>
@@ -674,9 +592,9 @@ const Profile = () => {
               </Select>
             </div>
             <Separator />
-            <div className="flex gap-3">
-              <Button onClick={handleUpdate} className="flex-1">Guardar Cambios</Button>
-              <Button variant="outline" onClick={() => setEditingAnimal(null)} className="flex-1">Cancelar</Button>
+            <div className="flex gap-3 justify-end">
+              <Button variant="outline" onClick={() => setEditingAnimal(null)}>Cancelar</Button>
+              <Button onClick={handleUpdate}>Guardar Cambios</Button>
             </div>
           </div>
         </DialogContent>
@@ -684,9 +602,9 @@ const Profile = () => {
 
       {/* Edit Story Dialog */}
       <Dialog open={!!editingStory} onOpenChange={() => setEditingStory(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl">
           <DialogHeader>
-            <DialogTitle className="text-xl">Editar Historia de Adopción</DialogTitle>
+            <DialogTitle className="text-xl">Editar Historia</DialogTitle>
           </DialogHeader>
           <div className="space-y-5 pt-2">
             <div className="space-y-2">
@@ -698,9 +616,9 @@ const Profile = () => {
               <Textarea id="story_text" value={editStoryForm.story_text || ""} onChange={(e) => setEditStoryForm({ ...editStoryForm, story_text: e.target.value })} rows={6} />
             </div>
             <Separator />
-            <div className="flex gap-3">
-              <Button onClick={handleUpdateStory} className="flex-1">Guardar Cambios</Button>
-              <Button variant="outline" onClick={() => setEditingStory(null)} className="flex-1">Cancelar</Button>
+            <div className="flex gap-3 justify-end">
+              <Button variant="outline" onClick={() => setEditingStory(null)}>Cancelar</Button>
+              <Button onClick={handleUpdateStory}>Guardar Cambios</Button>
             </div>
           </div>
         </DialogContent>
@@ -708,10 +626,10 @@ const Profile = () => {
 
       {/* Publication Form Dialog */}
       <Dialog open={showPublicationForm} onOpenChange={setShowPublicationForm}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto rounded-3xl">
           <DialogHeader>
-            <DialogTitle className="text-2xl flex items-center gap-2">
-              <PawPrint className="w-6 h-6" />
+            <DialogTitle className="text-xl font-bold flex items-center gap-2">
+              <PawPrint className="w-5 h-5 text-primary" />
               Nueva Publicación
             </DialogTitle>
           </DialogHeader>
