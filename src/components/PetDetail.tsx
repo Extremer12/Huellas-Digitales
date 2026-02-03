@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "./Header";
 import ReportModal from "./ReportModal";
+import MedicalRecords from "./MedicalRecords";
 import { Animal } from "./AnimalesSection";
 
 const PetDetail = () => {
@@ -21,6 +22,7 @@ const PetDetail = () => {
     const [animal, setAnimal] = useState<Animal | null>(null);
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isAdmin, setIsAdmin] = useState(false);
     const [reportModalOpen, setReportModalOpen] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [showShareMenu, setShowShareMenu] = useState(false);
@@ -36,8 +38,20 @@ const PetDetail = () => {
 
         if (id) {
             loadAnimal(id);
+            checkAdminStatus();
         }
     }, [id]);
+
+    const checkAdminStatus = async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+            const { data: roles } = await supabase
+                .from("user_roles")
+                .select("role")
+                .eq("user_id", session.user.id);
+            setIsAdmin(roles?.some(r => r.role === "admin" || r.role === "moderator") || false);
+        }
+    };
 
     const loadAnimal = async (animalId: string) => {
         try {
@@ -329,6 +343,11 @@ const PetDetail = () => {
                                     </div>
                                 )}
                             </div>
+
+                            <MedicalRecords
+                                animalId={animal.id}
+                                isOwner={animal.userId === currentUserId || isAdmin}
+                            />
 
                             {/* User & Actions */}
                             <div className="space-y-4">

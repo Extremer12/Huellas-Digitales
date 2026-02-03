@@ -99,6 +99,7 @@ const Header = () => {
     { name: "Inicio", path: "/", type: "path" },
     { name: "Adopción", path: "/adopcion", type: "link" },
     { name: "Perdidos", path: "/perdidos", type: "link" },
+    { name: "Mapa", path: "/mapa", type: "link" },
     { name: "Historias", path: "/historias", type: "link" },
     { name: "Cómo Ayudar", path: "ayudar", type: "section" },
   ];
