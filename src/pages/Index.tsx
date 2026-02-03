@@ -154,9 +154,9 @@ const Index = () => {
         </section>
 
         {/* FEATURES GRID */}
-        <section className="py-24 bg-background relative overflow-hidden scroll-reveal">
+        <section className="py-24 bg-background relative overflow-hidden">
           <div className="container px-4 md:px-6 relative z-10">
-            <div className="text-center max-w-2xl mx-auto mb-16 animate-fade-in-up">
+            <div className="text-center max-w-2xl mx-auto mb-16">
               <h2 className="text-3xl md:text-5xl font-black mb-4 tracking-tight text-foreground">Todo en un solo lugar</h2>
               <p className="text-muted-foreground text-xl">Herramientas diseñadas para facilitar el bienestar animal y la conexión comunitaria.</p>
             </div>
@@ -221,7 +221,7 @@ const Index = () => {
         </section>
 
         {/* COMO AYUDAR (Donations) - Moved to bottom as requested */}
-        <section id="ayudar" className="py-20 bg-muted/30 scroll-reveal">
+        <section id="ayudar" className="py-20 bg-muted/30">
           <div className="text-center mb-10">
             <h2 className="text-3xl font-bold text-foreground/50 uppercase tracking-widest text-sm mb-4">Colabora</h2>
             <p className="text-muted-foreground">Si deseas aportar tu granito de arena.</p>

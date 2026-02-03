@@ -230,6 +230,7 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
                             <Input
                                 placeholder="Ciudad, Barrio..."
                                 value={formData.location}
+                                maxLength={60}
                                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                             />
                         </div>
@@ -253,6 +254,7 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
                             <Input
                                 placeholder="Ej. Cerca de la estación..."
                                 value={formData.location}
+                                maxLength={60}
                                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                             />
                         </div>
@@ -266,6 +268,7 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
                         <Input
                             placeholder="Título de la historia (Ej. El rescate de Toby)"
                             value={formData.name}
+                            maxLength={60}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         />
                     </div>
@@ -310,7 +313,7 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
                 <div className="grid grid-cols-2 gap-4">
                     <div>
                         <Label>Nombre</Label>
-                        <Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+                        <Input value={formData.name} maxLength={40} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
                     </div>
                     <div>
                         <Label>Tipo</Label>
@@ -328,7 +331,7 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
                 <div className="grid grid-cols-2 gap-4">
                     <div>
                         <Label>Edad</Label>
-                        <Input value={formData.age} onChange={(e) => setFormData({ ...formData, age: e.target.value })} placeholder="Ej. 2 años" />
+                        <Input value={formData.age} maxLength={20} onChange={(e) => setFormData({ ...formData, age: e.target.value })} placeholder="Ej. 2 años" />
                     </div>
                     <div>
                         <Label>Tamaño</Label>
@@ -344,9 +347,10 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
                 </div>
 
                 <div>
-                    <Label>Descripción</Label>
+                    <Label>Descripción ({formData.description.length}/600)</Label>
                     <Textarea
                         value={formData.description}
+                        maxLength={600}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         rows={4}
                         placeholder="Cuenta su historia, personalidad, etc."
