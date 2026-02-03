@@ -240,33 +240,33 @@ const Index = () => {
           <ComoAyudarSection />
         </section>
 
-        </main>
+      </main>
 
-        {/* Shared Wizard Dialog for specific landing actions that link to ?action=publish */}
-        <Dialog open={showWizard} onOpenChange={handleWizardClose}>
-            <DialogContent className="sm:max-w-3xl p-6 overflow-y-auto max-h-[90vh] rounded-[2rem]">
-                <SmartPublicationWizard onSuccess={() => {
-                   setShowWizard(false);
-                   window.location.href = "/"; // Force reload to see new post
-                }} />
-            </DialogContent>
-        </Dialog>
-      </div>
+      {/* Shared Wizard Dialog for specific landing actions that link to ?action=publish */}
+      <Dialog open={showWizard} onOpenChange={handleWizardClose}>
+        <DialogContent className="sm:max-w-3xl p-6 overflow-y-auto max-h-[90vh] rounded-[2rem]">
+          <SmartPublicationWizard onSuccess={() => {
+            setShowWizard(false);
+            window.location.href = "/"; // Force reload to see new post
+          }} />
+        </DialogContent>
+      </Dialog>
+
 
       <Footer />
 
       {
-    showRegionSelector && user && !searchParams.get("forceLanding") && (
-      <RegionSelector
-        open={showRegionSelector}
-        userId={user.id}
-        onRegionSet={() => {
-          setShowRegionSelector(false);
-          checkUser();
-        }}
-      />
-    )
-  }
+        showRegionSelector && user && !searchParams.get("forceLanding") && (
+          <RegionSelector
+            open={showRegionSelector}
+            userId={user.id}
+            onRegionSet={() => {
+              setShowRegionSelector(false);
+              checkUser();
+            }}
+          />
+        )
+      }
     </div >
   );
 };
