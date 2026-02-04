@@ -5,6 +5,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import ChatWindow from "./ChatWindow";
 
 interface Conversation {
@@ -31,7 +34,7 @@ const ChatList = ({ userId }: ChatListProps) => {
 
   useEffect(() => {
     loadConversations();
-    
+
     // Subscribe to new conversations
     const channel = supabase
       .channel('conversations-changes')
@@ -144,37 +147,69 @@ const ChatList = ({ userId }: ChatListProps) => {
 
   return (
     <>
-      <ScrollArea className="h-[600px]">
-        <div className="space-y-2 p-2">
+      <ScrollArea className="h-[600px] pr-4 -mr-4">
+        <div className="space-y-3 p-1">
           {conversations.map((conv) => (
             <button
               key={conv.id}
               onClick={() => setSelectedConversation(conv)}
-              className="w-full text-left p-4 rounded-lg border bg-card hover:bg-accent transition-colors"
+              className={cn(
+                "w-full text-left p-4 rounded-2xl transition-all duration-300 group relative overflow-hidden",
+                "bg-card/40 border border-border/50 hover:border-primary/40 hover:bg-accent/5 hover:shadow-md",
+                selectedConversation?.id === conv.id && "bg-primary/[0.03] border-primary/30 ring-1 ring-primary/20",
+                conv.unread_count! > 0 && "bg-primary/[0.02]"
+              )}
             >
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h4 className="font-semibold truncate">{conv.other_user_name}</h4>
-                    {conv.unread_count! > 0 && (
-                      <span className="bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full">
-                        {conv.unread_count}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-xs text-muted-foreground mb-2">
-                    sobre {conv.animal_name}
-                  </p>
-                  {conv.last_message && (
-                    <p className="text-sm text-muted-foreground truncate">
-                      {conv.last_message}
-                    </p>
+              <div className="flex items-center gap-4">
+                <div className="relative shrink-0">
+                  <Avatar className="h-12 w-12 border-2 border-background shadow-sm group-hover:scale-105 transition-transform">
+                    <AvatarFallback className="bg-primary/10 text-primary font-bold">
+                      {conv.other_user_name?.substring(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  {conv.unread_count! > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+                    </span>
                   )}
                 </div>
-                <span className="text-xs text-muted-foreground whitespace-nowrap">
-                  {format(new Date(conv.updated_at), 'dd/MM')}
-                </span>
+
+                <div className="flex-1 min-w-0 flex flex-col gap-1">
+                  <div className="flex items-center justify-between">
+                    <h4 className={cn(
+                      "font-bold text-[15px] truncate max-w-[140px] sm:max-w-none",
+                      conv.unread_count! > 0 ? "text-foreground" : "text-foreground/90"
+                    )}>
+                      {conv.other_user_name}
+                    </h4>
+                    <span className="text-[11px] font-medium text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">
+                      {format(new Date(conv.updated_at), 'HH:mm')}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 border-primary/20 bg-primary/5 text-primary">
+                      {conv.animal_name}
+                    </Badge>
+                  </div>
+
+                  {conv.last_message ? (
+                    <p className={cn(
+                      "text-[13px] truncate leading-tight mt-1",
+                      conv.unread_count! > 0 ? "font-semibold text-foreground" : "text-muted-foreground"
+                    )}>
+                      {conv.last_message}
+                    </p>
+                  ) : (
+                    <p className="text-[13px] italic text-muted-foreground/60 mt-1">Sin mensajes aún</p>
+                  )}
+                </div>
               </div>
+
+              {selectedConversation?.id === conv.id && (
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-full my-3" />
+              )}
             </button>
           ))}
         </div>

@@ -11,32 +11,32 @@ interface ChatMessageProps {
 
 const ChatMessage = ({ content, timestamp, isOwn, isRead }: ChatMessageProps) => {
   return (
-    <div className={cn("flex w-full mb-2", isOwn ? "justify-end" : "justify-start")}>
+    <div className={cn("flex w-full mb-3 px-1 animate-in fade-in slide-in-from-bottom-2", isOwn ? "justify-end" : "justify-start")}>
       <div
         className={cn(
-          "max-w-[75%] rounded-lg px-4 py-2 shadow-md text-sm relative group",
+          "max-w-[85%] px-4 py-2.5 shadow-sm text-sm relative group transition-all",
           isOwn
-            ? "bg-primary text-primary-foreground rounded-tr-none"
-            : "bg-muted text-foreground rounded-tl-none border border-border/50"
+            ? "bg-primary text-primary-foreground rounded-[1.25rem] rounded-tr-none shadow-primary/10"
+            : "bg-muted/80 backdrop-blur-sm text-foreground rounded-[1.25rem] rounded-tl-none border border-border/40 shadow-slate-200"
         )}
       >
-        <p className="break-words whitespace-pre-wrap leading-relaxed pb-4 text-[14.2px]">
+        <p className="break-words whitespace-pre-wrap leading-snug pb-3 text-[14.5px] font-medium tracking-tight">
           {content}
         </p>
         <div
           className={cn(
-            "absolute bottom-1 right-2 flex items-center gap-1",
-            isOwn ? "text-[10px] text-primary-foreground/70" : "text-[10px] text-muted-foreground"
+            "absolute bottom-1.5 right-2.5 flex items-center gap-1.5",
+            isOwn ? "text-[10px] text-primary-foreground/75" : "text-[10px] text-muted-foreground/80"
           )}
         >
-          <span>
+          <span className="font-bold opacity-80">
             {format(new Date(timestamp), "HH:mm")}
           </span>
           {isOwn && (
             isRead ? (
-              <CheckCheck className="w-3.5 h-3.5 text-blue-500" />
+              <CheckCheck className="w-4 h-4 text-blue-400 group-hover:scale-110 transition-transform" />
             ) : (
-              <Check className="w-3.5 h-3.5" />
+              <Check className="w-4 h-4 opacity-70" />
             )
           )}
         </div>

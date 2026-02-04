@@ -1,7 +1,9 @@
-import { MapPin, Eye, ArrowRight } from "lucide-react";
+import { MapPin, ArrowRight, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Animal } from "./AnimalesSection";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 
 interface AnimalCardProps {
   animal: Animal;
@@ -20,55 +22,67 @@ const AnimalCard = ({ animal, onClick }: AnimalCardProps) => {
   };
 
   return (
-    <div
-      className="group relative cursor-pointer rounded-[2rem] overflow-hidden bg-card border border-border/50 hover:border-primary/30 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-2"
+    <Card
+      className="group relative cursor-pointer overflow-hidden rounded-[2rem] border-none shadow-md hover:shadow-xl transition-all duration-300 bg-card/50 backdrop-blur-sm"
       onClick={handleCardClick}
     >
-      {/* Image Container with Gradient Overlay */}
-      <div className="relative aspect-[4/5] overflow-hidden">
+      <div className="relative aspect-[4/5] sm:aspect-square overflow-hidden">
         <img
           src={animal.image}
           alt={animal.name}
-          className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           loading="lazy"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300" />
-
-        {/* Status Badge */}
-        <div className="absolute top-4 left-4">
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-white/20 backdrop-blur-md text-white border border-white/20 shadow-lg">
-            {animal.type === "perro" ? "🐶 Perro" : animal.type === "gato" ? "🐱 Gato" : "🐾 Otro"}
-          </span>
+        <div className="absolute top-2 right-2 flex flex-col gap-2">
+          {animal.status === "perdido" ? (
+            <Badge variant="destructive" className="flex items-center gap-1 shadow-lg bg-red-600 animate-pulse">
+              <AlertTriangle className="w-3 h-3" /> PERDIDO
+            </Badge>
+          ) : (
+            <Badge className="bg-primary text-primary-foreground shadow-lg">
+              DISPONIBLE
+            </Badge>
+          )}
         </div>
 
-        {/* Content Overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 text-white transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-          <div className="flex items-center gap-2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
-            <MapPin className="w-3.5 h-3.5 text-primary" />
-            <span className="text-xs font-medium text-gray-200">{animal.location}</span>
-          </div>
-
-          <h3 className="text-3xl font-black tracking-tight mb-2 text-white group-hover:text-primary transition-colors duration-300">
+        {/* Overlay gradient for readability */}
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-3 sm:p-4">
+          <h3 className="text-white font-bold text-lg sm:text-xl truncate drop-shadow-md">
             {animal.name}
           </h3>
-
-          <p className="text-sm text-gray-300 line-clamp-2 mb-4 opacity-90 font-light leading-relaxed">
-            {animal.description}
-          </p>
-
-          <div className="flex items-center justify-between pt-4 border-t border-white/10">
-            <div className="flex gap-2">
-              <span className="text-xs font-medium bg-white/10 px-2 py-1 rounded-md">{animal.age}</span>
-              <span className="text-xs font-medium bg-white/10 px-2 py-1 rounded-md">{animal.size}</span>
-            </div>
-
-            <button className="bg-white text-black p-2.5 rounded-full hover:bg-primary hover:text-white transition-colors duration-300 ml-2 shadow-lg">
-              <Eye className="w-4 h-4" />
-            </button>
+          <div className="flex items-center gap-2 text-white/90 text-xs sm:text-sm mt-1">
+            <MapPin className="w-3 h-3 text-primary" />
+            <span className="truncate">{animal.location}</span>
           </div>
         </div>
       </div>
-    </div>
+
+      <div className="p-3 sm:p-4 space-y-3">
+        <div className="flex flex-wrap gap-1.5">
+          <span className="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-secondary/30 text-secondary-foreground font-medium uppercase tracking-wider">
+            {animal.type}
+          </span>
+          <span className="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-secondary/30 text-secondary-foreground font-medium uppercase tracking-wider">
+            {animal.size}
+          </span>
+          <span className="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-secondary/30 text-secondary-foreground font-medium uppercase tracking-wider">
+            {animal.age}
+          </span>
+        </div>
+
+        <Button
+          variant="ghost"
+          className="w-full justify-between h-9 sm:h-10 text-xs sm:text-sm font-semibold hover:bg-primary/10 hover:text-primary group/btn"
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/pet/${animal.id}`);
+          }}
+        >
+          Ver detalles
+          <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
+        </Button>
+      </div>
+    </Card>
   );
 };
 

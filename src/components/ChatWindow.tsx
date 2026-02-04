@@ -222,15 +222,16 @@ const ChatWindow = ({
   return (
     <div
       className={cn(
-        "fixed z-50 transition-all duration-300 ease-in-out shadow-2xl",
-        "inset-4 md:inset-auto md:bottom-4 md:right-4 md:w-[380px]",
-        isMinimized ? "md:h-[68px]" : "md:h-[550px]",
-        "bg-background border rounded-xl overflow-hidden flex flex-col"
+        "fixed z-50 transition-all duration-500 ease-in-out shadow-[0_20px_50px_rgba(0,0,0,0.2)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.4)]",
+        "inset-x-2 bottom-4 md:inset-auto md:bottom-6 md:right-6 md:w-[400px]",
+        isMinimized ? "h-[70px]" : "h-[calc(100vh-120px)] md:h-[600px]",
+        "bg-background/95 backdrop-blur-md border border-border/40 rounded-[2rem] overflow-hidden flex flex-col animate-in slide-in-from-bottom-5"
       )}
     >
       <ChatHeader
         userName={otherUserName}
         animalName={animalName}
+        avatar={otherUserAvatar}
         isMinimized={isMinimized}
         onMinimize={() => setIsMinimized(!isMinimized)}
         onClose={onClose}
@@ -239,18 +240,21 @@ const ChatWindow = ({
       {!isMinimized && (
         <>
           <ScrollArea
-            className="flex-1 bg-gradient-to-b from-muted/5 to-background"
+            className="flex-1 bg-gradient-to-b from-muted/20 to-background/50 relative"
             ref={scrollRef}
           >
-            <div className="p-4">
+            {/* Background pattern could go here */}
+            <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:20px_20px]" />
+
+            <div className="p-4 relative z-10 flex flex-col gap-2">
               {loading ? (
                 <div className="flex items-center justify-center h-64">
-                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                  <Loader2 className="w-8 h-8 animate-spin text-primary/40" />
                 </div>
               ) : messages.length === 0 ? (
                 <ChatEmptyState animalName={animalName} />
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-1">
                   {messages.map((message) => (
                     <ChatMessage
                       key={message.id}
@@ -265,7 +269,9 @@ const ChatWindow = ({
             </div>
           </ScrollArea>
 
-          <ChatInput onSend={sendMessage} disabled={loading} />
+          <div className="p-4 bg-background/80 border-t border-border/30 backdrop-blur-md">
+            <ChatInput onSend={sendMessage} disabled={loading} />
+          </div>
         </>
       )}
     </div>

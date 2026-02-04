@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import RegionSelector from "@/components/RegionSelector";
 import UnifiedFeed from "@/components/UnifiedFeed";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { ChevronRight, Heart, Search, Star, MapPin, Shield, Users, ArrowRight } from "lucide-react";
+import { ChevronRight, Search, Dog, Cat, PawPrint, Heart, Info, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import heroImage from "@/assets/hero-adoption.jpg";
 import ComoAyudarSection from "@/components/ComoAyudarSection";
@@ -110,6 +110,16 @@ const Index = () => {
       <Header minimal={true} />
 
       <main className="flex-1">
+
+        {/* Legal Warning Banner */}
+        <section className="bg-destructive/10 border-y border-destructive/20 py-3">
+          <div className="container-custom px-4 flex items-center justify-center gap-2 text-destructive font-medium text-sm md:text-base text-center">
+            <AlertTriangle className="w-5 h-5 flex-shrink-0" />
+            <p>
+              <span className="font-bold">ADVERTENCIA LEGAL:</span> En Huellas Digitales está estrictamente prohibida la venta de animales. Fomentamos únicamente la adopción responsable.
+            </p>
+          </div>
+        </section>
 
         {/* HERO SECTION */}
         <section className="relative h-screen flex items-center justify-center overflow-hidden">

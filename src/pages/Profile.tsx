@@ -292,7 +292,7 @@ const Profile = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
 
-      <main className="flex-1 container max-w-5xl mx-auto px-4 py-12 lg:py-16 space-y-8 mt-4">
+      <main className="flex-1 container max-w-5xl mx-auto px-4 py-12 lg:py-16 space-y-12 mt-4 flex flex-col items-center sm:items-stretch">
 
         {/* Modern Profile Header */}
         <section className="flex flex-col md:flex-row gap-6 md:items-center justify-between p-6 rounded-3xl bg-card border border-border/50 shadow-sm relative overflow-hidden">
@@ -362,47 +362,56 @@ const Profile = () => {
         </section>
 
         {/* Floating Action Button for Mobile / Toolbar for Desktop */}
-        <div className="flex flex-col sm:flex-row gap-3">
-          <Button onClick={() => setShowPublicationForm(true)} size="lg" className="flex-1 shadow-md bg-primary hover:bg-primary/90 rounded-xl h-12 text-base">
+        {/* Mobile-Friendly Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto w-full">
+          <Button
+            onClick={() => setShowPublicationForm(true)}
+            size="lg"
+            className="flex-1 shadow-lg bg-primary hover:bg-primary/90 rounded-2xl h-14 text-base font-bold transition-all hover:scale-[1.02] active:scale-[0.98]"
+          >
             <Plus className="w-5 h-5 mr-2" />
             Nueva Publicación
           </Button>
-          <Button variant="outline" onClick={() => navigate("/")} className="flex-1 rounded-xl h-12 border-dashed border-primary/30 hover:border-primary/60 hover:bg-primary/5">
+          <Button
+            variant="outline"
+            onClick={() => navigate("/")}
+            className="flex-1 rounded-2xl h-14 border-2 border-primary/20 hover:border-primary/60 hover:bg-primary/5 font-semibold"
+          >
             <Home className="w-4 h-4 mr-2" />
             Ir al Inicio
           </Button>
         </div>
 
-        {/* Content Tabs */}
+        {/* Content Tabs - Responsive Overhaul */}
         <Tabs defaultValue="animals" className="w-full">
-          <TabsList className="w-full justify-start h-auto p-0 bg-transparent border-b border-border mb-6 gap-6">
+          <TabsList className="w-full flex justify-between sm:justify-start h-auto p-1 bg-muted/30 rounded-2xl mb-8 gap-1 sm:gap-6 border-none">
             <TabsTrigger
               value="animals"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none px-0 py-3 bg-transparent transition-all"
+              className="flex-1 sm:flex-none rounded-xl data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm py-3 px-4 transition-all"
             >
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2">
                 <PawPrint className="w-4 h-4" />
-                <span>Mis Publicaciones</span>
-                <Badge variant="secondary" className="ml-1 text-[10px] h-5 px-1.5 min-w-[1.25rem]">{animals.length}</Badge>
+                <span className="text-[10px] sm:text-xs md:text-sm font-bold uppercase tracking-wider">Posts</span>
+                <Badge variant="secondary" className="hidden sm:flex ml-1 text-[10px] h-5 px-1.5 min-w-[1.25rem]">{animals.length}</Badge>
               </div>
             </TabsTrigger>
             <TabsTrigger
               value="stories"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none px-0 py-3 bg-transparent transition-all"
+              className="flex-1 sm:flex-none rounded-xl data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm py-3 px-4 transition-all"
             >
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2">
                 <Heart className="w-4 h-4" />
-                <span>Historias</span>
-                <Badge variant="secondary" className="ml-1 text-[10px] h-5 px-1.5 min-w-[1.25rem]">{adoptionStories.length}</Badge>
+                <span className="text-[10px] sm:text-xs md:text-sm font-bold uppercase tracking-wider">Historias</span>
+                <Badge variant="secondary" className="hidden sm:flex ml-1 text-[10px] h-5 px-1.5 min-w-[1.25rem]">{adoptionStories.length}</Badge>
               </div>
             </TabsTrigger>
             <TabsTrigger
               value="chats"
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:shadow-none px-0 py-3 bg-transparent transition-all"
+              className="flex-1 sm:flex-none rounded-xl data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm py-3 px-4 transition-all"
             >
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2">
                 <MessageCircle className="w-4 h-4" />
-                <span>Mensajes</span>
+                <span className="text-[10px] sm:text-xs md:text-sm font-bold uppercase tracking-wider">Mensajes</span>
               </div>
             </TabsTrigger>
           </TabsList>

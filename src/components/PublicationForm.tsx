@@ -18,7 +18,7 @@ const containsInappropriateContent = (text: string): boolean => {
 };
 
 const formSchema = z.object({
-  name: z.string().trim().min(2, "El nombre debe tener al menos 2 caracteres").max(50)
+  name: z.string().trim().min(1, "El nombre es requerido").max(50)
     .refine(val => !containsInappropriateContent(val), "El nombre contiene contenido no permitido"),
   type: z.enum(["perro", "gato", "otro"]),
   age: z.string().trim().min(1, "La edad es requerida").max(30),
@@ -27,10 +27,14 @@ const formSchema = z.object({
     .refine(val => !containsInappropriateContent(val), "La ubicación contiene contenido no permitido"),
   description: z.string().trim().min(10, "La descripción debe tener al menos 10 caracteres").max(500)
     .refine(val => !containsInappropriateContent(val), "La descripción contiene contenido no permitido"),
-  healthInfo: z.string().trim().max(300).optional()
+  healthInfo: z.string().trim().max(500).optional()
     .refine(val => !val || !containsInappropriateContent(val), "La información de salud contiene contenido no permitido"),
   personality: z.string().trim().max(300).optional()
     .refine(val => !val || !containsInappropriateContent(val), "La personalidad contiene contenido no permitido"),
+  source: z.enum(["callejero", "propio", "rescatado"]).optional(),
+  salesAgreement: z.literal(true, {
+    errorMap: () => ({ message: "Debes aceptar que está prohibida la venta de animales" }),
+  }),
 });
 
 interface PublicationFormProps {
@@ -42,6 +46,8 @@ const PublicationForm = ({ onSuccess }: PublicationFormProps) => {
   const [loading, setLoading] = useState(false);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [nameUnknown, setNameUnknown] = useState(false);
+  const [ageApproximate, setAgeApproximate] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     type: "",
@@ -54,6 +60,8 @@ const PublicationForm = ({ onSuccess }: PublicationFormProps) => {
     status: "disponible",
     lat: null as number | null,
     lng: null as number | null,
+    source: "rescatado" as "callejero" | "propio" | "rescatado",
+    salesAgreement: false,
   });
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -169,17 +177,26 @@ const PublicationForm = ({ onSuccess }: PublicationFormProps) => {
         uploadedUrls.push(publicUrl);
       }
 
-      // Insert animal with first image as main image
-      const { data: animalData, error: insertError } = await supabase
+      // Insert animal with first image      // 2. Prepare data for insertion
+      const nameToSave = nameUnknown ? "Nombre Desconocido" : formData.name;
+      const ageToSave = ageApproximate ? `${formData.age} (Aprox.)` : formData.age;
+
+      // We'll append the source to the description for now to avoid schema changes
+      const sourceLabel = formData.source === "callejero" ? "Callejero/Rescatado" :
+        (formData.source === "propio" ? "Mascota propia" : "Rescatado");
+
+      const descriptionToSave = `[PROCEDENCIA: ${sourceLabel}]\n\n${formData.description}`;
+
+      const { data: animalData, error: animalError } = await supabase
         .from("animals")
         .insert({
           user_id: user.id,
-          name: formData.name,
+          name: nameToSave,
           type: formData.type as "perro" | "gato" | "otro",
-          age: formData.age,
+          age: ageToSave,
           size: formData.size,
           location: formData.location,
-          description: formData.description,
+          description: descriptionToSave,
           health_info: formData.healthInfo || null,
           personality: formData.personality || null,
           image_url: uploadedUrls[0],
@@ -190,7 +207,7 @@ const PublicationForm = ({ onSuccess }: PublicationFormProps) => {
         .select('id')
         .single();
 
-      if (insertError) throw insertError;
+      if (animalError) throw animalError;
 
       // Insert all images into animal_images table
       const imageRecords = uploadedUrls.map((url, index) => ({
@@ -294,14 +311,31 @@ const PublicationForm = ({ onSuccess }: PublicationFormProps) => {
 
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="name">Nombre *</Label>
+            <div className="flex justify-between items-center mb-2">
+              <Label htmlFor="name">Nombre *</Label>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="nameUnknown"
+                  checked={nameUnknown}
+                  onChange={(e) => {
+                    setNameUnknown(e.target.checked);
+                    if (e.target.checked) setFormData({ ...formData, name: "Sin nombre / Desconocido" });
+                    else setFormData({ ...formData, name: "" });
+                  }}
+                  className="rounded border-primary text-primary focus:ring-primary"
+                />
+                <label htmlFor="nameUnknown" className="text-xs text-muted-foreground cursor-pointer">Desconocido</label>
+              </div>
+            </div>
             <Input
               id="name"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required
-              disabled={loading}
+              disabled={loading || nameUnknown}
               maxLength={50}
+              placeholder={nameUnknown ? "Desconocido" : "Ej. Toby, Luna..."}
             />
           </div>
 
@@ -327,7 +361,19 @@ const PublicationForm = ({ onSuccess }: PublicationFormProps) => {
 
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="age">Edad aproximada *</Label>
+            <div className="flex justify-between items-center mb-2">
+              <Label htmlFor="age">Edad aproximada *</Label>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="ageApproximate"
+                  checked={ageApproximate}
+                  onChange={(e) => setAgeApproximate(e.target.checked)}
+                  className="rounded border-primary text-primary focus:ring-primary"
+                />
+                <label htmlFor="ageApproximate" className="text-xs text-muted-foreground cursor-pointer">Es un estimado</label>
+              </div>
+            </div>
             <Input
               id="age"
               placeholder="Ej: 2 años, 6 meses"
@@ -433,16 +479,59 @@ const PublicationForm = ({ onSuccess }: PublicationFormProps) => {
         </div>
 
         <div>
-          <Label htmlFor="healthInfo">Información de salud</Label>
+          <Label htmlFor="healthInfo">Historia Clínica / Salud</Label>
           <Textarea
             id="healthInfo"
-            placeholder="Estado de salud, vacunas, esterilización..."
+            placeholder="Vacunas, enfermedades, esterilización, etc..."
             value={formData.healthInfo}
             onChange={(e) => setFormData({ ...formData, healthInfo: e.target.value })}
             disabled={loading}
             rows={3}
-            maxLength={300}
+            maxLength={500}
           />
+        </div>
+
+        <div>
+          <Label htmlFor="source">Procedencia del animal *</Label>
+          <Select
+            value={formData.source}
+            onValueChange={(value) => setFormData({ ...formData, source: value as any })}
+            disabled={loading}
+            required
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Selecciona la procedencia" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="callejero">Animal Callejero / Rescatado de la calle</SelectItem>
+              <SelectItem value="rescatado">Rescatado por organización/refugio</SelectItem>
+              <SelectItem value="propio">Mascota propia que no puedo cuidar</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="pt-4 border-t border-border">
+          <div className="flex items-start space-x-3 p-4 bg-muted/30 rounded-xl">
+            <input
+              type="checkbox"
+              id="salesAgreement"
+              checked={formData.salesAgreement}
+              onChange={(e) => setFormData({ ...formData, salesAgreement: e.target.checked })}
+              className="mt-1 h-4 w-4 rounded border-primary text-primary focus:ring-primary"
+              required
+            />
+            <div className="grid gap-1.5 leading-none">
+              <label
+                htmlFor="salesAgreement"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-destructive"
+              >
+                Advertencia de No Venta
+              </label>
+              <p className="text-sm text-muted-foreground">
+                Declaro bajo juramento que este animal no está a la venta. En esta plataforma está estrictamente prohibida la comercialización de seres vivos.
+              </p>
+            </div>
+          </div>
         </div>
 
       </div>

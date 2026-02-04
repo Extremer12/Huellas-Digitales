@@ -53,7 +53,11 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
         isShelter: false,
         lat: -34.6037 as number,
         lng: -58.3816 as number,
-        contactInfo: ""
+        contactInfo: "",
+        source: "rescatado" as "callejero" | "propio" | "rescatado",
+        salesAgreement: false,
+        nameUnknown: false,
+        ageApproximate: false,
     });
 
     // Map Picker Component
@@ -111,16 +115,23 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
             // 2. Prepare Data based on Type
             const dbStatus = type === "adopcion" ? "disponible" : (type === "perdido" ? "perdido" : "historia");
 
+            const nameToSave = formData.nameUnknown ? "Nombre Desconocido" : formData.name;
+            const ageToSave = formData.ageApproximate ? `${formData.age} (Aprox.)` : formData.age;
+            const sourceLabel = formData.source === "callejero" ? "Callejero/Rescatado" :
+                (formData.source === "propio" ? "Mascota propia" : "Rescatado");
+
+            const descriptionToSave = type === "adopcion" ? `[PROCEDENCIA: ${sourceLabel}]\n\n${formData.description}` : formData.description;
+
             const { data: animalData, error: insertError } = await supabase
                 .from("animals")
                 .insert({
                     user_id: user.id,
-                    name: formData.name,
+                    name: nameToSave,
                     type: formData.animalType as "perro" | "gato" | "otro",
-                    age: formData.age,
+                    age: ageToSave,
                     size: formData.size,
                     location: formData.location, // Could be derived from coords if needed
-                    description: formData.description,
+                    description: descriptionToSave,
                     health_info: formData.healthInfo,
                     personality: formData.personality,
                     image_url: uploadedUrls[0],
@@ -312,8 +323,23 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
                 {/* BASICS */}
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <Label>Nombre</Label>
-                        <Input value={formData.name} maxLength={40} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+                        <div className="flex justify-between items-center mb-1">
+                            <Label>Nombre</Label>
+                            <label className="text-[10px] text-muted-foreground flex items-center gap-1 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={formData.nameUnknown}
+                                    onChange={(e) => setFormData({ ...formData, nameUnknown: e.target.checked, name: e.target.checked ? "Desconocido" : "" })}
+                                /> Sin nombre
+                            </label>
+                        </div>
+                        <Input
+                            value={formData.name}
+                            maxLength={40}
+                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            disabled={formData.nameUnknown}
+                            placeholder={formData.nameUnknown ? "Desconocido" : "Ej. Toby"}
+                        />
                     </div>
                     <div>
                         <Label>Tipo</Label>
@@ -330,7 +356,16 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
 
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <Label>Edad</Label>
+                        <div className="flex justify-between items-center mb-1">
+                            <Label>Edad</Label>
+                            <label className="text-[10px] text-muted-foreground flex items-center gap-1 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={formData.ageApproximate}
+                                    onChange={(e) => setFormData({ ...formData, ageApproximate: e.target.checked })}
+                                /> Aprox.
+                            </label>
+                        </div>
                         <Input value={formData.age} maxLength={20} onChange={(e) => setFormData({ ...formData, age: e.target.value })} placeholder="Ej. 2 años" />
                     </div>
                     <div>
@@ -344,6 +379,52 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
                             </SelectContent>
                         </Select>
                     </div>
+                </div>
+
+                {type === "adopcion" && (
+                    <div className="space-y-4 pt-2">
+                        <div>
+                            <Label>Procedencia</Label>
+                            <Select value={formData.source} onValueChange={(v) => setFormData({ ...formData, source: v as any })}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="callejero">Callejero/Rescatado</SelectItem>
+                                    <SelectItem value="rescatado">Rescatado (Refugio)</SelectItem>
+                                    <SelectItem value="propio">Mascota propia</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="flex items-start space-x-2 p-3 bg-destructive/5 rounded-lg border border-destructive/10">
+                            <input
+                                type="checkbox"
+                                id="wizardSalesAgreement"
+                                checked={formData.salesAgreement}
+                                onChange={(e) => setFormData({ ...formData, salesAgreement: e.target.checked })}
+                                className="mt-1"
+                            />
+                            <div className="grid gap-1.5 leading-none">
+                                <label htmlFor="wizardSalesAgreement" className="text-xs font-bold text-destructive uppercase tracking-tight">
+                                    Prohibida la Venta
+                                </label>
+                                <p className="text-[10px] text-muted-foreground">
+                                    Entiendo que vender animales es ilegal y está prohibido en Huellas Digitales.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                <div>
+                    <Label>Historia Clínica / Salud</Label>
+                    <Textarea
+                        value={formData.healthInfo}
+                        maxLength={500}
+                        onChange={(e) => setFormData({ ...formData, healthInfo: e.target.value })}
+                        rows={2}
+                        placeholder="Vacunas, castración, etc."
+                        className="text-sm"
+                    />
                 </div>
 
                 <div>

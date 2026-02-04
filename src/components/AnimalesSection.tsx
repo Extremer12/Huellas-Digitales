@@ -21,6 +21,7 @@ export type Animal = {
   userId: string;
   lat?: number;
   lng?: number;
+  status: string;
 };
 
 interface AnimalesSectionProps {
