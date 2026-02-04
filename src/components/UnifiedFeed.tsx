@@ -10,10 +10,14 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Dog, Cat, PawPrint, Filter, Search, AlertTriangle, Heart } from "lucide-react";
+import { Dog, Cat, PawPrint, Filter, Search, AlertTriangle, Heart, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Database } from "@/integrations/supabase/types";
 
-// Reusing the Animal type relative to what we have in other files
+// DB Row Type
+type AnimalRow = Database['public']['Tables']['animals']['Row'];
+
+// UI Type (matching what AnimalCard likely expects based on previous code)
 export type Animal = {
     id: string;
     name: string;
@@ -24,9 +28,9 @@ export type Animal = {
     description: string;
     fullDescription?: string;
     image: string;
-    healthInfo?: string;
+    healthInfo?: string; // Mapped from health_info
     personality?: string;
-    userId: string;
+    userId: string; // Mapped from user_id
     lat?: number;
     lng?: number;
     status: string;
@@ -36,27 +40,51 @@ interface UnifiedFeedProps {
     onOpenWizard?: (type: "adopcion" | "perdido" | null) => void;
 }
 
+const PAGE_SIZE = 8;
+
 const UnifiedFeed = ({ onOpenWizard }: UnifiedFeedProps) => {
     const { toast } = useToast();
     const [animals, setAnimals] = useState<Animal[]>([]);
     const [loading, setLoading] = useState(true);
+    const [page, setPage] = useState(0);
+    const [hasMore, setHasMore] = useState(true);
 
     // Filters
     const [activeTab, setActiveTab] = useState<"todos" | "adopcion" | "perdidos">("todos");
     const [typeFilter, setTypeFilter] = useState<"todos" | "perro" | "gato" | "otro">("todos");
     const [searchQuery, setSearchQuery] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
     const [showFilters, setShowFilters] = useState(false);
-    const [displayCount, setDisplayCount] = useState(8); // Start with more items for "Feed" feel
 
+    // Debounce search
     useEffect(() => {
-        fetchAnimals();
+        const timer = setTimeout(() => {
+            setDebouncedSearch(searchQuery);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
 
+    // Reset and fetch when filters change
+    useEffect(() => {
+        setPage(0);
+        setHasMore(true);
+        setAnimals([]); // Clear current list to avoid mixing old/filtered results visually
+        fetchAnimals(0, true);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activeTab, typeFilter, debouncedSearch]);
+
+    // Setup Realtime subscription
+    useEffect(() => {
         const channel = supabase.channel("unified-feed-changes").on("postgres_changes", {
             event: "*",
             schema: "public",
             table: "animals"
         }, () => {
-            fetchAnimals();
+            // When something changes, simplest approach for consistency is to reload the first page 
+            // or we could try to append strictly new items, but that's complex with sorting.
+            // For now, let's just refresh the current view if it's the first page, or notify user.
+            // To be safe and simple: Reload page 0.
+            fetchAnimals(0, true);
         }).subscribe();
 
         return () => {
@@ -64,19 +92,48 @@ const UnifiedFeed = ({ onOpenWizard }: UnifiedFeedProps) => {
         };
     }, []);
 
-    const fetchAnimals = async () => {
+    const fetchAnimals = async (pageToFetch: number, isNewFilter: boolean = false) => {
         try {
             setLoading(true);
-            // Fetch both 'disponible' (adopcion) and 'perdido'
-            const { data, error } = await supabase
+
+            let query = supabase
                 .from("animals")
-                .select("*")
-                .in("status", ["disponible", "perdido"])
-                .order("created_at", { ascending: false });
+                .select("*", { count: 'exact' });
+
+            // 1. Status Filter
+            if (activeTab === "adopcion") {
+                query = query.eq("status", "disponible");
+            } else if (activeTab === "perdidos") {
+                query = query.eq("status", "perdido");
+            } else {
+                query = query.in("status", ["disponible", "perdido"]);
+            }
+
+            // 2. Type Filter
+            if (typeFilter !== "todos") {
+                query = query.eq("type", typeFilter);
+            }
+
+            // 3. Search Filter
+            if (debouncedSearch) {
+                // ILIKE for case-insensitive partial match
+                // Note: basic ilike on single columns. multiple columns requires 'or' syntax
+                query = query.or(`name.ilike.%${debouncedSearch}%,description.ilike.%${debouncedSearch}%,location.ilike.%${debouncedSearch}%`);
+            }
+
+            // 4. Pagination
+            const from = pageToFetch * PAGE_SIZE;
+            const to = from + PAGE_SIZE - 1;
+
+            query = query
+                .order("created_at", { ascending: false })
+                .range(from, to);
+
+            const { data, error, count } = await query;
 
             if (error) throw error;
 
-            const formattedAnimals: Animal[] = (data as any[] || []).map((animal) => ({
+            const formattedAnimals: Animal[] = (data || []).map((animal: AnimalRow) => ({
                 id: animal.id,
                 name: animal.name,
                 type: animal.type as "perro" | "gato" | "otro",
@@ -86,15 +143,35 @@ const UnifiedFeed = ({ onOpenWizard }: UnifiedFeedProps) => {
                 description: animal.description,
                 fullDescription: `${animal.description}${animal.personality ? `\n\nPersonalidad: ${animal.personality}` : ""}${animal.health_info ? `\n\nSalud: ${animal.health_info}` : ""}`,
                 image: animal.image_url,
-                healthInfo: animal.health_info,
-                personality: animal.personality,
+                healthInfo: animal.health_info || undefined,
+                personality: animal.personality || undefined,
                 userId: animal.user_id,
-                lat: animal.lat,
-                lng: animal.lng,
+                // These fields exist in the inferred type for UI but might not be in DB row if not selected or if they are calculated
+                // Assuming they are not in DB row based on types.ts (lat/lng were not in the types.ts provided in context)
+                // If they are needed, they should be added to the DB or ignored if they were ad-hoc.
+                // Checking types.ts previously: NO lat/lng in 'animals' table. 
+                // So we omit them or mock them. Previous code had them as optional.
+                lat: undefined,
+                lng: undefined,
                 status: animal.status
             }));
 
-            setAnimals(formattedAnimals);
+            if (isNewFilter) {
+                setAnimals(formattedAnimals);
+            } else {
+                setAnimals(prev => [...prev, ...formattedAnimals]);
+            }
+
+            // Check if we have more
+            // If we got fewer items than requested, we reached the end
+            if ((data || []).length < PAGE_SIZE) {
+                setHasMore(false);
+            } else if (count !== null && (from + PAGE_SIZE) >= count) {
+                setHasMore(false);
+            } else {
+                setHasMore(true);
+            }
+
         } catch (error: any) {
             console.error("Error fetching feed:", error);
             toast({
@@ -107,28 +184,11 @@ const UnifiedFeed = ({ onOpenWizard }: UnifiedFeedProps) => {
         }
     };
 
-    const filteredAnimals = animals.filter(animal => {
-        // Status Filter (Tab)
-        if (activeTab === "adopcion" && animal.status !== "disponible") return false;
-        if (activeTab === "perdidos" && animal.status !== "perdido") return false;
-
-        // Type Filter
-        if (typeFilter !== "todos" && animal.type !== typeFilter) return false;
-
-        // Search
-        if (searchQuery) {
-            const query = searchQuery.toLowerCase();
-            return (
-                animal.name.toLowerCase().includes(query) ||
-                animal.description.toLowerCase().includes(query) ||
-                animal.location.toLowerCase().includes(query)
-            );
-        }
-
-        return true;
-    });
-
-    const displayedAnimals = filteredAnimals.slice(0, displayCount);
+    const handleLoadMore = () => {
+        const nextPage = page + 1;
+        setPage(nextPage);
+        fetchAnimals(nextPage, false);
+    };
 
     return (
         <div className="min-h-screen bg-background pb-20">
@@ -245,13 +305,14 @@ const UnifiedFeed = ({ onOpenWizard }: UnifiedFeedProps) => {
                     </Button>
                 </div>
 
-                {loading ? (
+                {/* Loading State (Initial) */}
+                {loading && animals.length === 0 ? (
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                         {[...Array(8)].map((_, i) => (
                             <div key={i} className="aspect-[4/5] bg-muted animate-pulse rounded-2xl" />
                         ))}
                     </div>
-                ) : displayedAnimals.length === 0 ? (
+                ) : animals.length === 0 ? (
                     <div className="text-center py-20">
                         <div className="bg-muted w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
                             <Search className="w-8 h-8 text-muted-foreground" />
@@ -269,7 +330,7 @@ const UnifiedFeed = ({ onOpenWizard }: UnifiedFeedProps) => {
                 ) : (
                     <>
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-                            {displayedAnimals.map((animal) => (
+                            {animals.map((animal) => (
                                 <div key={animal.id} className="animate-fade-in">
                                     <AnimalCard animal={animal} />
                                 </div>
@@ -277,15 +338,17 @@ const UnifiedFeed = ({ onOpenWizard }: UnifiedFeedProps) => {
                         </div>
 
                         {/* Load More Trigger */}
-                        {filteredAnimals.length > displayedAnimals.length && (
+                        {hasMore && (
                             <div className="mt-12 text-center">
                                 <Button
                                     variant="outline"
                                     size="lg"
-                                    onClick={() => setDisplayCount(prev => prev + 8)}
+                                    onClick={handleLoadMore}
+                                    disabled={loading}
                                     className="rounded-full px-8 h-12"
                                 >
-                                    Ver más animalitos
+                                    {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                                    {loading ? "Cargando..." : "Ver más animalitos"}
                                 </Button>
                             </div>
                         )}

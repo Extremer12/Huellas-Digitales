@@ -3,85 +3,48 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, CheckCircle, XCircle, Eye, Shield, Loader2, Home, Activity, Users, FileText, Ban } from "lucide-react";
+import {
+  Shield,
+  FileText,
+  AlertTriangle,
+  Loader2
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
 
-// ... interfaces same as before ... 
-interface Report {
-  id: string;
-  animal_id: string;
-  reporter_user_id: string;
-  reason: string;
-  status: string;
-  created_at: string;
-  animal?: {
-    name: string;
-    type: string;
-    image_url: string;
-    user_id: string;
-  };
-  reporter?: {
-    email: string;
-    full_name: string | null;
-  };
-}
-
-interface StoryReport {
-  id: string;
-  story_id: string;
-  reporter_user_id: string;
-  reason: string;
-  status: string;
-  created_at: string;
-  story?: {
-    animal_name: string;
-    story_text: string;
-    story_image_url: string;
-    adopter_user_id: string;
-  };
-  reporter?: {
-    email: string;
-    full_name: string | null;
-  };
-}
-interface CitizenReport {
-  id: string;
-  type: string;
-  status: string;
-  severity: string;
-  description: string;
-  location_lat: number;
-  location_lng: number;
-  images: string[];
-  created_at: string;
-}
-
-interface Organization {
-  id: string;
-  name: string;
-  type: string;
-  address: string;
-  verified: boolean;
-  email: string;
-  phone: string;
-  logo_url: string;
-}
+// Modular Components
+import { Report, StoryReport, CitizenReport, Organization } from "@/components/admin/AdminTypes";
+import { AdminStatsTab } from "@/components/admin/AdminStatsTab";
+import { AdminReportsTab } from "@/components/admin/AdminReportsTab";
+import { AdminOrganizationsTab } from "@/components/admin/AdminOrganizationsTab";
+import { AdminCitizenReportsTab } from "@/components/admin/AdminCitizenReportsTab";
+import { InfoRow } from "@/components/admin/AdminSharedComponents";
 
 const Admin = () => {
-  const navigate = useNavigate();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [stats, setStats] = useState({
+    users: 0,
+    reports: 0,
+    storyReports: 0,
+    citizenReports: 0,
+    organizations: 0
+  });
+
   const [reports, setReports] = useState<Report[]>([]);
   const [storyReports, setStoryReports] = useState<StoryReport[]>([]);
   const [citizenReports, setCitizenReports] = useState<CitizenReport[]>([]);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
+
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [selectedStoryReport, setSelectedStoryReport] = useState<StoryReport | null>(null);
   const [selectedCitizenReport, setSelectedCitizenReport] = useState<CitizenReport | null>(null);
@@ -99,131 +62,96 @@ const Admin = () => {
         return;
       }
 
-      // Check if user has admin or moderator role
-      const { data: roles } = await supabase
-        .from("user_roles")
+      const { data: profile } = await supabase
+        .from("profiles")
         .select("role")
-        .eq("user_id", session.user.id);
+        .eq("id", session.user.id)
+        .single();
 
-      const hasAdminAccess = roles?.some(r => r.role === "admin" || r.role === "moderator");
-
-      if (!hasAdminAccess) {
+      if (profile?.role !== "admin") {
         toast({
-          title: "Acceso Denegado",
-          description: "No tienes permisos para acceder a esta página",
-          variant: "destructive",
+          title: "Acceso denegado",
+          description: "No tienes permisos de administrador.",
+          variant: "destructive"
         });
         navigate("/");
         return;
       }
 
-      setIsAdmin(true);
-      await Promise.all([
-        loadReports(),
-        loadStoryReports(),
-        loadCitizenReports(),
-        loadOrganizations()
-      ]);
+      loadStats();
+      loadReports();
+      loadStoryReports();
+      loadCitizenReports();
+      loadOrganizations();
     } catch (error) {
-      console.error("Error checking admin access:", error);
+      console.error("Error checking access:", error);
       navigate("/");
     } finally {
       setLoading(false);
     }
   };
 
+  const loadStats = async () => {
+    const { count: usersCount } = await supabase.from("profiles").select("*", { count: 'exact', head: true });
+    const { count: reportsCount } = await supabase.from("reports").select("*", { count: 'exact', head: true }).eq("status", "pending");
+    const { count: storyReportsCount } = await supabase.from("story_reports").select("*", { count: 'exact', head: true }).eq("status", "pending");
+    const { count: citizenReportsCount } = await supabase.from("citizen_reports").select("*", { count: 'exact', head: true }).eq("status", "pending");
+    const { count: orgsCount } = await supabase.from("organizations").select("*", { count: 'exact', head: true });
+
+    setStats({
+      users: usersCount || 0,
+      reports: reportsCount || 0,
+      storyReports: storyReportsCount || 0,
+      citizenReports: citizenReportsCount || 0,
+      organizations: orgsCount || 0
+    });
+  };
+
   const loadReports = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("reports")
-        .select(`
-          *,
-          animal:animals(name, type, image_url, user_id)
-        `)
-        .order("created_at", { ascending: false });
+    const { data, error } = await supabase
+      .from("reports")
+      .select(`
+                *,
+                animal:animals(name, type, image_url, user_id),
+                reporter:profiles!reports_reporter_user_id_fkey(email, full_name)
+            `)
+      .eq("status", "pending")
+      .order("created_at", { ascending: false });
 
-      if (error) throw error;
-
-      // Fetch reporter profiles separately
-      const reportsWithReporters = await Promise.all(
-        (data || []).map(async (report) => {
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("email, full_name")
-            .eq("id", report.reporter_user_id)
-            .maybeSingle();
-
-          return {
-            ...report,
-            reporter: profile
-          };
-        })
-      );
-
-      setReports(reportsWithReporters as any);
-    } catch (error) {
-      console.error("Error loading reports:", error);
-    }
+    if (!error) setReports(data as any);
   };
 
   const loadStoryReports = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("story_reports")
-        .select(`
-          *,
-          story:adoption_stories(animal_name, story_text, story_image_url, adopter_user_id)
-        `)
-        .order("created_at", { ascending: false });
+    const { data, error } = await supabase
+      .from("story_reports")
+      .select(`
+                *,
+                story:adoption_stories(animal_name, story_text, story_image_url, adopter_user_id),
+                reporter:profiles!story_reports_reporter_user_id_fkey(email, full_name)
+            `)
+      .eq("status", "pending")
+      .order("created_at", { ascending: false });
 
-      if (error) throw error;
-
-      const reportsWithReporters = await Promise.all(
-        (data || []).map(async (report) => {
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("email, full_name")
-            .eq("id", report.reporter_user_id)
-            .maybeSingle();
-
-          return {
-            ...report,
-            reporter: profile
-          };
-        })
-      );
-
-      setStoryReports(reportsWithReporters as any);
-    } catch (error) {
-      console.error("Error loading story reports:", error);
-    }
+    if (!error) setStoryReports(data as any);
   };
-  const loadCitizenReports = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("citizen_reports")
-        .select("*")
-        .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      setCitizenReports(data || []);
-    } catch (error) {
-      console.error("Error loading citizen reports:", error);
-    }
+  const loadCitizenReports = async () => {
+    const { data, error } = await supabase
+      .from("citizen_reports")
+      .select("*")
+      .eq("status", "pending")
+      .order("created_at", { ascending: false });
+
+    if (!error) setCitizenReports(data as any);
   };
 
   const loadOrganizations = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("organizations")
-        .select("*")
-        .order("created_at", { ascending: false });
+    const { data, error } = await supabase
+      .from("organizations")
+      .select("*")
+      .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      setOrganizations(data || []);
-    } catch (error) {
-      console.error("Error loading organizations:", error);
-    }
+    if (!error) setOrganizations(data as any);
   };
 
   const updateCitizenReportStatus = async (reportId: string, status: string) => {
@@ -235,20 +163,12 @@ const Admin = () => {
         .eq("id", reportId);
 
       if (error) throw error;
-
-      toast({
-        title: "Éxito",
-        description: "Estado del reporte actualizado",
-      });
-      await loadCitizenReports();
+      toast({ title: "Reporte actualizado" });
+      loadCitizenReports();
+      loadStats();
       setSelectedCitizenReport(null);
-    } catch (error) {
-      console.error("Error updating citizen report:", error);
-      toast({
-        title: "Error",
-        description: "No se pudo actualizar el estado",
-        variant: "destructive",
-      });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     } finally {
       setProcessing(false);
     }
@@ -262,19 +182,10 @@ const Admin = () => {
         .eq("id", orgId);
 
       if (error) throw error;
-
-      toast({
-        title: "Éxito",
-        description: `Organización ${!currentStatus ? "verificada" : "desmarcada"}`,
-      });
-      await loadOrganizations();
-    } catch (error) {
-      console.error("Error toggling verification:", error);
-      toast({
-        title: "Error",
-        description: "No se pudo actualizar la verificación",
-        variant: "destructive",
-      });
+      toast({ title: currentStatus ? "Verificación removida" : "Organización verificada" });
+      loadOrganizations();
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     }
   };
 
@@ -288,26 +199,12 @@ const Admin = () => {
         .eq("id", reportId);
 
       if (error) throw error;
-
-      toast({
-        title: "Éxito",
-        description: `Reporte ${status === "approved" ? "aprobado" : "rechazado"} correctamente`,
-      });
-
-      if (isStoryReport) {
-        await loadStoryReports();
-        setSelectedStoryReport(null);
-      } else {
-        await loadReports();
-        setSelectedReport(null);
-      }
-    } catch (error) {
-      console.error("Error updating report:", error);
-      toast({
-        title: "Error",
-        description: "No se pudo actualizar el reporte",
-        variant: "destructive",
-      });
+      toast({ title: "Reporte actualizado" });
+      if (isStoryReport) loadStoryReports(); else loadReports();
+      loadStats();
+      if (isStoryReport) setSelectedStoryReport(null); else setSelectedReport(null);
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     } finally {
       setProcessing(false);
     }
@@ -317,38 +214,16 @@ const Admin = () => {
     setProcessing(true);
     try {
       if (isStoryReport) {
-        const storyReport = report as StoryReport;
-        const { error } = await supabase
-          .from("adoption_stories")
-          .delete()
-          .eq("id", storyReport.story_id);
-
-        if (error) throw error;
-
-        await updateReportStatus(report.id, "approved", true);
+        const sr = report as StoryReport;
+        await supabase.from("adoption_stories").delete().eq("id", sr.story_id);
       } else {
-        const animalReport = report as Report;
-        const { error } = await supabase
-          .from("animals")
-          .delete()
-          .eq("id", animalReport.animal_id);
-
-        if (error) throw error;
-
-        await updateReportStatus(report.id, "approved", false);
+        const r = report as Report;
+        await supabase.from("animals").delete().eq("id", r.animal_id);
       }
-
-      toast({
-        title: "Contenido Eliminado",
-        description: "El contenido reportado ha sido eliminado",
-      });
-    } catch (error) {
-      console.error("Error deleting content:", error);
-      toast({
-        title: "Error",
-        description: "No se pudo eliminar el contenido",
-        variant: "destructive",
-      });
+      await updateReportStatus(report.id, "resolved", isStoryReport);
+      toast({ title: "Contenido eliminado permanentemente" });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     } finally {
       setProcessing(false);
     }
@@ -356,277 +231,112 @@ const Admin = () => {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "pending":
-        return <Badge variant="outline" className="bg-yellow-500/10 text-yellow-700 hover:bg-yellow-500/20 border-yellow-500/50">Pendiente</Badge>;
-      case "approved":
-        return <Badge variant="outline" className="bg-green-500/10 text-green-700 hover:bg-green-500/20 border-green-500/50">Aprobado</Badge>;
-      case "rejected":
-        return <Badge variant="outline" className="bg-destructive/10 text-destructive hover:bg-destructive/20 border-destructive/50">Rechazado</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
+      case "pending": return <Badge variant="destructive" className="animate-pulse">Pendiente</Badge>;
+      case "resolved": return <Badge variant="default" className="bg-green-500">Resuelto</Badge>;
+      case "rejected": return <Badge variant="secondary">Rechazado</Badge>;
+      default: return <Badge variant="outline">{status}</Badge>;
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return null;
-  }
-
-  // Dashboard calculations
-  const totalPending = reports.filter(r => r.status === "pending").length +
-    storyReports.filter(r => r.status === "pending").length +
-    citizenReports.filter(r => r.status === "pending").length;
-
-  const totalOrgs = organizations.length;
-  const verifiedOrgs = organizations.filter(o => o.verified).length;
-  const totalCitizen = citizenReports.length;
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-muted/20 pb-20">
+    <div className="min-h-screen bg-muted/30">
       <Header />
-
-      <div className="pt-24 px-6 md:px-12 max-w-7xl mx-auto space-y-8">
-        {/* Intro */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
+      <main className="container mx-auto px-4 pt-28 pb-20">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-black tracking-tight flex items-center gap-3">
-              <Shield className="w-8 h-8 text-primary" />
+            <h1 className="text-4xl font-black tracking-tight text-foreground flex items-center gap-3">
+              <Shield className="w-10 h-10 text-primary" />
               Panel de Control
             </h1>
-            <p className="text-muted-foreground mt-1">
-              Bienvenido, Administrador. Aquí tienes el pulso de la plataforma.
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="px-3 py-1">v2.1.0 Stable</Badge>
-            <Badge className="px-3 py-1 bg-green-500 hover:bg-green-600">Sistema Operativo</Badge>
+            <p className="text-muted-foreground mt-1">Supervisión global y gestión de la comunidad</p>
           </div>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatsCard
-            title="Pendientes"
-            value={totalPending}
-            icon={AlertTriangle}
-            color="text-orange-500"
-            bg="bg-orange-500/10"
-            desc="Requieren atención"
-          />
-          <StatsCard
-            title="Reportes Civiles"
-            value={totalCitizen}
-            icon={FileText}
-            color="text-blue-500"
-            bg="bg-blue-500/10"
-            desc="Totales registrados"
-          />
-          <StatsCard
-            title="Organizaciones"
-            value={totalOrgs}
-            icon={Home}
-            color="text-purple-500"
-            bg="bg-purple-500/10"
-            desc={`${verifiedOrgs} verificadas`}
-          />
-          <StatsCard
-            title="Monitoreo"
-            value="Activo"
-            icon={Activity}
-            color="text-green-500"
-            bg="bg-green-500/10"
-            desc="Todo funcionando"
-          />
-        </div>
+        <AdminStatsTab stats={stats} />
 
-        {/* Main Content Tabs */}
         <Tabs defaultValue="reports" className="space-y-6">
-          <div className="flex items-center justify-between">
-            <TabsList className="bg-background/95 backdrop-blur-sm border shadow-sm p-1 h-12 rounded-xl">
-              <TabsTrigger value="reports" className="rounded-lg px-4 py-2 text-sm font-medium transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Reportes ({reports.length + storyReports.length})</TabsTrigger>
-              <TabsTrigger value="citizen" className="rounded-lg px-4 py-2 text-sm font-medium transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Civiles ({citizenReports.length})</TabsTrigger>
-              <TabsTrigger value="orgs" className="rounded-lg px-4 py-2 text-sm font-medium transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Organizaciones ({organizations.length})</TabsTrigger>
-            </TabsList>
-          </div>
+          <TabsList className="bg-card border p-1 rounded-2xl h-14 w-full md:w-auto overflow-x-auto justify-start md:justify-center">
+            <TabsTrigger value="reports" className="rounded-xl px-6 h-11 data-[state=active]:bg-primary data-[state=active]:text-white">
+              <FileText className="w-4 h-4 mr-2" />
+              Moderación
+            </TabsTrigger>
+            <TabsTrigger value="sos" className="rounded-xl px-6 h-11 data-[state=active]:bg-amber-500 data-[state=active]:text-white">
+              <AlertTriangle className="w-4 h-4 mr-2" />
+              Reportes S.O.S
+            </TabsTrigger>
+            <TabsTrigger value="orgs" className="rounded-xl px-6 h-11 data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+              <Shield className="w-4 h-4 mr-2" />
+              Organizaciones
+            </TabsTrigger>
+          </TabsList>
 
-          <TabsContent value="reports" className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Animal Reports */}
-              <Card className="border-border/50 shadow-sm overflow-hidden">
-                <CardHeader className="bg-muted/30 border-b">
-                  <CardTitle className="text-lg flex items-center gap-2"><AlertTriangle className="w-5 h-5 text-destructive" /> Reportes de Mascotas</CardTitle>
-                </CardHeader>
-                <ScrollArea className="h-[500px]">
-                  <div className="p-4 space-y-4">
-                    {reports.length === 0 && <EmptyState msg="No hay reportes de animales." />}
-                    {reports.map((report) => (
-                      <ReportItem
-                        key={report.id}
-                        report={report}
-                        onView={() => setSelectedReport(report)}
-                        badge={getStatusBadge(report.status)}
-                      />
-                    ))}
-                  </div>
-                </ScrollArea>
-              </Card>
-
-              {/* Story Reports */}
-              <Card className="border-border/50 shadow-sm overflow-hidden">
-                <CardHeader className="bg-muted/30 border-b">
-                  <CardTitle className="text-lg flex items-center gap-2"><Ban className="w-5 h-5 text-destructive" /> Reportes de Historias</CardTitle>
-                </CardHeader>
-                <ScrollArea className="h-[500px]">
-                  <div className="p-4 space-y-4">
-                    {storyReports.length === 0 && <EmptyState msg="No hay reportes de historias." />}
-                    {storyReports.map((report) => (
-                      <StoryReportItem
-                        key={report.id}
-                        report={report}
-                        onView={() => setSelectedStoryReport(report)}
-                        badge={getStatusBadge(report.status)}
-                      />
-                    ))}
-                  </div>
-                </ScrollArea>
-              </Card>
-            </div>
+          <TabsContent value="reports" className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <AdminReportsTab
+              reports={reports}
+              storyReports={storyReports}
+              getStatusBadge={getStatusBadge}
+              onViewReport={(r) => setSelectedReport(r)}
+              onViewStoryReport={(sr) => setSelectedStoryReport(sr)}
+            />
           </TabsContent>
 
-          <TabsContent value="citizen" className="animate-in fade-in slide-in-from-bottom-4">
-            <Card className="border-border/50 shadow-sm">
-              <CardHeader>
-                <CardTitle>Reportes Ciudadanos</CardTitle>
-                <CardDescription>Alertas enviadas por la comunidad, ordenadas por urgencia.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {citizenReports.length === 0 && <div className="col-span-full"><EmptyState msg="No hay reportes ciudadanos." /></div>}
-                  {citizenReports.map((report) => (
-                    <CitizenReportCard
-                      key={report.id}
-                      report={report}
-                      onView={() => setSelectedCitizenReport(report)}
-                      badge={getStatusBadge(report.status)}
-                    />
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+          <TabsContent value="sos" className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <AdminCitizenReportsTab
+              citizenReports={citizenReports}
+              getStatusBadge={getStatusBadge}
+              onViewCitizenReport={(r) => setSelectedCitizenReport(r)}
+            />
           </TabsContent>
 
-          <TabsContent value="orgs" className="animate-in fade-in slide-in-from-bottom-4">
-            <Card className="border-border/50 shadow-sm">
-              <CardHeader>
-                <CardTitle>Directorio de Organizaciones</CardTitle>
-                <CardDescription>Gestión de refugios y entidades verificadas.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {organizations.map((org) => (
-                    <OrgCard
-                      key={org.id}
-                      org={org}
-                      onToggleVerify={() => toggleOrganizationVerification(org.id, org.verified)}
-                    />
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+          <TabsContent value="orgs" className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <AdminOrganizationsTab
+              organizations={organizations}
+              onToggleVerification={toggleOrganizationVerification}
+            />
           </TabsContent>
         </Tabs>
 
-        {/* --- MODALS --- */}
-
-        {/* Citizen Report Modal */}
-        <Dialog open={!!selectedCitizenReport} onOpenChange={() => setSelectedCitizenReport(null)}>
-          <DialogContent className="max-w-2xl rounded-[2rem]">
-            {selectedCitizenReport && (
-              <div className="space-y-6">
-                <DialogHeader>
-                  <DialogTitle className="flex items-center justify-between">
-                    <span>Reporte #{(selectedCitizenReport.id.substring(0, 6))}</span>
-                    <Badge variant={selectedCitizenReport.severity === 'urgent' ? 'destructive' : 'default'} className="uppercase px-3">
-                      {selectedCitizenReport.type}
-                    </Badge>
-                  </DialogTitle>
-                </DialogHeader>
-
-                <div className="grid grid-cols-2 gap-2 overflow-hidden rounded-xl">
-                  {selectedCitizenReport.images?.map((img, i) => (
-                    <img key={i} src={img} className="w-full h-40 object-cover hover:scale-105 transition-transform duration-500" />
-                  ))}
-                </div>
-
-                <div className="p-4 bg-muted/30 rounded-xl space-y-2">
-                  <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-widest">Descripción</h4>
-                  <p className="text-foreground leading-relaxed">{selectedCitizenReport.description}</p>
-                </div>
-
-                <div className="flex gap-3 pt-4">
-                  <Button
-                    className="flex-1 bg-blue-600 hover:bg-blue-700"
-                    onClick={() => updateCitizenReportStatus(selectedCitizenReport.id, 'investigating')}
-                    disabled={selectedCitizenReport.status === 'investigating' || processing}
-                  >
-                    En Investigación
-                  </Button>
-                  <Button
-                    className="flex-1 bg-green-600 hover:bg-green-700"
-                    onClick={() => updateCitizenReportStatus(selectedCitizenReport.id, 'resolved')}
-                    disabled={selectedCitizenReport.status === 'resolved' || processing}
-                  >
-                    Resuelto
-                  </Button>
-                </div>
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
-
-        {/* Animal/Story Report Modal (Generic Logic reused) */}
-        <Dialog open={!!selectedReport} onOpenChange={() => setSelectedReport(null)}>
-          <DialogContent className="max-w-md rounded-[2rem]">
-            {selectedReport && (
-              <div className="space-y-6">
-                <div className="relative h-48 rounded-xl overflow-hidden">
-                  {selectedReport.animal && <img src={selectedReport.animal.image_url} className="w-full h-full object-cover" />}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
-                    <h3 className="text-white font-bold text-xl">{selectedReport.animal?.name}</h3>
-                  </div>
+        {/* Modals check... */}
+        {selectedReport && (
+          <Dialog open={!!selectedReport} onOpenChange={() => setSelectedReport(null)}>
+            <DialogContent className="sm:max-w-md rounded-[2rem]">
+              <DialogHeader>
+                <DialogTitle>Detalle del Reporte</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-6 py-4">
+                <div className="aspect-video rounded-3xl overflow-hidden bg-muted">
+                  <img src={selectedReport.animal?.image_url} alt="Evidencia" className="w-full h-full object-cover" />
                 </div>
                 <div className="space-y-4">
                   <InfoRow label="Razón" value={selectedReport.reason} />
                   <InfoRow label="Reportado por" value={selectedReport.reporter?.full_name || selectedReport.reporter?.email || "Anónimo"} />
-                  <InfoRow label="Fecha" value={new Date(selectedReport.created_at).toLocaleDateString()} />
                 </div>
                 <Separator />
                 <div className="grid grid-cols-2 gap-3">
-                  <Button variant="outline" onClick={() => updateReportStatus(selectedReport.id, "rejected", false)} disabled={processing}>Desestimar</Button>
-                  <Button variant="destructive" onClick={() => deleteContent(selectedReport, false)} disabled={processing}>Eliminar Post</Button>
+                  <Button variant="outline" onClick={() => updateReportStatus(selectedReport!.id, "rejected")} disabled={processing}>Desestimar</Button>
+                  <Button variant="destructive" onClick={() => deleteContent(selectedReport!)} disabled={processing}>Eliminar Animal</Button>
                 </div>
               </div>
-            )}
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
+        )}
 
-        {/* Story Report Modal (Similar to above) */}
-        <Dialog open={!!selectedStoryReport} onOpenChange={() => setSelectedStoryReport(null)}>
-          <DialogContent className="max-w-md rounded-[2rem]">
-            {selectedStoryReport && (
-              <div className="space-y-6">
-                <div className="relative h-48 rounded-xl overflow-hidden">
-                  {selectedStoryReport.story && <img src={selectedStoryReport.story.story_image_url} className="w-full h-full object-cover" />}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
-                    <h3 className="text-white font-bold text-xl">{selectedStoryReport.story?.animal_name}</h3>
-                  </div>
+        {/* Story Report Modal */}
+        {selectedStoryReport && (
+          <Dialog open={!!selectedStoryReport} onOpenChange={() => setSelectedStoryReport(null)}>
+            <DialogContent className="sm:max-w-md rounded-[2rem]">
+              <DialogHeader>
+                <DialogTitle>Denuncia de Historia</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-6 py-4">
+                <div className="aspect-video rounded-3xl overflow-hidden bg-muted">
+                  <img src={selectedStoryReport.story?.story_image_url} alt="Evidencia" className="w-full h-full object-cover" />
                 </div>
                 <div className="space-y-4">
                   <InfoRow label="Razón" value={selectedStoryReport.reason} />
@@ -634,123 +344,47 @@ const Admin = () => {
                 </div>
                 <Separator />
                 <div className="grid grid-cols-2 gap-3">
-                  <Button variant="outline" onClick={() => updateReportStatus(selectedStoryReport.id, "rejected", true)} disabled={processing}>Desestimar</Button>
-                  <Button variant="destructive" onClick={() => deleteContent(selectedStoryReport, true)} disabled={processing}>Eliminar Historia</Button>
+                  <Button variant="outline" onClick={() => updateReportStatus(selectedStoryReport!.id, "rejected", true)} disabled={processing}>Desestimar</Button>
+                  <Button variant="destructive" onClick={() => deleteContent(selectedStoryReport!, true)} disabled={processing}>Eliminar Historia</Button>
                 </div>
               </div>
-            )}
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
+        )}
 
-      </div>
+        {/* Citizen Report Modal */}
+        {selectedCitizenReport && (
+          <Dialog open={!!selectedCitizenReport} onOpenChange={() => setSelectedCitizenReport(null)}>
+            <DialogContent className="sm:max-w-lg rounded-[2rem]">
+              <DialogHeader>
+                <DialogTitle>S.O.S: {selectedCitizenReport.type}</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-6 py-4">
+                <div className="grid grid-cols-2 gap-2">
+                  {selectedCitizenReport.images?.map((img, i) => (
+                    <div key={i} className="aspect-square rounded-2xl overflow-hidden bg-muted">
+                      <img src={img} alt="Evidencia S.O.S" className="w-full h-full object-cover" />
+                    </div>
+                  ))}
+                </div>
+                <div className="space-y-4">
+                  <InfoRow label="Gravedad" value={selectedCitizenReport.severity} />
+                  <InfoRow label="Descripción" value={selectedCitizenReport.description} />
+                </div>
+                <Separator />
+                <div className="flex gap-3">
+                  <Button onClick={() => updateCitizenReportStatus(selectedCitizenReport!.id, "resolved")} className="flex-1 bg-green-600 hover:bg-green-700">Resolver</Button>
+                  <Button onClick={() => updateCitizenReportStatus(selectedCitizenReport!.id, "rejected")} variant="outline" className="flex-1">Ignorar</Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
+      </main>
     </div>
   );
 };
 
-// --- SUBCOMPONENTS ---
-
-const StatsCard = ({ title, value, icon: Icon, color, bg, desc }: any) => (
-  <Card className="border-none shadow-sm hover:shadow-md transition-all">
-    <CardContent className="p-6">
-      <div className="flex items-center justify-between">
-        <div className={`w-12 h-12 rounded-xl ${bg} flex items-center justify-center ${color}`}>
-          <Icon className="w-6 h-6" />
-        </div>
-        {/* <Badge variant="outline" className={`${color} bg-transparent border-current opacity-50`}>+2.5%</Badge> */}
-      </div>
-      <div className="mt-4">
-        <h3 className="text-2xl font-black">{value}</h3>
-        <p className="text-sm font-medium text-muted-foreground">{title}</p>
-        <p className="text-xs text-muted-foreground/50 mt-1">{desc}</p>
-      </div>
-    </CardContent>
-  </Card>
-);
-
-const EmptyState = ({ msg }: { msg: string }) => (
-  <div className="flex flex-col items-center justify-center py-12 text-muted-foreground opacity-50">
-    <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
-      <CheckCircle className="w-8 h-8" />
-    </div>
-    <p>{msg}</p>
-  </div>
-);
-
-const ReportItem = ({ report, onView, badge }: any) => (
-  <div className="flex items-center justify-between p-4 bg-background rounded-xl border hover:border-primary/50 transition-colors group">
-    <div className="flex items-center gap-4">
-      <img src={report.animal?.image_url || "/placeholder.svg"} className="w-12 h-12 rounded-full object-cover border" />
-      <div>
-        <h4 className="font-bold text-sm">{report.animal?.name || "Desconocido"}</h4>
-        <div className="flex items-center gap-2 mt-1">
-          {badge}
-          <span className="text-xs text-muted-foreground truncate max-w-[150px]">{report.reason}</span>
-        </div>
-      </div>
-    </div>
-    <Button size="icon" variant="ghost" className="opacity-0 group-hover:opacity-100 transition-opacity" onClick={onView}>
-      <Eye className="w-4 h-4" />
-    </Button>
-  </div>
-);
-
-const StoryReportItem = ({ report, onView, badge }: any) => (
-  <div className="flex items-center justify-between p-4 bg-background rounded-xl border hover:border-primary/50 transition-colors group">
-    <div className="flex items-center gap-4">
-      <img src={report.story?.story_image_url || "/placeholder.svg"} className="w-12 h-12 rounded-full object-cover border" />
-      <div>
-        <h4 className="font-bold text-sm">{report.story?.animal_name || "Desconocido"}</h4>
-        <div className="flex items-center gap-2 mt-1">
-          {badge}
-          <span className="text-xs text-muted-foreground truncate max-w-[150px]">{report.reason}</span>
-        </div>
-      </div>
-    </div>
-    <Button size="icon" variant="ghost" className="opacity-0 group-hover:opacity-100 transition-opacity" onClick={onView}>
-      <Eye className="w-4 h-4" />
-    </Button>
-  </div>
-);
-
-const CitizenReportCard = ({ report, onView, badge }: any) => (
-  <div className="p-4 bg-card rounded-xl border hover:border-primary/50 transition-all flex flex-col justify-between h-full">
-    <div>
-      <div className="flex justify-between items-start mb-2">
-        <Badge variant={report.severity === 'urgent' ? 'destructive' : 'secondary'}>{report.type}</Badge>
-        {badge}
-      </div>
-      <p className="text-sm line-clamp-3 text-muted-foreground my-3">{report.description}</p>
-    </div>
-    <div className="flex items-center justify-between mt-2 pt-2 border-t text-xs text-muted-foreground">
-      <span>{new Date(report.created_at).toLocaleDateString()}</span>
-      <Button size="sm" variant="ghost" className="h-6" onClick={onView}>Ver</Button>
-    </div>
-  </div>
-);
-
-const OrgCard = ({ org, onToggleVerify }: any) => (
-  <div className="flex items-center gap-4 p-4 bg-card rounded-xl border">
-    <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center overflow-hidden">
-      {org.logo_url ? <img src={org.logo_url} className="w-full h-full object-cover" /> : <Home className="w-6 h-6 opacity-50" />}
-    </div>
-    <div className="flex-1 min-w-0">
-      <div className="flex items-center gap-2">
-        <h4 className="font-bold truncate">{org.name}</h4>
-        {org.verified && <CheckCircle className="w-3 h-3 text-blue-500 fill-blue-500/20" />}
-      </div>
-      <p className="text-xs text-muted-foreground truncate">{org.email}</p>
-    </div>
-    <Button size="icon" variant={org.verified ? "default" : "outline"} onClick={onToggleVerify} className={org.verified ? "bg-blue-600 hover:bg-blue-700" : ""}>
-      {org.verified ? <CheckCircle className="w-4 h-4" /> : <Shield className="w-4 h-4" />}
-    </Button>
-  </div>
-);
-
-const InfoRow = ({ label, value }: { label: string, value: string }) => (
-  <div>
-    <span className="text-xs font-bold uppercase text-muted-foreground tracking-wider block mb-1">{label}</span>
-    <p className="text-sm font-medium">{value}</p>
-  </div>
-);
+// --- STYLES & EXPORT ---
 
 export default Admin;
