@@ -8,7 +8,8 @@ import {
   FileText,
   AlertTriangle,
   Loader2,
-  Users
+  Users,
+  History
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -29,6 +30,7 @@ import { AdminReportsTab } from "@/components/admin/AdminReportsTab";
 import { AdminOrganizationsTab } from "@/components/admin/AdminOrganizationsTab";
 import { AdminCitizenReportsTab } from "@/components/admin/AdminCitizenReportsTab";
 import { AdminUsersTab } from "@/components/admin/AdminUsersTab";
+import { AdminAuditLogsTab } from "@/components/admin/AdminAuditLogsTab";
 import { InfoRow } from "@/components/admin/AdminSharedComponents";
 
 const Admin = () => {
@@ -331,6 +333,10 @@ const Admin = () => {
               <Users className="w-4 h-4 mr-2" />
               Usuarios
             </TabsTrigger>
+            <TabsTrigger value="logs" className="rounded-xl px-6 h-11 data-[state=active]:bg-zinc-800 data-[state=active]:text-white">
+              <History className="w-4 h-4 mr-2" />
+              Auditoría
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="reports" className="animate-in fade-in slide-in-from-bottom-2 duration-300">
@@ -360,6 +366,10 @@ const Admin = () => {
 
           <TabsContent value="users" className="animate-in fade-in slide-in-from-bottom-2 duration-300">
             <AdminUsersTab />
+          </TabsContent>
+
+          <TabsContent value="logs" className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <AdminAuditLogsTab />
           </TabsContent>
         </Tabs>
 

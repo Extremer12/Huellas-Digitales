@@ -1,0 +1,15 @@
+{
+    "admin": {
+        "dashboard": "Panel de Control",
+        "users": "Gente",
+        "logs": "Registro de Movimientos"
+    },
+    "common": {
+        "loading": "Aguntá un toque...",
+        "save": "Guardalo",
+        "delete": "Borralo"
+    },
+    "feed": {
+        "subtitle": "Acá conectamos bichos con gente que los quiera."
+    }
+}

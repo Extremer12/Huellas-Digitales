@@ -51,7 +51,7 @@ export const AdminUsersTab = () => {
             // 1. Fetch all profiles
             const { data: profilesData, error: profilesError } = await supabase
                 .from('profiles')
-                .select('id, email, full_name, avatar_url, created_at');
+                .select('id, email, full_name, avatar_url, created_at, is_banned');
 
             if (profilesError) throw profilesError;
 
@@ -71,6 +71,7 @@ export const AdminUsersTab = () => {
                 full_name: u.full_name,
                 avatar_url: u.avatar_url,
                 created_at: u.created_at,
+                is_banned: u.is_banned,
                 role: roleMap.get(u.id) || 'user'
             }));
 
@@ -94,11 +95,58 @@ export const AdminUsersTab = () => {
 
             if (error) throw error;
 
+            // Log action
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                await supabase.from('admin_logs').insert({
+                    admin_id: session.user.id,
+                    action: `Cambio de rol: ${newRole}`,
+                    target_id: userId,
+                    target_table: 'profiles',
+                    details: { new_role: newRole }
+                });
+            }
+
             toast({ title: "Rol actualizado", description: `Usuario ahora es ${newRole}` });
             loadUsers();
         } catch (error: any) {
             toast({
                 title: "Error al actualizar rol",
+                description: error.message,
+                variant: "destructive"
+            });
+        }
+    };
+
+    const toggleUserBan = async (userId: string, currentBanStatus: boolean) => {
+        try {
+            const { error } = await supabase
+                .from('profiles')
+                .update({ is_banned: !currentBanStatus })
+                .eq('id', userId);
+
+            if (error) throw error;
+
+            // Log action
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                await supabase.from('admin_logs').insert({
+                    admin_id: session.user.id,
+                    action: !currentBanStatus ? 'Baneo de usuario' : 'Desbaneo de usuario',
+                    target_id: userId,
+                    target_table: 'profiles',
+                    details: { banned: !currentBanStatus }
+                });
+            }
+
+            toast({
+                title: !currentBanStatus ? "Usuario baneado" : "Usuario restaurado",
+                description: `El estado del usuario ha sido actualizado.`
+            });
+            loadUsers();
+        } catch (error: any) {
+            toast({
+                title: "Error al cambiar estado de baneo",
                 description: error.message,
                 variant: "destructive"
             });
@@ -164,9 +212,12 @@ export const AdminUsersTab = () => {
                                                 </AvatarFallback>
                                             </Avatar>
                                             <div className="flex flex-col">
-                                                <span className="font-bold text-[14px] leading-tight text-foreground/90">
-                                                    {user.full_name || "Sin nombre"}
-                                                </span>
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`font-bold text-[14px] leading-tight ${user.is_banned ? 'text-destructive line-through' : 'text-foreground/90'}`}>
+                                                        {user.full_name || "Sin nombre"}
+                                                    </span>
+                                                    {user.is_banned && <Badge variant="destructive" className="h-4 px-1 text-[8px] uppercase">Baneado</Badge>}
+                                                </div>
                                                 <span className="text-[12px] text-muted-foreground">{user.email}</span>
                                             </div>
                                         </div>
@@ -219,9 +270,12 @@ export const AdminUsersTab = () => {
                                                     Hacer Usuario
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator />
-                                                <DropdownMenuItem className="text-destructive flex items-center gap-2 cursor-pointer opacity-50 pointer-events-none">
+                                                <DropdownMenuItem
+                                                    onClick={() => toggleUserBan(user.id, !!user.is_banned)}
+                                                    className={`flex items-center gap-2 cursor-pointer ${user.is_banned ? 'text-green-600 hover:text-green-700' : 'text-destructive hover:text-destructive'}`}
+                                                >
                                                     <Trash2 className="h-4 w-4" />
-                                                    Suspender Cuenta
+                                                    {user.is_banned ? 'Quitar Baneo' : 'Banear Usuario'}
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>

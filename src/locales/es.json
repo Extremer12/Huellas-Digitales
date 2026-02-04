@@ -1,0 +1,22 @@
+{
+    "admin": {
+        "dashboard": "Panel de Control",
+        "users": "Usuarios",
+        "logs": "Auditoría",
+        "reports": "Moderación",
+        "organizations": "Organizaciones",
+        "stats": "Estadísticas"
+    },
+    "common": {
+        "loading": "Cargando...",
+        "error": "Ocurrió un error",
+        "save": "Guardar",
+        "cancel": "Cancelar",
+        "delete": "Eliminar",
+        "search": "Buscar"
+    },
+    "feed": {
+        "title": "Cada huella cuenta una historia",
+        "subtitle": "Conectamos corazones con patas."
+    }
+}

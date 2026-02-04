@@ -66,4 +66,19 @@ export interface AdminUser {
     avatar_url: string | null;
     role: string;
     created_at: string;
+    is_banned?: boolean;
+}
+
+export interface AdminLog {
+    id: string;
+    admin_id: string;
+    action: string;
+    target_id: string | null;
+    target_table: string | null;
+    details: any;
+    created_at: string;
+    admin?: {
+        full_name: string | null;
+        email: string;
+    };
 }

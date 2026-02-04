@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import RegionSelector from "@/components/RegionSelector";
 import UnifiedFeed from "@/components/UnifiedFeed";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { ChevronRight, Search, Dog, Cat, PawPrint, Heart, Info, AlertTriangle } from "lucide-react";
+import { ChevronRight, Search, Dog, Cat, PawPrint, Heart, Info, AlertTriangle, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import heroImage from "@/assets/hero-adoption.jpg";
 import ComoAyudarSection from "@/components/ComoAyudarSection";
