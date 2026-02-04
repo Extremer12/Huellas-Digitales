@@ -105,8 +105,6 @@ const Header = ({ minimal = false }: HeaderProps) => {
     { name: "Perdidos", path: "/perdidos", type: "link" },
     { name: "Mapa", path: "/mapa", type: "link" },
     { name: "Historias", path: "/historias", type: "link" },
-    // Use /colaborar route if minimal (app mode) or logged in, otherwise section
-    { name: "Cómo Ayudar", path: isAuthenticated ? "/colaborar" : "ayudar", type: isAuthenticated ? "link" : "section" },
   ];
 
   return (

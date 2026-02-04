@@ -15,7 +15,6 @@ import Adopcion from "./pages/Adopcion";
 import Perdidos from "./pages/Perdidos";
 import Historias from "./pages/Historias";
 import InteractiveMap from "./pages/InteractiveMap";
-import Colaborar from "./pages/Colaborar";
 import PetDetail from "./components/PetDetail";
 import DogLoader from "./components/DogLoader";
 
@@ -40,7 +39,6 @@ const App = () => {
             <Route path="/historias" element={<Historias />} />
             <Route path="/mapa" element={<InteractiveMap />} />
             <Route path="/pet/:id" element={<PetDetail />} />
-            <Route path="/colaborar" element={<Colaborar />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
