@@ -7,7 +7,8 @@ import {
   Shield,
   FileText,
   AlertTriangle,
-  Loader2
+  Loader2,
+  Users
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -26,6 +27,7 @@ import { AdminStatsTab } from "@/components/admin/AdminStatsTab";
 import { AdminReportsTab } from "@/components/admin/AdminReportsTab";
 import { AdminOrganizationsTab } from "@/components/admin/AdminOrganizationsTab";
 import { AdminCitizenReportsTab } from "@/components/admin/AdminCitizenReportsTab";
+import { AdminUsersTab } from "@/components/admin/AdminUsersTab";
 import { InfoRow } from "@/components/admin/AdminSharedComponents";
 
 const Admin = () => {
@@ -62,13 +64,14 @@ const Admin = () => {
         return;
       }
 
-      const { data: profile } = await supabase
-        .from("profiles")
+      const { data: userRole } = await supabase
+        .from("user_roles")
         .select("role")
-        .eq("id", session.user.id)
-        .single();
+        .eq("user_id", session.user.id)
+        .eq("role", "admin")
+        .maybeSingle();
 
-      if (profile?.role !== "admin") {
+      if (!userRole) {
         toast({
           title: "Acceso denegado",
           description: "No tienes permisos de administrador.",
@@ -274,6 +277,10 @@ const Admin = () => {
               <Shield className="w-4 h-4 mr-2" />
               Organizaciones
             </TabsTrigger>
+            <TabsTrigger value="users" className="rounded-xl px-6 h-11 data-[state=active]:bg-purple-600 data-[state=active]:text-white">
+              <Users className="w-4 h-4 mr-2" />
+              Usuarios
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="reports" className="animate-in fade-in slide-in-from-bottom-2 duration-300">
@@ -299,6 +306,10 @@ const Admin = () => {
               organizations={organizations}
               onToggleVerification={toggleOrganizationVerification}
             />
+          </TabsContent>
+
+          <TabsContent value="users" className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <AdminUsersTab />
           </TabsContent>
         </Tabs>
 
