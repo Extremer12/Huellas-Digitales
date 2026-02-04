@@ -15,7 +15,8 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle
+  DialogTitle,
+  DialogDescription
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
@@ -111,31 +112,80 @@ const Admin = () => {
   };
 
   const loadReports = async () => {
-    const { data, error } = await supabase
-      .from("reports")
-      .select(`
-                *,
-                animal:animals(name, type, image_url, user_id),
-                reporter:profiles!reports_reporter_user_id_fkey(email, full_name)
-            `)
-      .eq("status", "pending")
-      .order("created_at", { ascending: false });
+    try {
+      const { data: reportsData, error: reportsError } = await supabase
+        .from("reports")
+        .select("*")
+        .eq("status", "pending")
+        .order("created_at", { ascending: false });
 
-    if (!error) setReports(data as any);
+      if (reportsError) throw reportsError;
+
+      // Enrich with animal and reporter info manually to avoid join errors (400)
+      const enrichedReports = await Promise.all(
+        (reportsData || []).map(async (report) => {
+          const { data: animal } = await supabase
+            .from("animals")
+            .select("name, type, image_url, user_id")
+            .eq("id", report.animal_id)
+            .single();
+
+          const { data: reporter } = await supabase
+            .from("profiles")
+            .select("email, full_name")
+            .eq("id", report.reporter_user_id)
+            .single();
+
+          return {
+            ...report,
+            animal,
+            reporter
+          };
+        })
+      );
+
+      setReports(enrichedReports as any);
+    } catch (error) {
+      console.error("Error loading reports:", error);
+    }
   };
 
   const loadStoryReports = async () => {
-    const { data, error } = await supabase
-      .from("story_reports")
-      .select(`
-                *,
-                story:adoption_stories(animal_name, story_text, story_image_url, adopter_user_id),
-                reporter:profiles!story_reports_reporter_user_id_fkey(email, full_name)
-            `)
-      .eq("status", "pending")
-      .order("created_at", { ascending: false });
+    try {
+      const { data: storyReportsData, error: storyReportsError } = await supabase
+        .from("story_reports")
+        .select("*")
+        .eq("status", "pending")
+        .order("created_at", { ascending: false });
 
-    if (!error) setStoryReports(data as any);
+      if (storyReportsError) throw storyReportsError;
+
+      const enrichedStoryReports = await Promise.all(
+        (storyReportsData || []).map(async (report) => {
+          const { data: story } = await supabase
+            .from("adoption_stories")
+            .select("animal_name, story_text, story_image_url, adopter_user_id")
+            .eq("id", report.story_id)
+            .single();
+
+          const { data: reporter } = await supabase
+            .from("profiles")
+            .select("email, full_name")
+            .eq("id", report.reporter_user_id)
+            .single();
+
+          return {
+            ...report,
+            story,
+            reporter
+          };
+        })
+      );
+
+      setStoryReports(enrichedStoryReports as any);
+    } catch (error) {
+      console.error("Error loading story reports:", error);
+    }
   };
 
   const loadCitizenReports = async () => {
@@ -319,6 +369,9 @@ const Admin = () => {
             <DialogContent className="sm:max-w-md rounded-[2rem]">
               <DialogHeader>
                 <DialogTitle>Detalle del Reporte</DialogTitle>
+                <DialogDescription>
+                  Información detallada sobre el reporte del animal seleccionado.
+                </DialogDescription>
               </DialogHeader>
               <div className="space-y-6 py-4">
                 <div className="aspect-video rounded-3xl overflow-hidden bg-muted">
@@ -344,6 +397,9 @@ const Admin = () => {
             <DialogContent className="sm:max-w-md rounded-[2rem]">
               <DialogHeader>
                 <DialogTitle>Denuncia de Historia</DialogTitle>
+                <DialogDescription>
+                  Revisión de contenido reportado en historias de adopción.
+                </DialogDescription>
               </DialogHeader>
               <div className="space-y-6 py-4">
                 <div className="aspect-video rounded-3xl overflow-hidden bg-muted">
@@ -369,6 +425,9 @@ const Admin = () => {
             <DialogContent className="sm:max-w-lg rounded-[2rem]">
               <DialogHeader>
                 <DialogTitle>S.O.S: {selectedCitizenReport.type}</DialogTitle>
+                <DialogDescription>
+                  Reporte ciudadano sobre una emergencia animal.
+                </DialogDescription>
               </DialogHeader>
               <div className="space-y-6 py-4">
                 <div className="grid grid-cols-2 gap-2">

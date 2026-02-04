@@ -47,27 +47,31 @@ export const AdminUsersTab = () => {
     const loadUsers = async () => {
         try {
             setLoading(true);
-            // We join profiles with user_roles
-            const { data, error } = await supabase
+
+            // 1. Fetch all profiles
+            const { data: profilesData, error: profilesError } = await supabase
                 .from('profiles')
-                .select(`
-          id,
-          email,
-          full_name,
-          avatar_url,
-          created_at,
-          user_roles(role)
-        `);
+                .select('id, email, full_name, avatar_url, created_at');
 
-            if (error) throw error;
+            if (profilesError) throw profilesError;
 
-            const formattedUsers: AdminUser[] = (data || []).map(u => ({
+            // 2. Fetch all user roles
+            const { data: rolesData, error: rolesError } = await supabase
+                .from('user_roles')
+                .select('user_id, role');
+
+            if (rolesError) throw rolesError;
+
+            // 3. Merge data
+            const roleMap = new Map((rolesData || []).map(r => [r.user_id, r.role]));
+
+            const formattedUsers: AdminUser[] = (profilesData || []).map(u => ({
                 id: u.id,
                 email: u.email,
                 full_name: u.full_name,
                 avatar_url: u.avatar_url,
                 created_at: u.created_at,
-                role: u.user_roles?.[0]?.role || 'user'
+                role: roleMap.get(u.id) || 'user'
             }));
 
             setUsers(formattedUsers);

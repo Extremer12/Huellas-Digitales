@@ -10,7 +10,7 @@ import { ChevronRight, Search, Dog, Cat, PawPrint, Heart, Info, AlertTriangle } 
 import { Button } from "@/components/ui/button";
 import heroImage from "@/assets/hero-adoption.jpg";
 import ComoAyudarSection from "@/components/ComoAyudarSection";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import SmartPublicationWizard from "@/components/SmartPublicationWizard";
 
 const Index = () => {
@@ -94,6 +94,10 @@ const Index = () => {
 
         <Dialog open={showWizard} onOpenChange={handleWizardClose}>
           <DialogContent className="sm:max-w-3xl p-6 overflow-y-auto max-h-[90vh] rounded-[2rem]">
+            <DialogHeader className="sr-only">
+              <DialogTitle>Publicar Mascota</DialogTitle>
+              <DialogDescription>Asistente para crear una nueva publicación de mascota en adopción o perdida.</DialogDescription>
+            </DialogHeader>
             <SmartPublicationWizard onSuccess={() => {
               setShowWizard(false);
               window.location.href = "/"; // Force reload to see new post
@@ -255,6 +259,10 @@ const Index = () => {
       {/* Shared Wizard Dialog for specific landing actions that link to ?action=publish */}
       <Dialog open={showWizard} onOpenChange={handleWizardClose}>
         <DialogContent className="sm:max-w-3xl p-6 overflow-y-auto max-h-[90vh] rounded-[2rem]">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Publicar Mascota</DialogTitle>
+            <DialogDescription>Asistente para crear una nueva publicación de mascota.</DialogDescription>
+          </DialogHeader>
           <SmartPublicationWizard onSuccess={() => {
             setShowWizard(false);
             window.location.href = "/"; // Force reload to see new post
