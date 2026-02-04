@@ -63,6 +63,18 @@ const InteractiveMap = () => {
     });
 
     useEffect(() => {
+        // Try precise geolocation first
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    setCenter([position.coords.latitude, position.coords.longitude]);
+                },
+                (error) => {
+                    console.log("Geolocation blocked or failed, using default center", error);
+                }
+            );
+        }
+
         fetchData();
     }, []);
 

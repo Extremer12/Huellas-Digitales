@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import RegionSelector from "@/components/RegionSelector";
 import UnifiedFeed from "@/components/UnifiedFeed";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { ChevronRight, Search, Dog, Cat, PawPrint, Heart, Info, AlertTriangle, MapPin } from "lucide-react";
+import { ChevronRight, Search, Dog, Cat, PawPrint, Heart, Info, AlertTriangle, MapPin, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import heroImage from "@/assets/hero-adoption.jpg";
 import ComoAyudarSection from "@/components/ComoAyudarSection";
@@ -141,7 +141,7 @@ const Index = () => {
             <div className="max-w-3xl animate-fade-in-up mx-auto md:mx-0">
               <div className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1 text-sm font-medium text-white backdrop-blur-md mb-6 shadow-xl">
                 <span className="flex h-2 w-2 rounded-full bg-primary mr-2 animate-pulse"></span>
-                La red más grande de rescate animal
+                Web en etapa de crecimiento
               </div>
               <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter text-white mb-6 leading-[1.1] drop-shadow-2xl">
                 Cada huella <br />
@@ -245,14 +245,16 @@ const Index = () => {
           </div>
         </section>
 
-        {/* COMO AYUDAR (Donations) - Moved to bottom as requested */}
+        {/* COMO AYUDAR (Donations) - Removed as per request (Growth Stage) */}
+        {/* 
         <section id="ayudar" className="py-20 bg-muted/30">
           <div className="text-center mb-10">
             <h2 className="text-3xl font-bold text-foreground/50 uppercase tracking-widest text-sm mb-4">Colabora</h2>
             <p className="text-muted-foreground">Si deseas aportar tu granito de arena.</p>
           </div>
           <ComoAyudarSection />
-        </section>
+        </section> 
+        */}
 
       </main>
 

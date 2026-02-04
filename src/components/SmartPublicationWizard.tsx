@@ -46,7 +46,7 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
         animalType: "perro",
         age: "",
         size: "",
-        location: "Buenos Aires", // Default
+        location: "", // Default empty to encourage accuracy
         description: "",
         healthInfo: "",
         personality: "",
@@ -59,6 +59,21 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
         nameUnknown: false,
         ageApproximate: false,
     });
+
+    useEffect(() => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition((pos) => {
+                setFormData(prev => ({
+                    ...prev,
+                    lat: pos.coords.latitude,
+                    lng: pos.coords.longitude,
+                    // Ideally we would reverse geocode here to set 'location'
+                    // For now we leave location empty to force user to type it correct
+                    location: ""
+                }));
+            });
+        }
+    }, []);
 
     // Map Picker Component
     function LocationMarker() {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,35 +15,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-
-const COUNTRIES = {
-  Argentina: [
-    "Buenos Aires",
-    "Catamarca",
-    "Chaco",
-    "Chubut",
-    "Córdoba",
-    "Corrientes",
-    "Entre Ríos",
-    "Formosa",
-    "Jujuy",
-    "La Pampa",
-    "La Rioja",
-    "Mendoza",
-    "Misiones",
-    "Neuquén",
-    "Río Negro",
-    "Salta",
-    "San Juan",
-    "San Luis",
-    "Santa Cruz",
-    "Santa Fe",
-    "Santiago del Estero",
-    "Tierra del Fuego",
-    "Tucumán",
-  ],
-};
 
 interface RegionSelectorProps {
   open: boolean;
@@ -51,14 +24,46 @@ interface RegionSelectorProps {
   onRegionSet: () => void;
 }
 
+interface Country {
+  name: {
+    common: string;
+  };
+  cca2: string;
+}
+
 export default function RegionSelector({ open, userId, onRegionSet }: RegionSelectorProps) {
   const [country, setCountry] = useState<string>("");
   const [province, setProvince] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const [countries, setCountries] = useState<Country[]>([]);
+  const [loadingCountries, setLoadingCountries] = useState(true);
+
+  useEffect(() => {
+    fetchCountries();
+  }, []);
+
+  const fetchCountries = async () => {
+    try {
+      const res = await fetch("https://restcountries.com/v3.1/lang/spanish");
+      const data = await res.json();
+
+      // Sort alphabetically
+      const sorted = (data as Country[]).sort((a, b) =>
+        a.name.common.localeCompare(b.name.common)
+      );
+
+      setCountries(sorted);
+    } catch (error) {
+      console.error("Error fetching countries:", error);
+      toast.error("Error cargando lista de países");
+    } finally {
+      setLoadingCountries(false);
+    }
+  };
 
   const handleSubmit = async () => {
     if (!country || !province) {
-      toast.error("Por favor selecciona país y provincia");
+      toast.error("Por favor completa país y provincia/estado");
       return;
     }
 
@@ -66,7 +71,7 @@ export default function RegionSelector({ open, userId, onRegionSet }: RegionSele
     try {
       const { error } = await supabase
         .from("profiles")
-        .update({ country, province })
+        .update({ country, province }) // province is just a text field in DB
         .eq("id", userId);
 
       if (error) throw error;
@@ -82,51 +87,44 @@ export default function RegionSelector({ open, userId, onRegionSet }: RegionSele
   };
 
   return (
-    <Dialog open={open} onOpenChange={() => {}}>
-      <DialogContent 
-        className="sm:max-w-md" 
+    <Dialog open={open} onOpenChange={() => { }}>
+      <DialogContent
+        className="sm:max-w-md"
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
         <DialogHeader>
           <DialogTitle>Selecciona tu región</DialogTitle>
           <DialogDescription>
-            Para ofrecerte mascotas cercanas a tu ubicación, necesitamos saber tu región.
+            Para ofrecerte mascotas cercanas a tu ubicación, necesitamos saber dónde estás.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div>
             <label className="text-sm font-medium mb-2 block">País</label>
-            <Select value={country} onValueChange={setCountry}>
+            <Select value={country} onValueChange={setCountry} disabled={loadingCountries}>
               <SelectTrigger>
-                <SelectValue placeholder="Selecciona tu país" />
+                <SelectValue placeholder={loadingCountries ? "Cargando..." : "Selecciona tu país"} />
               </SelectTrigger>
               <SelectContent>
-                {Object.keys(COUNTRIES).map((c) => (
-                  <SelectItem key={c} value={c}>
-                    {c}
+                {countries.map((c) => (
+                  <SelectItem key={c.cca2} value={c.name.common}>
+                    {c.name.common}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <div>
-            <label className="text-sm font-medium mb-2 block">Provincia</label>
-            <Select value={province} onValueChange={setProvince} disabled={!country}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecciona tu provincia" />
-              </SelectTrigger>
-              <SelectContent>
-                {country &&
-                  COUNTRIES[country as keyof typeof COUNTRIES]?.map((p) => (
-                    <SelectItem key={p} value={p}>
-                      {p}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
+            <label className="text-sm font-medium mb-2 block">Provincia / Estado / Región</label>
+            <Input
+              value={province}
+              onChange={(e) => setProvince(e.target.value)}
+              placeholder="Escribe tu provincia o estado"
+              disabled={!country}
+            />
           </div>
-          <Button onClick={handleSubmit} disabled={loading} className="w-full">
+          <Button onClick={handleSubmit} disabled={loading || !country || !province} className="w-full">
             {loading ? "Guardando..." : "Continuar"}
           </Button>
         </div>
