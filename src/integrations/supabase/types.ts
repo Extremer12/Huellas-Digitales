@@ -141,6 +141,11 @@ export type Database = {
           type: Database["public"]["Enums"]["animal_type"]
           updated_at: string
           user_id: string
+          lat: number | null
+          lng: number | null
+          location_lat: number | null
+          location_lng: number | null
+          organization_id: string | null
         }
         Insert: {
           age: string
@@ -157,6 +162,11 @@ export type Database = {
           type: Database["public"]["Enums"]["animal_type"]
           updated_at?: string
           user_id: string
+          lat?: number | null
+          lng?: number | null
+          location_lat?: number | null
+          location_lng?: number | null
+          organization_id?: string | null
         }
         Update: {
           age?: string
@@ -173,6 +183,11 @@ export type Database = {
           type?: Database["public"]["Enums"]["animal_type"]
           updated_at?: string
           user_id?: string
+          lat?: number | null
+          lng?: number | null
+          location_lat?: number | null
+          location_lng?: number | null
+          organization_id?: string | null
         }
         Relationships: []
       }
@@ -182,42 +197,45 @@ export type Database = {
           description: string
           id: string
           images: string[] | null
-          latitude: number | null
+          location_lat: number | null
           location_name: string | null
-          longitude: number | null
+          location_lng: number | null
           reporter_id: string | null
           severity: Database["public"]["Enums"]["report_severity"]
           status: Database["public"]["Enums"]["report_status"]
           type: Database["public"]["Enums"]["report_type"]
           updated_at: string
+          address_reference: string | null
         }
         Insert: {
           created_at?: string
           description: string
           id?: string
           images?: string[] | null
-          latitude?: number | null
+          location_lat?: number | null
           location_name?: string | null
-          longitude?: number | null
+          location_lng?: number | null
           reporter_id?: string | null
           severity?: Database["public"]["Enums"]["report_severity"]
           status?: Database["public"]["Enums"]["report_status"]
           type: Database["public"]["Enums"]["report_type"]
           updated_at?: string
+          address_reference?: string | null
         }
         Update: {
           created_at?: string
           description?: string
           id?: string
           images?: string[] | null
-          latitude?: number | null
+          location_lat?: number | null
           location_name?: string | null
-          longitude?: number | null
+          location_lng?: number | null
           reporter_id?: string | null
           severity?: Database["public"]["Enums"]["report_severity"]
           status?: Database["public"]["Enums"]["report_status"]
           type?: Database["public"]["Enums"]["report_type"]
           updated_at?: string
+          address_reference?: string | null
         }
         Relationships: [
           {
@@ -326,49 +344,55 @@ export type Database = {
       }
       organizations: {
         Row: {
-          address: string
+          address: string | null
           created_at: string
           description: string | null
-          email: string
+          email: string | null
           id: string
           logo_url: string | null
           name: string
           phone: string | null
           type: Database["public"]["Enums"]["organization_type"]
           updated_at: string
-          userId: string
+          userId: string | null
           verified: boolean
-          website_url: string | null
+          location_lat: number | null
+          location_lng: number | null
+          website: string | null
         }
         Insert: {
-          address: string
+          address?: string | null
           created_at?: string
           description?: string | null
-          email: string
+          email?: string | null
           id?: string
           logo_url?: string | null
           name: string
           phone?: string | null
           type: Database["public"]["Enums"]["organization_type"]
           updated_at?: string
-          userId: string
+          userId?: string | null
           verified?: boolean
-          website_url?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
+          website?: string | null
         }
         Update: {
-          address?: string
+          address?: string | null
           created_at?: string
           description?: string | null
-          email?: string
+          email?: string | null
           id?: string
           logo_url?: string | null
           name?: string
           phone?: string | null
           type?: Database["public"]["Enums"]["organization_type"]
           updated_at?: string
-          userId?: string
+          userId?: string | null
           verified?: boolean
-          website_url?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
+          website?: string | null
         }
         Relationships: [
           {

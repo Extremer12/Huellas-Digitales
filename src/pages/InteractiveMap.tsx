@@ -94,14 +94,14 @@ const InteractiveMap = () => {
                     .range(0, 99),
                 supabase
                     .from("organizations")
-                    .select("id, name, lat, lng, logo_url, type") // Assuming organizations also use lat/lng or need check
-                    .not("lat", "is", null)
+                    .select("id, name, location_lat, location_lng, logo_url, type")
+                    .not("location_lat", "is", null)
                     .order("created_at", { ascending: false })
                     .range(0, 99),
                 supabase
                     .from("citizen_reports")
-                    .select("id, type, latitude, longitude, description, status")
-                    .not("latitude", "is", null)
+                    .select("id, type, location_lat, location_lng, description, status")
+                    .not("location_lat", "is", null)
                     .order("created_at", { ascending: false })
                     .range(0, 99),
             ]);
@@ -120,8 +120,8 @@ const InteractiveMap = () => {
             const orgItems: MapItem[] = (orgsRes.data || []).map((o) => ({
                 id: o.id,
                 type: "org",
-                lat: o.lat!, // Checking assumption
-                lng: o.lng!,
+                lat: o.location_lat!,
+                lng: o.location_lng!,
                 title: o.name,
                 subtitle: o.type,
                 image_url: o.logo_url,
@@ -130,8 +130,8 @@ const InteractiveMap = () => {
             const reportItems: MapItem[] = (reportsRes.data || []).map((r) => ({
                 id: r.id,
                 type: "report",
-                lat: r.latitude!,
-                lng: r.longitude!,
+                lat: r.location_lat!,
+                lng: r.location_lng!,
                 title: `Reporte: ${r.type}`,
                 subtitle: r.description.substring(0, 50) + "...",
                 category: r.type,
