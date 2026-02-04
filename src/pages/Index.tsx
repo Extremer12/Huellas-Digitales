@@ -115,45 +115,60 @@ const Index = () => {
 
       <main className="flex-1">
 
-        {/* Legal Warning Banner */}
-        <section className="bg-destructive/10 border-y border-destructive/20 py-3">
-          <div className="container-custom px-4 flex items-center justify-center gap-2 text-destructive font-medium text-sm md:text-base text-center">
-            <AlertTriangle className="w-5 h-5 flex-shrink-0" />
-            <p>
-              <span className="font-bold">ADVERTENCIA LEGAL:</span> En Huellas Digitales está estrictamente prohibida la venta de animales. Fomentamos únicamente la adopción responsable.
-            </p>
-          </div>
-        </section>
+        {/* HERO SECTION REDESIGNED */}
+        <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
 
-        {/* HERO SECTION */}
-        <section className="relative h-screen flex items-center justify-center overflow-hidden">
-          {/* Background Image with Overlay */}
+          {/* Dynamic Background */}
           <div className="absolute inset-0 z-0">
+            {/* Image Base */}
+            <div className="absolute inset-0 bg-black/60 z-10" />
             <img
               src={heroImage}
               alt="Mascota feliz"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover scale-105 animate-slow-zoom"
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-background/90" />
+
+            {/* Mesh Gradients Overlay */}
+            <div className="absolute inset-0 z-20 bg-gradient-to-t from-background via-transparent to-black/40" />
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/30 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 animate-pulse-slow" />
+            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2 animate-pulse-slow delay-1000" />
           </div>
 
-          <div className="container relative z-10 px-4 md:px-6 pt-20 text-center md:text-left">
-            <div className="max-w-3xl animate-fade-in-up mx-auto md:mx-0">
-              <div className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1 text-sm font-medium text-white backdrop-blur-md mb-6 shadow-xl">
-                <span className="flex h-2 w-2 rounded-full bg-primary mr-2 animate-pulse"></span>
-                Web en etapa de crecimiento
-              </div>
-              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter text-white mb-6 leading-[1.1] drop-shadow-2xl">
+          <div className="container relative z-30 px-4 md:px-6 pt-20 flex flex-col items-center text-center md:items-start md:text-left">
+
+            {/* Growth Badge */}
+            <div className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-sm font-medium text-white backdrop-blur-md mb-8 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-1000">
+              <span className="relative flex h-2 w-2 mr-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+              </span>
+              <span className="tracking-wide">Web en etapa de crecimiento</span>
+            </div>
+
+            <div className="max-w-4xl space-y-6">
+              <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter text-white leading-[0.95] drop-shadow-2xl animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-200">
                 Cada huella <br />
-                cuenta una <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-amber-500">historia</span>.
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-200 to-gray-400">cuenta una historia.</span>
               </h1>
-              <p className="text-xl md:text-2xl text-gray-200 mb-8 leading-relaxed max-w-xl mx-auto md:mx-0 font-light text-shadow-sm">
-                Conectamos corazones con patas. Huellas Digitales es la plataforma integral para adoptar, reportar perdidos y colaborar.
+
+              <p className="text-xl md:text-2xl text-gray-300 max-w-2xl font-light leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
+                La plataforma que está revolucionando la forma en que conectamos corazones con patas. Adopta, busca y colabora desde cualquier lugar.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+
+              {/* Warning Banner Integrated */}
+              <div className="animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500 py-4">
+                <div className="inline-flex items-center gap-3 px-5 py-3 rounded-xl bg-destructive/20 border border-destructive/30 backdrop-blur-sm text-white/90">
+                  <AlertTriangle className="w-5 h-5 text-destructive animate-pulse" />
+                  <p className="text-sm font-medium">
+                    <span className="font-bold text-destructive">Importante:</span> Prohibida estrictamente la venta de animales.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4 pt-4 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-700">
                 <Button
                   size="lg"
-                  className="bg-primary hover:bg-primary/90 text-white text-lg px-8 h-14 rounded-full shadow-xl shadow-primary/25 transition-all hover:scale-105 hover:-translate-y-1"
+                  className="bg-primary hover:bg-primary/90 text-white text-lg px-8 h-14 rounded-full shadow-[0_0_40px_-10px_rgba(var(--primary-rgb),0.5)] transition-all hover:scale-105 hover:shadow-[0_0_60px_-15px_rgba(var(--primary-rgb),0.6)]"
                   onClick={() => navigate("/auth")}
                 >
                   Adoptar ahora <Heart className="ml-2 w-5 h-5 fill-current" />
@@ -161,7 +176,7 @@ const Index = () => {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="bg-white/10 border-white/20 text-white hover:bg-white/20 text-lg px-8 h-14 rounded-full backdrop-blur-md transition-all hover:scale-105 hover:-translate-y-1"
+                  className="bg-white/5 border-white/10 text-white hover:bg-white/10 text-lg px-8 h-14 rounded-full backdrop-blur-md transition-all hover:scale-105"
                   onClick={() => navigate("/perdidos")}
                 >
                   Reportar perdido <Search className="ml-2 w-5 h-5" />
@@ -171,9 +186,10 @@ const Index = () => {
           </div>
 
           {/* Scroll Indicator */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce text-white/50 cursor-pointer" onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}>
-            <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center pt-2">
-              <div className="w-1 h-2 bg-white/50 rounded-full animate-scroll" />
+          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce cursor-pointer z-30 opacity-70 hover:opacity-100 transition-opacity" onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}>
+            <span className="text-xs font-medium text-white/50 uppercase tracking-widest">Descubrí más</span>
+            <div className="w-5 h-8 border-2 border-white/20 rounded-full flex justify-center pt-1">
+              <div className="w-1 h-2 bg-white rounded-full animate-scroll" />
             </div>
           </div>
         </section>

@@ -1,22 +1,19 @@
 {
-    "admin": {
-        "dashboard": "Panel de Control",
-        "users": "Usuarios",
-        "logs": "Auditoría",
-        "reports": "Moderación",
-        "organizations": "Organizaciones",
-        "stats": "Estadísticas"
-    },
     "common": {
+        "sidewalk": "Vereda",
+        "pet": "Mascota",
+        "shelter": "Refugio",
         "loading": "Cargando...",
-        "error": "Ocurrió un error",
         "save": "Guardar",
-        "cancel": "Cancelar",
-        "delete": "Eliminar",
-        "search": "Buscar"
+        "delete": "Eliminar"
     },
-    "feed": {
-        "title": "Cada huella cuenta una historia",
-        "subtitle": "Conectamos corazones con patas."
+    "landing": {
+        "legal_warning": "ADVERTENCIA LEGAL: Prohibida la venta de animales. Únete a la adopción responsable.",
+        "hero_title_1": "Cada huella",
+        "hero_title_2": "cuenta una",
+        "hero_title_3": "historia",
+        "hero_subtitle": "Conectamos corazones con patas. La plataforma integral para adoptar, reportar perdidos y colaborar.",
+        "cta_adopt": "Adoptar ahora",
+        "cta_report": "Reportar perdido"
     }
 }

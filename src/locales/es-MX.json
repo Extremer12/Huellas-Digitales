@@ -1,8 +1,8 @@
 {
     "common": {
-        "sidewalk": "Vereda",
+        "sidewalk": "Banqueta",
         "pet": "Mascota",
-        "shelter": "Refugio",
+        "shelter": "Albergue",
         "loading": "Cargando...",
         "save": "Guardar",
         "delete": "Eliminar"
