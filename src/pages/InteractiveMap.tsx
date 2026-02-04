@@ -88,20 +88,20 @@ const InteractiveMap = () => {
             const [petsRes, orgsRes, reportsRes] = await Promise.all([
                 supabase
                     .from("animals")
-                    .select("id, name, location_lat, location_lng, image_url, status, type")
-                    .not("location_lat", "is", null)
+                    .select("id, name, lat, lng, image_url, status, type")
+                    .not("lat", "is", null)
                     .order("created_at", { ascending: false })
                     .range(0, 99),
                 supabase
                     .from("organizations")
-                    .select("id, name, location_lat, location_lng, logo_url, type")
-                    .not("location_lat", "is", null)
+                    .select("id, name, lat, lng, logo_url, type") // Assuming organizations also use lat/lng or need check
+                    .not("lat", "is", null)
                     .order("created_at", { ascending: false })
                     .range(0, 99),
                 supabase
                     .from("citizen_reports")
-                    .select("id, type, location_lat, location_lng, description, status")
-                    .not("location_lat", "is", null)
+                    .select("id, type, latitude, longitude, description, status")
+                    .not("latitude", "is", null)
                     .order("created_at", { ascending: false })
                     .range(0, 99),
             ]);
@@ -109,8 +109,8 @@ const InteractiveMap = () => {
             const petItems: MapItem[] = (petsRes.data || []).map((p) => ({
                 id: p.id,
                 type: "pet",
-                lat: p.location_lat!,
-                lng: p.location_lng!,
+                lat: p.lat!,
+                lng: p.lng!,
                 title: p.name,
                 subtitle: p.type,
                 image_url: p.image_url,
@@ -120,8 +120,8 @@ const InteractiveMap = () => {
             const orgItems: MapItem[] = (orgsRes.data || []).map((o) => ({
                 id: o.id,
                 type: "org",
-                lat: o.location_lat!,
-                lng: o.location_lng!,
+                lat: o.lat!, // Checking assumption
+                lng: o.lng!,
                 title: o.name,
                 subtitle: o.type,
                 image_url: o.logo_url,
@@ -130,8 +130,8 @@ const InteractiveMap = () => {
             const reportItems: MapItem[] = (reportsRes.data || []).map((r) => ({
                 id: r.id,
                 type: "report",
-                lat: r.location_lat!,
-                lng: r.location_lng!,
+                lat: r.latitude!,
+                lng: r.longitude!,
                 title: `Reporte: ${r.type}`,
                 subtitle: r.description.substring(0, 50) + "...",
                 category: r.type,
