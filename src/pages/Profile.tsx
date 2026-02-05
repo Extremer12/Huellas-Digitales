@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -62,6 +62,8 @@ const Profile = () => {
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const { permission, requestPermission } = useNotifications(user?.id);
   const { isSupported: pushSupported, isSubscribed: pushSubscribed, subscribe: subscribePush, unsubscribe: unsubscribePush, isLoading: pushLoading } = usePushNotifications(user?.id);
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'animals');
 
   useEffect(() => {
     checkUser();
@@ -382,8 +384,10 @@ const Profile = () => {
           </Button>
         </div>
 
+
         {/* Content Tabs - Responsive Overhaul */}
-        <Tabs defaultValue="animals" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+
           <TabsList className="w-full flex justify-between sm:justify-start h-auto p-1 bg-muted/30 rounded-2xl mb-8 gap-1 sm:gap-6 border-none">
             <TabsTrigger
               value="animals"
