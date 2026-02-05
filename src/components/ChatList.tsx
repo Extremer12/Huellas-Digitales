@@ -44,10 +44,14 @@ const ChatList = ({ userId }: ChatListProps) => {
           event: '*',
           schema: 'public',
           table: 'conversations',
-          filter: `adopter_id=eq.${userId},publisher_id=eq.${userId}`
         },
-        () => {
-          loadConversations();
+        (payload: any) => {
+          // Client-side filtering for stability
+          const { new: newConv, old: oldConv } = payload;
+          const conv = newConv || oldConv;
+          if (conv && (conv.adopter_id === userId || conv.publisher_id === userId)) {
+            loadConversations();
+          }
         }
       )
       .subscribe();

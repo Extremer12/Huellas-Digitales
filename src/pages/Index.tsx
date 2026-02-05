@@ -185,13 +185,6 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Scroll Indicator */}
-          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce cursor-pointer z-30 opacity-70 hover:opacity-100 transition-opacity" onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}>
-            <span className="text-xs font-medium text-white/50 uppercase tracking-widest">Descubrí más</span>
-            <div className="w-5 h-8 border-2 border-white/20 rounded-full flex justify-center pt-1">
-              <div className="w-1 h-2 bg-white rounded-full animate-scroll" />
-            </div>
-          </div>
         </section>
 
         {/* FEATURES GRID */}

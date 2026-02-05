@@ -1,0 +1,24 @@
+{
+    "name": "Huellas Digitales",
+    "short_name": "Huellas",
+    "description": "Sistema Integral de Bienestar Animal",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#4A7C8B",
+    "icons": [
+        {
+            "src": "/logo-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/logo-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "orientation": "portrait"
+}
