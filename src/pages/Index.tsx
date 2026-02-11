@@ -15,6 +15,7 @@ import { motion } from "framer-motion";
 import OrgRequestModal from "@/components/OrgRequestModal";
 import { Building2, Stethoscope } from "lucide-react";
 import HowItWorks from "@/components/HowItWorks";
+import SeoHead from "@/components/SeoHead";
 
 const Index = () => {
   useScrollAnimation();
@@ -137,6 +138,7 @@ const Index = () => {
   // LANDING MODE
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <SeoHead />
       <Header minimal={true} />
 
       <main className="flex-1">

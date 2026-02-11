@@ -13,6 +13,7 @@ import Header from "./Header";
 import ReportModal from "./ReportModal";
 import MedicalRecords from "./MedicalRecords";
 import { Animal } from "./AnimalesSection";
+import SeoHead from "@/components/SeoHead";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -174,6 +175,12 @@ const PetDetail = () => {
 
     return (
         <div className="h-screen bg-background flex flex-col overflow-hidden">
+            <SeoHead
+                title={`${animal.name} - ${animal.status === 'perdido' ? '¡Ayúdame a volver a casa!' : 'En Adopción'}`}
+                description={`Conoce a ${animal.name}, un ${animal.type} de ${animal.age} años que busca ${animal.status === 'perdido' ? 'su hogar' : 'una familia'}.`}
+                image={animal.image}
+                type="article"
+            />
             <Header />
 
             {/* Main Content - Fixed Height on Desktop */}
