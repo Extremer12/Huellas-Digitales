@@ -29,17 +29,62 @@ const Hero = () => {
       <div className="relative z-10 container px-4 md:px-6 flex flex-col items-center text-center">
 
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
           className="space-y-6 max-w-4xl"
         >
-          <h1 className="text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter text-white leading-none mix-blend-overlay opacity-90">
-            HUELLAS
-          </h1>
-          <p className="text-xl md:text-2xl font-light text-gray-200/90 tracking-wide max-w-xl mx-auto">
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={{
+              hidden: { opacity: 0 },
+              visible: {
+                opacity: 1,
+                transition: {
+                  staggerChildren: 0.12,
+                }
+              }
+            }}
+            className="flex flex-col items-center"
+          >
+            <h1 className="text-6xl md:text-8xl lg:text-[10rem] font-black tracking-tighter text-white leading-none mix-blend-overlay opacity-90 uppercase">
+              {"HUELLAS".split("").map((char, i) => (
+                <motion.span
+                  key={i}
+                  variants={{
+                    hidden: { opacity: 0, y: 50, rotateX: -90 },
+                    visible: { opacity: 1, y: 0, rotateX: 0 }
+                  }}
+                  transition={{ duration: 0.8, ease: [0.215, 0.61, 0.355, 1] }}
+                  className="inline-block"
+                >
+                  {char}
+                </motion.span>
+              ))}
+            </h1>
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tighter text-primary leading-none mt-[-1rem] md:mt-[-2rem] opacity-90 uppercase">
+              {"DIGITALES".split("").map((char, i) => (
+                <motion.span
+                  key={i}
+                  variants={{
+                    hidden: { opacity: 0, scale: 0.5, filter: "blur(10px)" },
+                    visible: { opacity: 1, scale: 1, filter: "blur(0px)" }
+                  }}
+                  transition={{ duration: 1, delay: 0.8 + (i * 0.05) }}
+                  className="inline-block"
+                >
+                  {char}
+                </motion.span>
+              ))}
+            </h1>
+          </motion.div>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 1.5 }}
+            className="text-xl md:text-2xl font-light text-gray-200/90 tracking-wide max-w-xl mx-auto"
+          >
             La plataforma definitiva de bienestar animal.
-          </p>
+          </motion.p>
         </motion.div>
 
         <motion.div

@@ -281,7 +281,7 @@ const Index = () => {
                   <h2 className="text-4xl font-black tracking-tight">Potenciamos a tu <span className="text-primary">Organización</span></h2>
                   <p className="text-muted-foreground leading-relaxed text-lg">
                     Si eres veterinaria, refugio o rescatista independiente, Huellas Digitales es tu mejor aliado.
-                    Regístrate para aparecer en nuestro mapa interactivo y gestionar adopciones de forma profesional.
+                    Regístrate para aparecer en nuestro mapa interactivo y formar parte de una red colaborativa por el bienestar animal.
                   </p>
                   <ul className="space-y-3">
                     <li className="flex items-center gap-3 text-sm font-medium">

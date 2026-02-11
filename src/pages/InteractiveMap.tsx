@@ -64,19 +64,35 @@ const InteractiveMap = () => {
     });
 
     useEffect(() => {
-        // Try precise geolocation first
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    setCenter([position.coords.latitude, position.coords.longitude]);
-                },
-                (error) => {
-                    console.log("Geolocation blocked or failed, using default center", error);
-                }
-            );
-        }
+        const checkAuth = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                navigate("/auth");
+                return;
+            }
+            // If session exists, proceed with geolocation and fetching
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        setCenter([position.coords.latitude, position.coords.longitude]);
+                    },
+                    (error) => {
+                        console.log("Geolocation blocked or failed, using default center", error);
+                    }
+                );
+            }
+            fetchData();
+        };
 
-        fetchData();
+        checkAuth();
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            if (!session) {
+                navigate("/auth");
+            }
+        });
+
+        return () => subscription.unsubscribe();
     }, []);
 
     useEffect(() => {
