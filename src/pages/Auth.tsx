@@ -159,7 +159,7 @@ const Auth = () => {
       <div className="flex flex-col justify-center items-center px-6 py-12 lg:px-20 relative z-10 bg-background/80 backdrop-blur-sm lg:backdrop-blur-none">
         <Button
           variant="ghost"
-          className="absolute top-4 left-4 lg:top-8 lg:left-8 hover:bg-primary/10 z-50 rounded-full pr-4"
+          className="absolute top-4 left-4 lg:top-8 lg:left-8 hover:bg-background/80 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 z-50 rounded-full pr-4 border border-transparent hover:border-primary/10"
           onClick={() => navigate("/")}
         >
           <ArrowLeft className="w-4 h-4 mr-2" />

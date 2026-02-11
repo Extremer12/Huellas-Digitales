@@ -64,6 +64,14 @@ const MedicalRecords = ({ animalId, isOwner }: MedicalRecordsProps) => {
 
     const handleAddRecord = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!isOwner) {
+            toast({
+                title: "Acceso denegado",
+                description: "Solo el dueño puede agregar registros.",
+                variant: "destructive",
+            });
+            return;
+        }
         setAdding(true);
         try {
             const { error } = await (supabase as any)

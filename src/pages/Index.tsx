@@ -14,6 +14,7 @@ import Hero from "@/components/Hero";
 import { motion } from "framer-motion";
 import OrgRequestModal from "@/components/OrgRequestModal";
 import { Building2, Stethoscope } from "lucide-react";
+import HowItWorks from "@/components/HowItWorks";
 
 const Index = () => {
   useScrollAnimation();
@@ -202,6 +203,9 @@ const Index = () => {
             </div>
           </div>
         </section>
+
+        {/* HOW IT WORKS */}
+        <HowItWorks />
 
         {/* FEATURES GRID */}
         <section className="py-32 bg-background relative overflow-hidden">
