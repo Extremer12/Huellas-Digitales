@@ -49,8 +49,8 @@ const Hero = () => {
           className="mt-12 flex flex-col sm:flex-row gap-6"
         >
           <Button
-            onClick={() => navigate("/adopcion")}
-            className="bg-white text-black hover:bg-white/90 text-lg h-14 px-10 rounded-full font-medium transition-transform hover:scale-105"
+            onClick={() => navigate("/auth")}
+            className="bg-white text-black hover:bg-white/90 text-lg h-14 px-10 rounded-full font-bold transition-transform hover:scale-105"
           >
             Comenzar
           </Button>

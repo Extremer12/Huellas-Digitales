@@ -12,6 +12,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import SmartPublicationWizard from "@/components/SmartPublicationWizard";
 import Hero from "@/components/Hero";
 import { motion } from "framer-motion";
+import OrgRequestModal from "@/components/OrgRequestModal";
+import { Building2, Stethoscope } from "lucide-react";
 
 const Index = () => {
   useScrollAnimation();
@@ -22,13 +24,37 @@ const Index = () => {
   const [viewLanding, setViewLanding] = useState(true);
   const [loadingUser, setLoadingUser] = useState(true);
   const [showWizard, setShowWizard] = useState(false);
+  const [stats, setStats] = useState({
+    users: 0,
+    animals: 0,
+    orgs: 0
+  });
 
   useEffect(() => {
     checkUser();
+    fetchStats();
     if (searchParams.get("action") === "publish") {
       setShowWizard(true);
     }
   }, [searchParams]);
+
+  const fetchStats = async () => {
+    try {
+      const [{ count: usersCount }, { count: animalsCount }, { count: orgsCount }] = await Promise.all([
+        supabase.from("profiles").select("*", { count: 'exact', head: true }),
+        supabase.from("animals").select("*", { count: 'exact', head: true }),
+        supabase.from("organizations").select("*", { count: 'exact', head: true })
+      ]);
+
+      setStats({
+        users: usersCount || 0,
+        animals: animalsCount || 0,
+        orgs: orgsCount || 0
+      });
+    } catch (error) {
+      console.error("Error fetching stats:", error);
+    }
+  };
 
   const checkUser = async () => {
     try {
@@ -157,20 +183,20 @@ const Index = () => {
                 className="grid grid-cols-2 gap-4"
               >
                 <div className="p-6 rounded-3xl bg-secondary/30 backdrop-blur-sm border border-border/50 hover:bg-secondary/50 transition-colors">
-                  <div className="text-4xl font-black mb-2 text-primary">+150</div>
-                  <div className="text-sm text-muted-foreground uppercase tracking-wider font-semibold">Refugios</div>
+                  <div className="text-4xl font-black mb-2 text-primary">+{stats.orgs}</div>
+                  <div className="text-sm text-muted-foreground uppercase tracking-wider font-semibold">Instituciones</div>
                 </div>
                 <div className="p-6 rounded-3xl bg-secondary/30 backdrop-blur-sm border border-border/50 hover:bg-secondary/50 transition-colors translate-y-8">
-                  <div className="text-4xl font-black mb-2 text-purple-500">+2.5k</div>
+                  <div className="text-4xl font-black mb-2 text-purple-500">+{stats.animals}</div>
                   <div className="text-sm text-muted-foreground uppercase tracking-wider font-semibold">Mascotas</div>
                 </div>
                 <div className="p-6 rounded-3xl bg-secondary/30 backdrop-blur-sm border border-border/50 hover:bg-secondary/50 transition-colors">
-                  <div className="text-4xl font-black mb-2 text-emerald-500">100%</div>
-                  <div className="text-sm text-muted-foreground uppercase tracking-wider font-semibold">Gratuito</div>
+                  <div className="text-4xl font-black mb-2 text-emerald-500">+{stats.users}</div>
+                  <div className="text-sm text-muted-foreground uppercase tracking-wider font-semibold">Usuarios</div>
                 </div>
                 <div className="p-6 rounded-3xl bg-secondary/30 backdrop-blur-sm border border-border/50 hover:bg-secondary/50 transition-colors translate-y-8">
-                  <div className="text-4xl font-black mb-2 text-amber-500">24/7</div>
-                  <div className="text-sm text-muted-foreground uppercase tracking-wider font-semibold">Soporte</div>
+                  <div className="text-4xl font-black mb-2 text-amber-500">Gratis</div>
+                  <div className="text-sm text-muted-foreground uppercase tracking-wider font-semibold">Para Todos</div>
                 </div>
               </motion.div>
             </div>
@@ -243,6 +269,41 @@ const Index = () => {
           </div>
         </section>
 
+        {/* ORGANIZATIONS & VETERINARIES SECTION */}
+        <section className="py-24 bg-secondary/10">
+          <div className="container px-4">
+            <div className="max-w-5xl mx-auto rounded-[3rem] bg-gradient-to-br from-card to-background border border-primary/20 overflow-hidden shadow-2xl">
+              <div className="grid md:grid-cols-2">
+                <div className="p-12 space-y-6">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <Building2 className="text-primary w-6 h-6" />
+                  </div>
+                  <h2 className="text-4xl font-black tracking-tight">Potenciamos a tu <span className="text-primary">Organización</span></h2>
+                  <p className="text-muted-foreground leading-relaxed text-lg">
+                    Si eres veterinaria, refugio o rescatista independiente, Huellas Digitales es tu mejor aliado.
+                    Regístrate para aparecer en nuestro mapa interactivo y gestionar adopciones de forma profesional.
+                  </p>
+                  <ul className="space-y-3">
+                    <li className="flex items-center gap-3 text-sm font-medium">
+                      <Stethoscope className="w-4 h-4 text-primary" /> Verificación oficial de tu clínica
+                    </li>
+                    <li className="flex items-center gap-3 text-sm font-medium">
+                      <MapPin className="w-4 h-4 text-primary" /> Posicionamiento GEO para urgencias
+                    </li>
+                    <li className="flex items-center gap-3 text-sm font-medium">
+                      <Shield className="w-4 h-4 text-primary" /> Acceso a herramientas de gestión
+                    </li>
+                  </ul>
+                  <div className="pt-4">
+                    <OrgRequestModal />
+                  </div>
+                </div>
+                <div className="hidden md:block bg-[url('https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?q=80&w=1974&auto=format&fit=crop')] bg-cover bg-center grayscale-[0.5] hover:grayscale-0 transition-all duration-700" />
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* CALL TO ACTION */}
         <section className="py-32 relative overflow-hidden bg-foreground text-background">
           <div className="container px-4 relative z-10">
@@ -280,8 +341,8 @@ const Index = () => {
           </div>
         </section>
 
-         {/* COMO AYUDAR (Donations) - Removed as per request (Growth Stage) */}
-      {/* 
+        {/* COMO AYUDAR (Donations) - Removed as per request (Growth Stage) */}
+        {/* 
         <section id="ayudar" className="py-20 bg-muted/30">
           <div className="text-center mb-10">
             <h2 className="text-3xl font-bold text-foreground/50 uppercase tracking-widest text-sm mb-4">Colabora</h2>
@@ -291,9 +352,9 @@ const Index = () => {
         </section> 
         */}
 
-    </main>
+      </main>
 
-      {/* Shared Wizard Dialog for specific landing actions that link to ?action=publish */ }
+      {/* Shared Wizard Dialog for specific landing actions that link to ?action=publish */}
       <Dialog open={showWizard} onOpenChange={handleWizardClose}>
         <DialogContent className="sm:max-w-3xl p-6 overflow-y-auto max-h-[90vh] rounded-[2rem]">
           <DialogHeader className="sr-only">
@@ -310,18 +371,18 @@ const Index = () => {
 
       <Footer />
 
-  {
-    showRegionSelector && user && !searchParams.get("forceLanding") && (
-      <RegionSelector
-        open={showRegionSelector}
-        userId={user.id}
-        onRegionSet={() => {
-          setShowRegionSelector(false);
-          checkUser();
-        }}
-      />
-    )
-  }
+      {
+        showRegionSelector && user && !searchParams.get("forceLanding") && (
+          <RegionSelector
+            open={showRegionSelector}
+            userId={user.id}
+            onRegionSet={() => {
+              setShowRegionSelector(false);
+              checkUser();
+            }}
+          />
+        )
+      }
     </div >
   );
 };
