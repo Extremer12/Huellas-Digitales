@@ -5,6 +5,7 @@ import "leaflet/dist/leaflet.css";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import OrgRequestModal from "@/components/OrgRequestModal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -82,6 +83,32 @@ const InteractiveMap = () => {
         applyFilters();
     }, [items, filters]);
 
+    // Custom Marker Generator
+    const createCustomIcon = (imageUrl: string | undefined, type: "pet" | "org" | "report") => {
+        const borderColor = type === "pet" ? "#ef4444" : type === "org" ? "#22c55e" : "#f97316"; // Red for lost pets, Green for Orgs, Orange for Reports
+        const falbackIcon = type === "pet" ? "https://cdn-icons-png.flaticon.com/512/2808/2808401.png" : "https://cdn-icons-png.flaticon.com/512/619/619175.png";
+
+        return L.divIcon({
+            className: "custom-marker",
+            html: `
+                <div style="
+                    background-image: url('${imageUrl || falbackIcon}');
+                    background-size: cover;
+                    background-position: center;
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 50%;
+                    border: 3px solid ${borderColor};
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+                    background-color: white;
+                "></div>
+            `,
+            iconSize: [48, 48],
+            iconAnchor: [24, 24],
+            popupAnchor: [0, -24],
+        });
+    };
+
     const fetchData = async () => {
         setLoading(true);
         try {
@@ -89,6 +116,7 @@ const InteractiveMap = () => {
                 supabase
                     .from("animals")
                     .select("id, name, lat, lng, image_url, status, type")
+                    .eq("status", "perdido") // ONLY SHOW LOST PETS
                     .not("lat", "is", null)
                     .order("created_at", { ascending: false })
                     .range(0, 999),
@@ -112,7 +140,7 @@ const InteractiveMap = () => {
                 lat: p.lat!,
                 lng: p.lng!,
                 title: p.name,
-                subtitle: p.type,
+                subtitle: "¡PERDIDO! Ayuda a encontrarlo.", // More urgent subtitle
                 image_url: p.image_url,
                 status: p.status,
             }));
@@ -123,7 +151,7 @@ const InteractiveMap = () => {
                 lat: o.location_lat!,
                 lng: o.location_lng!,
                 title: o.name,
-                subtitle: o.type,
+                subtitle: o.type === "veterinaria" ? "Veterinaria" : "Refugio / Organización",
                 image_url: o.logo_url,
             }));
 
@@ -140,10 +168,6 @@ const InteractiveMap = () => {
 
             setItems([...petItems, ...orgItems, ...reportItems]);
 
-            toast({
-                title: "Mapa optimizado",
-                description: "Mostrando los 100 resultados más recientes por categoría.",
-            });
         } catch (error) {
             console.error("Error fetching map items:", error);
         } finally {
@@ -157,19 +181,6 @@ const InteractiveMap = () => {
         if (!filters.orgs) result = result.filter((i) => i.type !== "org");
         if (!filters.reports) result = result.filter((i) => i.type !== "report");
         setFilteredItems(result);
-    };
-
-    const getIcon = (type: string) => {
-        switch (type) {
-            case "pet":
-                return petIcon;
-            case "org":
-                return orgIcon;
-            case "report":
-                return reportIcon;
-            default:
-                return petIcon;
-        }
     };
 
     return (
@@ -213,6 +224,9 @@ const InteractiveMap = () => {
                                                 <div className="w-3 h-3 rounded-full bg-red-500"></div> Reportes
                                             </Label>
                                         </div>
+                                    </div>
+                                    <div className="pt-4 border-t">
+                                        <OrgRequestModal />
                                     </div>
                                 </div>
                             </SheetContent>
@@ -279,7 +293,7 @@ const InteractiveMap = () => {
                                         </Label>
                                     </div>
 
-                                    <div className="pt-4">
+                                    <div className="pt-4 space-y-2">
                                         <Button
                                             variant="outline"
                                             className="w-full text-xs"
@@ -287,6 +301,10 @@ const InteractiveMap = () => {
                                         >
                                             Restablecer filtros
                                         </Button>
+
+                                        <div className="pt-2 border-t">
+                                            <OrgRequestModal />
+                                        </div>
                                     </div>
                                 </CardContent>
                             </Card>
@@ -335,7 +353,7 @@ const InteractiveMap = () => {
                                         <Marker
                                             key={`${item.type}-${item.id}`}
                                             position={[item.lat, item.lng]}
-                                            icon={getIcon(item.type)}
+                                            icon={createCustomIcon(item.image_url, item.type)}
                                         >
                                             <Popup className="custom-popup">
                                                 <div className="p-1 max-w-[200px]">

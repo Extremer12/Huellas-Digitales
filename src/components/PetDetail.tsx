@@ -268,7 +268,7 @@ const PetDetail = () => {
                         <Tabs defaultValue="about" className="w-full space-y-6">
                             <TabsList className="grid w-full grid-cols-2 rounded-xl h-12 bg-muted/50 p-1">
                                 <TabsTrigger value="about" className="rounded-lg text-sm font-bold">Sobre Mí</TabsTrigger>
-                                <TabsTrigger value="history" className="rounded-lg text-sm font-bold">Historia Clínica</TabsTrigger>
+                                <TabsTrigger value="history" className="rounded-lg text-sm font-bold">Libreta Sanitaria</TabsTrigger>
                             </TabsList>
 
                             {/* TAB: About */}

@@ -129,11 +129,7 @@ const MedicalRecords = ({ animalId, isOwner }: MedicalRecordsProps) => {
                     Historia Clínica
                 </h3>
 
-                {/* 
-                   User requested to remove this button from the Detail View. 
-                   "eliminalo eso debe estar solo en el formulario" 
-                */}
-                {/* {isOwner && (
+                {isOwner && (
                     <Button
                         size="sm"
                         variant={showForm ? "ghost" : "outline"}
@@ -146,7 +142,7 @@ const MedicalRecords = ({ animalId, isOwner }: MedicalRecordsProps) => {
                             </>
                         )}
                     </Button>
-                )} */}
+                )}
             </div>
 
             {

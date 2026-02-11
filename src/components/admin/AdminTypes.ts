@@ -82,3 +82,14 @@ export interface AdminLog {
         email: string;
     };
 }
+export interface OrganizationRequest {
+    id: string;
+    name: string;
+    type: string;
+    address: string;
+    contact_info: string;
+    location_lat: number;
+    location_lng: number;
+    status: string;
+    created_at: string;
+}

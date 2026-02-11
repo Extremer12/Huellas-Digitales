@@ -266,13 +266,16 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
                 {/* LOST LOGIC (MAP) */}
                 {type === "perdido" && (
                     <div className="space-y-4">
-                        <div className="rounded-xl overflow-hidden h-[300px] border relative">
+                        <div className="rounded-xl overflow-hidden h-[300px] border relative group">
                             <MapContainer center={[formData.lat, formData.lng]} zoom={13} style={{ height: "100%", width: "100%" }}>
                                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                                 <LocationMarker />
                             </MapContainer>
-                            <div className="absolute top-2 right-2 z-[9999] bg-background/90 p-2 rounded-md text-xs shadow-md">
-                                Toca el mapa para marcar posición
+
+                            {/* Overlay Instructions - Disappears on hover/click interaction concept if needed, or stays as a helper */}
+                            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[9999] bg-black/70 backdrop-blur-md text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg flex items-center gap-2 pointer-events-none">
+                                <MapPin className="w-3 h-3 text-red-500 animate-bounce" />
+                                Toca en el mapa el lugar exacto
                             </div>
                         </div>
                         <div>
@@ -431,7 +434,7 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
                 )}
 
                 <div>
-                    <Label>Historia Clínica / Salud</Label>
+                    <Label>Resumen de Salud (Visible en Perfil)</Label>
                     <Textarea
                         value={formData.healthInfo}
                         maxLength={500}

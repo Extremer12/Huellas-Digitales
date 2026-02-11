@@ -24,7 +24,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 
 // Modular Components
-import { Report, StoryReport, CitizenReport, Organization } from "@/components/admin/AdminTypes";
+import { Report, StoryReport, CitizenReport, Organization, OrganizationRequest } from "@/components/admin/AdminTypes";
 import { AdminStatsTab } from "@/components/admin/AdminStatsTab";
 import { AdminReportsTab } from "@/components/admin/AdminReportsTab";
 import { AdminOrganizationsTab } from "@/components/admin/AdminOrganizationsTab";
@@ -49,6 +49,7 @@ const Admin = () => {
   const [storyReports, setStoryReports] = useState<StoryReport[]>([]);
   const [citizenReports, setCitizenReports] = useState<CitizenReport[]>([]);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [orgRequests, setOrgRequests] = useState<OrganizationRequest[]>([]);
 
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [selectedStoryReport, setSelectedStoryReport] = useState<StoryReport | null>(null);
@@ -89,6 +90,7 @@ const Admin = () => {
       loadStoryReports();
       loadCitizenReports();
       loadOrganizations();
+      loadOrgRequests();
     } catch (error) {
       console.error("Error checking access:", error);
       navigate("/");
@@ -207,6 +209,71 @@ const Admin = () => {
       .order("created_at", { ascending: false });
 
     if (!error) setOrganizations(data as any);
+  };
+
+  const loadOrgRequests = async () => {
+    const { data, error } = await (supabase as any)
+      .from("organization_requests")
+      .select("*")
+      .eq("status", "pending")
+      .order("created_at", { ascending: false });
+
+    if (!error) setOrgRequests(data);
+  };
+
+  const handleApproveRequest = async (request: OrganizationRequest) => {
+    setProcessing(true);
+    try {
+      // 1. Insert into organizations
+      const { error: insertError } = await supabase
+        .from("organizations")
+        .insert({
+          name: request.name,
+          type: request.type,
+          address: request.address,
+          phone: request.contact_info,
+          location_lat: request.location_lat,
+          location_lng: request.location_lng,
+          verified: true,
+          email: "pendiente@email.com" // Placeholder or ask for it
+        });
+
+      if (insertError) throw insertError;
+
+      // 2. Update request status
+      const { error: updateError } = await (supabase as any)
+        .from("organization_requests")
+        .update({ status: "approved" })
+        .eq("id", request.id);
+
+      if (updateError) throw updateError;
+
+      toast({ title: "Organización aprobada y agregada" });
+      loadOrgRequests();
+      loadOrganizations();
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleRejectRequest = async (requestId: string) => {
+    setProcessing(true);
+    try {
+      const { error } = await (supabase as any)
+        .from("organization_requests")
+        .update({ status: "rejected" })
+        .eq("id", requestId);
+
+      if (error) throw error;
+      toast({ title: "Solicitud rechazada" });
+      loadOrgRequests();
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } finally {
+      setProcessing(false);
+    }
   };
 
   const updateCitizenReportStatus = async (reportId: string, status: string) => {
@@ -360,7 +427,10 @@ const Admin = () => {
           <TabsContent value="orgs" className="animate-in fade-in slide-in-from-bottom-2 duration-300">
             <AdminOrganizationsTab
               organizations={organizations}
+              orgRequests={orgRequests}
               onToggleVerification={toggleOrganizationVerification}
+              onApproveRequest={handleApproveRequest}
+              onRejectRequest={handleRejectRequest}
             />
           </TabsContent>
 
