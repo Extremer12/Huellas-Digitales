@@ -17,33 +17,38 @@ import Historias from "./pages/Historias";
 import InteractiveMap from "./pages/InteractiveMap";
 import PetDetail from "./components/PetDetail";
 import DogLoader from "./components/DogLoader";
+import GlobalErrorBoundary from "./components/GlobalErrorBoundary";
+import { GoogleAnalytics } from "./components/GoogleAnalytics";
 
 const queryClient = new QueryClient();
 
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/messages" element={<Messages />} />
-            <Route path="/terms" element={<TermsAndConditions />} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />
-            <Route path="/adopcion" element={<Adopcion />} />
-            <Route path="/perdidos" element={<Perdidos />} />
-            <Route path="/historias" element={<Historias />} />
-            <Route path="/mapa" element={<InteractiveMap />} />
-            <Route path="/pet/:id" element={<PetDetail />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+      <GlobalErrorBoundary>
+        <TooltipProvider>
+          <Sonner />
+          <BrowserRouter>
+            <GoogleAnalytics />
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/messages" element={<Messages />} />
+              <Route path="/terms" element={<TermsAndConditions />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/adopcion" element={<Adopcion />} />
+              <Route path="/perdidos" element={<Perdidos />} />
+              <Route path="/historias" element={<Historias />} />
+              <Route path="/mapa" element={<InteractiveMap />} />
+              <Route path="/pet/:id" element={<PetDetail />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </GlobalErrorBoundary>
     </QueryClientProvider>
   );
 };
