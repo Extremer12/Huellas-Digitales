@@ -204,7 +204,7 @@ const Header = ({ minimal = false }: HeaderProps) => {
           <div className="lg:hidden flex items-center gap-4">
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="hover:bg-primary/10">
+                <Button variant="ghost" size="icon" className="hover:bg-primary/10" aria-label="Abrir menú">
                   <Menu className="w-6 h-6" />
                 </Button>
               </SheetTrigger>

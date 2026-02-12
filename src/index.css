@@ -196,3 +196,12 @@ All colors MUST be HSL.
   animation: fade-in-out 4s ease-in-out infinite;
 }
 
+/* Custom Leaflet Marker Reset */
+.custom-leaflet-icon {
+    background: transparent !important;
+    border: none !important;
+}
+
+.leaflet-popup-content-wrapper {
+    border-radius: 1rem;
+}

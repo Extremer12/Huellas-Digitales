@@ -42,7 +42,7 @@ class GlobalErrorBoundary extends Component<Props, State> {
                         ¡Ups! Algo salió mal
                     </h1>
 
-                    <p className="text-muted-foreground max-w-md mb-8 text-lg">
+                    <p className="text-foreground/80 max-w-md mb-8 text-lg">
                         No te preocupes, hasta las mejores mascotas tienen un mal día.
                         Hemos notificado al equipo técnico.
                     </p>

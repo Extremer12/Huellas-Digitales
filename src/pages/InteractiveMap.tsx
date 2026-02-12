@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import MarkerClusterGroup from "react-leaflet-cluster";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -12,7 +13,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { MapPin, Filter, Home, AlertTriangle, Search, Info } from "lucide-react";
+import { MapPin, Navigation, Layers, Filter } from "lucide-react";
+import CustomMarker from "@/components/map/CustomMarker";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
@@ -365,48 +367,62 @@ const InteractiveMap = () => {
                                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                                         className="map-tiles"
                                     />
-                                    {filteredItems.map((item) => (
-                                        <Marker
-                                            key={`${item.type}-${item.id}`}
-                                            position={[item.lat, item.lng]}
-                                            icon={createCustomIcon(item.image_url, item.type)}
-                                        >
-                                            <Popup className="custom-popup">
-                                                <div className="p-1 max-w-[200px]">
-                                                    {item.image_url && (
-                                                        <img
-                                                            src={item.image_url}
-                                                            alt={item.title}
-                                                            className="w-full h-24 object-cover rounded-md mb-2"
-                                                        />
-                                                    )}
-                                                    <h4 className="font-bold text-base mb-1 text-foreground">
-                                                        {item.title}
-                                                    </h4>
-                                                    {item.subtitle && (
-                                                        <p className="text-xs text-muted-foreground mb-3 leading-tight">
-                                                            {item.subtitle}
-                                                        </p>
-                                                    )}
-                                                    <div className="flex items-center justify-between gap-2">
-                                                        <Badge variant="outline" className="text-[10px] h-5">
-                                                            {item.type === 'pet' ? 'Mascota' : item.type === 'org' ? 'Org' : 'Reporte'}
-                                                        </Badge>
-                                                        <Button
-                                                            size="sm"
-                                                            className="h-7 text-[10px] px-2"
-                                                            onClick={() => {
-                                                                if (item.type === 'pet') navigate(`/pet/${item.id}`);
-                                                                // Add logic for reports/orgs details if needed
-                                                            }}
-                                                        >
-                                                            Ver más
-                                                        </Button>
+                                    <MarkerClusterGroup
+                                        chunkedLoading
+                                        iconCreateFunction={(cluster) => {
+                                            return L.divIcon({
+                                                html: `<div class="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center font-bold border-2 border-white shadow-lg">${cluster.getChildCount()}</div>`,
+                                                className: 'custom-cluster-icon',
+                                                iconSize: L.point(40, 40)
+                                            });
+                                        }}
+                                    >
+                                        {filteredItems.map((item) => (
+                                            <CustomMarker
+                                                key={`${item.type}-${item.id}`}
+                                                id={item.id}
+                                                position={[item.lat, item.lng]}
+                                                image={item.image_url}
+                                                title={item.title}
+                                                type={item.type === 'pet' ? 'perdido' : item.type === 'org' ? (item.subtitle?.includes('Veterinaria') ? 'veterinaria' : 'refugio') : 'reporte'}
+                                            >
+                                                <Popup className="custom-popup">
+                                                    <div className="p-1 max-w-[200px]">
+                                                        {item.image_url && (
+                                                            <img
+                                                                src={item.image_url}
+                                                                alt={item.title}
+                                                                className="w-full h-24 object-cover rounded-md mb-2"
+                                                            />
+                                                        )}
+                                                        <h4 className="font-bold text-base mb-1 text-foreground">
+                                                            {item.title}
+                                                        </h4>
+                                                        {item.subtitle && (
+                                                            <p className="text-xs text-muted-foreground mb-3 leading-tight">
+                                                                {item.subtitle}
+                                                            </p>
+                                                        )}
+                                                        <div className="flex items-center justify-between gap-2">
+                                                            <Badge variant="outline" className="text-[10px] h-5">
+                                                                {item.type === 'pet' ? 'Mascota' : item.type === 'org' ? 'Org' : 'Reporte'}
+                                                            </Badge>
+                                                            <Button
+                                                                size="sm"
+                                                                className="h-7 text-[10px] px-2"
+                                                                onClick={() => {
+                                                                    if (item.type === 'pet') navigate(`/pet/${item.id}`);
+                                                                    // Add logic for reports/orgs details if needed
+                                                                }}
+                                                            >
+                                                                Ver más
+                                                            </Button>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </Popup>
-                                        </Marker>
-                                    ))}
+                                                </Popup>
+                                            </CustomMarker>
+                                        ))}
+                                    </MarkerClusterGroup>
                                 </MapContainer>
                             </div>
                         </div>

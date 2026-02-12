@@ -89,8 +89,9 @@ const Adopcion = () => {
                                 size="lg"
                                 className="h-16 px-8 text-lg rounded-full font-bold shadow-xl hover:scale-105 transition-transform"
                                 onClick={() => navigate("/")}
+                                aria-label="Ver mascotas en adopción"
                             >
-                                <Search className="mr-2 w-5 h-5" /> Ver mascotas en adopción
+                                <Search className="mr-2 w-5 h-5" aria-hidden="true" /> Ver mascotas en adopción
                             </Button>
 
                             <Button
