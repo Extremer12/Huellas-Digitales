@@ -400,8 +400,8 @@ const Profile = () => {
 
         {/* MAIN CONTENT AREA */}
         <div className="space-y-8">
-          <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full md:w-auto">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
               <TabsList className="bg-muted/50 p-1 rounded-2xl h-14 border border-border/50">
                 <TabsTrigger value="animals" className="rounded-xl px-8 h-full font-bold data-[state=active]:bg-white data-[state=active]:text-primary dark:data-[state=active]:bg-background shadow-none transition-all">
                   Mascotas
@@ -413,118 +413,118 @@ const Profile = () => {
                   Mensajes
                 </TabsTrigger>
               </TabsList>
-            </Tabs>
 
-            <Button
-              onClick={() => setShowPublicationForm(true)}
-              size="lg"
-              className="w-full md:w-auto h-14 rounded-2xl px-10 bg-primary hover:bg-primary/90 text-primary-foreground font-black uppercase tracking-widest shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95"
-            >
-              <Plus className="w-5 h-5 mr-3" /> Crear Nueva Publicación
-            </Button>
-          </div>
-
-          <TabsContent value="animals" className="pt-4 outline-none">
-            {animals.length === 0 ? (
-              <div className="bg-white dark:bg-card border-2 border-dashed border-primary/10 rounded-[3rem] p-20 text-center space-y-6">
-                <div className="w-24 h-24 bg-primary/5 rounded-full flex items-center justify-center mx-auto">
-                  <PawPrint className="w-12 h-12 text-primary/30" />
-                </div>
-                <h3 className="text-2xl font-black tracking-tight">Tu lista está vacía</h3>
-                <p className="text-muted-foreground max-w-sm mx-auto">Publica un animal en adopción o reporta una mascota perdida para empezar a ayudar.</p>
-                <Button variant="outline" className="h-12 rounded-xl px-8 border-2" onClick={() => setShowPublicationForm(true)}>Comenzar ahora</Button>
-              </div>
-            ) : (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                {animals.map((animal) => (
-                  <Card key={animal.id} className="group overflow-hidden rounded-[2.5rem] border-none bg-white dark:bg-card shadow-[0_10px_30px_rgba(0,0,0,0.03)] hover:shadow-[0_20px_60px_rgba(0,0,0,0.08)] transition-all duration-500">
-                    <div className="relative aspect-[16/10] overflow-hidden">
-                      <img src={animal.image_url} alt={animal.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
-                      <div className="absolute top-4 right-4 z-20">
-                        {getStatusBadge(animal.status)}
-                      </div>
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    </div>
-                    <CardContent className="p-8">
-                      <div className="flex justify-between items-start mb-6">
-                        <div className="space-y-1">
-                          <h3 className="text-2xl font-black tracking-tight">{animal.name}</h3>
-                          <p className="text-xs font-bold text-muted-foreground uppercase flex items-center gap-1.5">
-                            <MapPin className="w-3 h-3 text-primary" /> {animal.location}
-                          </p>
-                        </div>
-                        <Badge variant="secondary" className="rounded-lg bg-primary/5 text-primary border-none font-bold uppercase text-[10px] tracking-widest">{animal.type}</Badge>
-                      </div>
-
-                      <div className="flex gap-3 mt-8">
-                        <Button variant="outline" onClick={() => handleEdit(animal)} className="flex-1 h-12 rounded-xl border-2 font-bold hover:bg-primary/5 hover:text-primary transition-all">
-                          <Edit className="w-4 h-4 mr-2" /> Editar
-                        </Button>
-                        <Button variant="ghost" onClick={() => setDeleteConfirm({ type: 'animal', id: animal.id })} className="w-12 h-12 rounded-xl bg-destructive/5 text-destructive hover:bg-destructive hover:text-white transition-all">
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="stories" className="pt-4 outline-none">
-            {adoptionStories.length === 0 ? (
-              <div className="bg-white dark:bg-card border-2 border-dashed border-primary/10 rounded-[3rem] p-20 text-center space-y-6">
-                <div className="w-24 h-24 bg-rose-500/5 rounded-full flex items-center justify-center mx-auto">
-                  <Heart className="w-12 h-12 text-rose-500/30" />
-                </div>
-                <h3 className="text-2xl font-black tracking-tight">Comparte la felicidad</h3>
-                <p className="text-muted-foreground max-w-sm mx-auto">¿Adoptaste? Tu historia puede inspirar a otros a abrir su hogar.</p>
-              </div>
-            ) : (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                {adoptionStories.map((story) => (
-                  <Card key={story.id} className="group overflow-hidden rounded-[2.5rem] border-none bg-white dark:bg-card shadow-[0_10px_30px_rgba(0,0,0,0.03)] hover:shadow-xl transition-all duration-500">
-                    <div className="relative aspect-[16/10] overflow-hidden">
-                      <img src={story.story_image_url} alt={story.animal_name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-6">
-                        <h4 className="text-xl font-black text-white">{story.animal_name}</h4>
-                      </div>
-                    </div>
-                    <CardContent className="p-8">
-                      <p className="text-muted-foreground line-clamp-2 italic font-serif text-base mb-6">"{story.story_text}"</p>
-                      <div className="flex gap-2">
-                        <Button variant="outline" onClick={() => handleEditStory(story)} className="flex-1 h-12 rounded-xl border-2 font-bold hover:bg-primary/5 transition-all">
-                          Editar Historia
-                        </Button>
-                        <Button variant="ghost" onClick={() => setDeleteConfirm({ type: 'story', id: story.id })} className="w-12 h-12 rounded-xl bg-destructive/5 text-destructive hover:bg-destructive hover:text-white transition-all">
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="chats" className="pt-4 outline-none">
-            <div className="bg-white dark:bg-card rounded-[3rem] border border-primary/5 shadow-xl overflow-hidden">
-              <div className="p-10 border-b border-primary/5 bg-gradient-to-r from-primary/5 to-transparent">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20">
-                    <MessageCircle className="w-7 h-7 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-3xl font-black tracking-tight text-foreground">Bandeja de Entrada</h3>
-                    <p className="text-muted-foreground font-medium">Gestiona tus conversaciones y procesos de adopción.</p>
-                  </div>
-                </div>
-              </div>
-              <div className="p-0">
-                {user && <ChatList userId={user.id} />}
-              </div>
+              <Button
+                onClick={() => setShowPublicationForm(true)}
+                size="lg"
+                className="w-full md:w-auto h-14 rounded-2xl px-10 bg-primary hover:bg-primary/90 text-primary-foreground font-black uppercase tracking-widest shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95"
+              >
+                <Plus className="w-5 h-5 mr-3" /> Crear Nueva Publicación
+              </Button>
             </div>
-          </TabsContent>
+
+            <TabsContent value="animals" className="pt-4 outline-none">
+              {animals.length === 0 ? (
+                <div className="bg-white dark:bg-card border-2 border-dashed border-primary/10 rounded-[3rem] p-20 text-center space-y-6">
+                  <div className="w-24 h-24 bg-primary/5 rounded-full flex items-center justify-center mx-auto">
+                    <PawPrint className="w-12 h-12 text-primary/30" />
+                  </div>
+                  <h3 className="text-2xl font-black tracking-tight">Tu lista está vacía</h3>
+                  <p className="text-muted-foreground max-w-sm mx-auto">Publica un animal en adopción o reporta una mascota perdida para empezar a ayudar.</p>
+                  <Button variant="outline" className="h-12 rounded-xl px-8 border-2" onClick={() => setShowPublicationForm(true)}>Comenzar ahora</Button>
+                </div>
+              ) : (
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {animals.map((animal) => (
+                    <Card key={animal.id} className="group overflow-hidden rounded-[2.5rem] border-none bg-white dark:bg-card shadow-[0_10px_30px_rgba(0,0,0,0.03)] hover:shadow-[0_20px_60px_rgba(0,0,0,0.08)] transition-all duration-500">
+                      <div className="relative aspect-[16/10] overflow-hidden">
+                        <img src={animal.image_url} alt={animal.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+                        <div className="absolute top-4 right-4 z-20">
+                          {getStatusBadge(animal.status)}
+                        </div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      </div>
+                      <CardContent className="p-8">
+                        <div className="flex justify-between items-start mb-6">
+                          <div className="space-y-1">
+                            <h3 className="text-2xl font-black tracking-tight">{animal.name}</h3>
+                            <p className="text-xs font-bold text-muted-foreground uppercase flex items-center gap-1.5">
+                              <MapPin className="w-3 h-3 text-primary" /> {animal.location}
+                            </p>
+                          </div>
+                          <Badge variant="secondary" className="rounded-lg bg-primary/5 text-primary border-none font-bold uppercase text-[10px] tracking-widest">{animal.type}</Badge>
+                        </div>
+
+                        <div className="flex gap-3 mt-8">
+                          <Button variant="outline" onClick={() => handleEdit(animal)} className="flex-1 h-12 rounded-xl border-2 font-bold hover:bg-primary/5 hover:text-primary transition-all">
+                            <Edit className="w-4 h-4 mr-2" /> Editar
+                          </Button>
+                          <Button variant="ghost" onClick={() => setDeleteConfirm({ type: 'animal', id: animal.id })} className="w-12 h-12 rounded-xl bg-destructive/5 text-destructive hover:bg-destructive hover:text-white transition-all">
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="stories" className="pt-4 outline-none">
+              {adoptionStories.length === 0 ? (
+                <div className="bg-white dark:bg-card border-2 border-dashed border-primary/10 rounded-[3rem] p-20 text-center space-y-6">
+                  <div className="w-24 h-24 bg-rose-500/5 rounded-full flex items-center justify-center mx-auto">
+                    <Heart className="w-12 h-12 text-rose-500/30" />
+                  </div>
+                  <h3 className="text-2xl font-black tracking-tight">Comparte la felicidad</h3>
+                  <p className="text-muted-foreground max-w-sm mx-auto">¿Adoptaste? Tu historia puede inspirar a otros a abrir su hogar.</p>
+                </div>
+              ) : (
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {adoptionStories.map((story) => (
+                    <Card key={story.id} className="group overflow-hidden rounded-[2.5rem] border-none bg-white dark:bg-card shadow-[0_10px_30px_rgba(0,0,0,0.03)] hover:shadow-xl transition-all duration-500">
+                      <div className="relative aspect-[16/10] overflow-hidden">
+                        <img src={story.story_image_url} alt={story.animal_name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-6">
+                          <h4 className="text-xl font-black text-white">{story.animal_name}</h4>
+                        </div>
+                      </div>
+                      <CardContent className="p-8">
+                        <p className="text-muted-foreground line-clamp-2 italic font-serif text-base mb-6">"{story.story_text}"</p>
+                        <div className="flex gap-2">
+                          <Button variant="outline" onClick={() => handleEditStory(story)} className="flex-1 h-12 rounded-xl border-2 font-bold hover:bg-primary/5 transition-all">
+                            Editar Historia
+                          </Button>
+                          <Button variant="ghost" onClick={() => setDeleteConfirm({ type: 'story', id: story.id })} className="w-12 h-12 rounded-xl bg-destructive/5 text-destructive hover:bg-destructive hover:text-white transition-all">
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="chats" className="pt-4 outline-none">
+              <div className="bg-white dark:bg-card rounded-[3rem] border border-primary/5 shadow-xl overflow-hidden">
+                <div className="p-10 border-b border-primary/5 bg-gradient-to-r from-primary/5 to-transparent">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20">
+                      <MessageCircle className="w-7 h-7 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-3xl font-black tracking-tight text-foreground">Bandeja de Entrada</h3>
+                      <p className="text-muted-foreground font-medium">Gestiona tus conversaciones y procesos de adopción.</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-0">
+                  {user && <ChatList userId={user.id} />}
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
 

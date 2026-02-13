@@ -1,4 +1,4 @@
-import { Menu, LogIn, LogOut, User, Heart, Shield, PlusCircle, Search, HelpCircle, Mail, MessageSquare, LayoutTemplate } from "lucide-react";
+import { Menu, LogIn, LogOut, User, Heart, Shield, PlusCircle, Search, HelpCircle, Mail, MessageSquare, LayoutTemplate, Info, Globe, Facebook, Instagram } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate, Link, useLocation } from "react-router-dom";
@@ -261,6 +261,34 @@ const Header = ({ minimal = false }: HeaderProps) => {
                           Administración
                         </Button>
                       )}
+
+                      <div className="h-px bg-border my-2"></div>
+
+                      {/* Zion Code / Dev Info Section */}
+                      <div className="p-4 rounded-2xl bg-primary/5 space-y-4">
+                        <div className="flex items-center gap-2 text-primary">
+                          <Info className="w-5 h-5" />
+                          <span className="font-black text-sm uppercase tracking-widest">Zion Code</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          Huellas Digitales es un proyecto de innovación social desarrollado por <span className="font-bold text-foreground">Zion Code</span>.
+                          Nuestro objetivo es democratizar la tecnología para causas que importan.
+                        </p>
+                        <div className="flex items-center gap-3">
+                          <a href="https://zion-code.vercel.app/" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-white dark:bg-card hover:text-primary transition-colors border border-border/50">
+                            <Globe className="w-4 h-4" />
+                          </a>
+                          <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-white dark:bg-card hover:text-primary transition-colors border border-border/50">
+                            <Facebook className="w-4 h-4" />
+                          </a>
+                          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-white dark:bg-card hover:text-primary transition-colors border border-border/50">
+                            <Instagram className="w-4 h-4" />
+                          </a>
+                          <a href="mailto:info@zioncode.com" className="p-2 rounded-lg bg-white dark:bg-card hover:text-primary transition-colors border border-border/50">
+                            <Mail className="w-4 h-4" />
+                          </a>
+                        </div>
+                      </div>
 
                       <Button
                         onClick={handleAuth}

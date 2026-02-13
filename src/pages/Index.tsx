@@ -377,63 +377,6 @@ const Index = () => {
 
       <Footer />
 
-      {/* About Zion Code Section */}
-      <section className="py-32 bg-[#0a0a0a] text-white relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-primary/5 -skew-x-12 translate-x-1/2" />
-        <div className="container-custom relative z-10">
-          <div className="grid md:grid-cols-2 gap-16 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="space-y-8"
-            >
-              <div className="inline-block px-4 py-1.5 rounded-full bg-primary/20 text-primary text-xs font-black uppercase tracking-[0.2em]">
-                Creadores & Visionarios
-              </div>
-              <h2 className="text-5xl md:text-7xl font-black tracking-tighter leading-none">
-                Impulsado por <br />
-                <span className="text-primary italic">Zion Code</span>
-              </h2>
-              <p className="text-white/60 text-xl leading-relaxed font-light max-w-lg">
-                Nacimos con la misión de democratizar el acceso a la tecnología para causas que realmente importan. Huellas Digitales es el resultado de nuestra pasión por el bienestar animal y la innovación social.
-              </p>
-              <div className="flex gap-4">
-                <a
-                  href="https://zion-code.vercel.app/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-8 h-14 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full flex items-center justify-center font-bold transition-all hover:scale-105"
-                >
-                  Conoce nuestra agencia
-                </a>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 1 }}
-              className="relative aspect-square md:aspect-video rounded-[3rem] overflow-hidden shadow-2xl shadow-black/50"
-            >
-              <img
-                src="https://images.unsplash.com/photo-1522071823991-b9671f9d7f1f?auto=format&fit=crop&q=80"
-                alt="Agencia Zion Code"
-                className="w-full h-full object-cover grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-700"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-              <div className="absolute bottom-10 left-10">
-                <div className="text-4xl font-black italic text-primary/40 leading-none">
-                  "Code for <br />the Good"
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
       {
         showRegionSelector && user && !searchParams.get("forceLanding") && (
           <RegionSelector
@@ -446,7 +389,7 @@ const Index = () => {
           />
         )
       }
-    </div >
+    </div>
   );
 };
 
