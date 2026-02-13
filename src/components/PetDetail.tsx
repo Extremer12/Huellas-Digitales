@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import {
     MapPin, Heart, Copy, Link as LinkIcon, Share2,
     ChevronLeft, ChevronRight, MessageCircle, ArrowLeft,
-    Calendar, Info, HeartPulse, User, Shield
+    Calendar, Info, HeartPulse, User, Shield, X, ZoomIn
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -167,6 +167,28 @@ const PetDetail = () => {
         }
     };
 
+    // --- NEW FEATURE: Lightbox State ---
+    const [lightboxOpen, setLightboxOpen] = useState(false);
+
+    // --- NEW FEATURE: Native Share ---
+    const handleShare = async () => {
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: `Adopta a ${animal?.name}`,
+                    text: `Mira a ${animal?.name} en Huellas Digitales. ${animal?.status === 'perdido' ? '¡Ayúdalo a volver a casa!' : '¡Busca un hogar!'}`,
+                    url: window.location.href,
+                });
+            } catch (error) {
+                console.log('Error sharing:', error);
+            }
+        } else {
+            // Fallback
+            navigator.clipboard.writeText(window.location.href);
+            toast({ title: "Link copiado al portapapeles" });
+        }
+    };
+
     if (loading) return <div className="h-screen flex items-center justify-center bg-background"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>;
 
     if (!animal) return null;
@@ -174,196 +196,229 @@ const PetDetail = () => {
     const images = [animal.image, ...additionalImages.filter(img => img !== animal.image)];
 
     return (
-        <div className="h-screen bg-background flex flex-col overflow-hidden">
+        <div className="min-h-screen bg-background pb-24 md:pb-0">
             <SeoHead
                 title={`${animal.name} - ${animal.status === 'perdido' ? '¡Ayúdame a volver a casa!' : 'En Adopción'}`}
                 description={`Conoce a ${animal.name}, un ${animal.type} de ${animal.age} años que busca ${animal.status === 'perdido' ? 'su hogar' : 'una familia'}.`}
                 image={animal.image}
                 type="article"
             />
-            <Header />
+            <div className="hidden md:block">
+                <Header />
+            </div>
 
-            {/* Main Content - Fixed Height on Desktop */}
-            <main className="flex-1 flex flex-col md:flex-row overflow-hidden pt-14">
-
-                {/* LEFT: Immersive Gallery (55% width) */}
-                <div className="w-full md:w-[55%] h-[40vh] md:h-full relative bg-muted group">
+            {/* LIGHTBOX OVERLAY */}
+            {lightboxOpen && (
+                <div className="fixed inset-0 z-[60] bg-black/95 flex items-center justify-center animate-in fade-in duration-200">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute top-4 right-4 text-white hover:bg-white/10 z-50"
+                        onClick={() => setLightboxOpen(false)}
+                    >
+                        <X className="w-8 h-8" />
+                    </Button>
                     <img
                         src={images[currentImageIndex]}
+                        className="max-w-full max-h-full object-contain p-2"
                         alt={animal.name}
-                        className="w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
-
-                    {/* Navigation Buttons */}
                     {images.length > 1 && (
                         <>
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="absolute left-4 top-1/2 -translate-y-1/2 text-white bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full h-12 w-12"
-                                onClick={() => setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length)}
+                                className="absolute left-2 top-1/2 -translate-y-1/2 text-white hover:bg-white/10"
+                                onClick={(e) => { e.stopPropagation(); setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length); }}
                             >
-                                <ChevronLeft className="w-8 h-8" />
+                                <ChevronLeft className="w-10 h-10" />
                             </Button>
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="absolute right-4 top-1/2 -translate-y-1/2 text-white bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full h-12 w-12"
-                                onClick={() => setCurrentImageIndex((prev) => (prev + 1) % images.length)}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 text-white hover:bg-white/10"
+                                onClick={(e) => { e.stopPropagation(); setCurrentImageIndex((prev) => (prev + 1) % images.length); }}
                             >
-                                <ChevronRight className="w-8 h-8" />
+                                <ChevronRight className="w-10 h-10" />
                             </Button>
                         </>
                     )}
+                </div>
+            )}
 
-                    {/* Thumbnails Overlay at Bottom */}
+            <main className="md:pt-20 md:flex md:h-[calc(100vh-80px)] md:overflow-hidden max-w-7xl mx-auto">
+
+                {/* MOBILE HEADER (Absolute) */}
+                <div className="md:hidden absolute top-0 left-0 right-0 z-20 p-4 flex justify-between items-start bg-gradient-to-b from-black/60 to-transparent pointer-events-none">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => navigate(-1)}
+                        className="bg-black/20 backdrop-blur-md text-white rounded-full pointer-events-auto hover:bg-black/40"
+                    >
+                        <ArrowLeft className="w-6 h-6" />
+                    </Button>
+                    <Badge variant="secondary" className="pointer-events-auto backdrop-blur-md bg-white/90 text-black font-bold shadow-lg">
+                        {animal.status === 'perdido' ? '🚨 Perdido' : '🏡 En Adopción'}
+                    </Badge>
+                </div>
+
+                {/* LEFT: IMAGE GALLERY (Mobile: Top Hero, Desktop: Left Col) */}
+                <div className="relative w-full md:w-[50%] h-[50vh] md:h-full bg-muted group overflow-hidden">
+                    <img
+                        src={images[currentImageIndex]}
+                        alt={animal.name}
+                        className="w-full h-full object-cover cursor-zoom-in transition-transform duration-700 hover:scale-105"
+                        onClick={() => setLightboxOpen(true)}
+                    />
+
+                    {/* Desktop Hover Overlay */}
+                    <div className="hidden md:flex absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity items-center justify-center pointer-events-none">
+                        <span className="text-white font-medium flex items-center gap-2 bg-black/50 px-4 py-2 rounded-full backdrop-blur-sm">
+                            <ZoomIn className="w-4 h-4" /> Ver Pantalla Completa
+                        </span>
+                    </div>
+
+                    {/* Image Navigation Dots */}
                     {images.length > 1 && (
-                        <div className="absolute bottom-6 left-6 right-6 flex gap-2 overflow-x-auto pb-1 no-scrollbar justify-center">
-                            {images.map((img, idx) => (
-                                <button
+                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
+                            {images.map((_, idx) => (
+                                <div
                                     key={idx}
-                                    onClick={() => setCurrentImageIndex(idx)}
-                                    className={`w-14 h-14 rounded-lg overflow-hidden border-2 transition-all ${idx === currentImageIndex ? 'border-primary ring-2 ring-primary/30 scale-110' : 'border-white/50 opacity-70'
-                                        }`}
-                                >
-                                    <img src={img} className="w-full h-full object-cover" />
-                                </button>
+                                    className={`h-1.5 rounded-full transition-all shadow-sm ${idx === currentImageIndex ? 'w-6 bg-white' : 'w-1.5 bg-white/50'}`}
+                                />
                             ))}
                         </div>
                     )}
-
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => navigate(-1)}
-                        className="absolute top-4 left-4 text-white bg-black/20 hover:bg-black/40 backdrop-blur-md"
-                    >
-                        <ArrowLeft className="w-4 h-4 mr-2" /> Volver
-                    </Button>
                 </div>
 
-                {/* RIGHT: Dashboard Info (45% width) */}
-                <div className="w-full md:w-[45%] h-full flex flex-col bg-background border-l border-border/50">
+                {/* RIGHT: CONTENT (Mobile: Scrollable below, Desktop: Right Col) */}
+                <div className="w-full md:w-[50%] md:h-full flex flex-col bg-background relative -mt-6 md:mt-0 rounded-t-[2rem] md:rounded-none z-10 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] md:shadow-none border-t border-white/50 md:border-none">
 
-                    {/* Header Info */}
-                    <div className="p-6 border-b border-border/50">
-                        <div className="flex justify-between items-start mb-2">
-                            <div>
-                                <h1 className="text-4xl font-black tracking-tight flex items-center gap-3">
-                                    {animal.name}
-                                    <Badge variant="outline" className="text-lg py-1 px-3 rounded-full border-primary/20 bg-primary/5 text-primary">
-                                        {animal.type}
-                                    </Badge>
-                                </h1>
-                                <div className="flex items-center text-muted-foreground mt-2">
-                                    <MapPin className="w-4 h-4 mr-1 text-primary" />
-                                    {animal.location}
+                    {/* Scrollable Area */}
+                    <ScrollArea className="flex-1">
+                        <div className="p-6 pb-32 md:pb-6 space-y-6">
+
+                            {/* Title & Basics */}
+                            <div className="space-y-4">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <h1 className="text-3xl md:text-4xl font-black text-foreground flex items-center gap-2">
+                                            {animal.name}
+                                            <span className="text-2xl">
+                                                {animal.type === 'perro' ? '🐕' : animal.type === 'gato' ? '🐈' : '🐾'}
+                                            </span>
+                                        </h1>
+                                        <p className="text-muted-foreground flex items-center gap-1 mt-1 text-sm md:text-base font-medium">
+                                            <MapPin className="w-4 h-4 text-primary" /> {animal.location}
+                                        </p>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="bg-primary/10 text-primary font-bold px-3 py-1 rounded-lg text-sm inline-block">
+                                            {animal.age}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Stats Grid */}
+                                <div className="grid grid-cols-3 gap-3">
+                                    <div className="bg-secondary/10 p-3 rounded-2xl text-center border border-secondary/20">
+                                        <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Tamaño</p>
+                                        <p className="font-bold text-secondary-foreground text-sm">{animal.size}</p>
+                                    </div>
+                                    <div className="bg-blue-500/10 p-3 rounded-2xl text-center border border-blue-500/20">
+                                        <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Sexo</p>
+                                        <p className="font-bold text-blue-700 text-sm">--</p> {/* Add sex if available later */}
+                                    </div>
+                                    <div className="bg-purple-500/10 p-3 rounded-2xl text-center border border-purple-500/20">
+                                        <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Publicado</p>
+                                        <p className="font-bold text-purple-700 text-sm line-clamp-1">{publisherName.split(' ')[0]}</p>
+                                    </div>
                                 </div>
                             </div>
-                            <div className="text-right hidden md:block">
-                                <p className="text-xs uppercase text-muted-foreground font-bold tracking-widest">Publicado por</p>
-                                <p className="font-medium flex items-center justify-end gap-2">
-                                    <User className="w-4 h-4" /> {publisherName}
+
+                            <hr className="border-border/60" />
+
+                            {/* Story / About */}
+                            <div className="space-y-3">
+                                <h3 className="font-bold text-lg flex items-center gap-2">
+                                    <HeartPulse className="w-5 h-5 text-primary" /> Historia
+                                </h3>
+                                <p className="text-muted-foreground leading-relaxed text-sm md:text-base">
+                                    {animal.fullDescription || animal.description}
                                 </p>
                             </div>
+
+                            {/* Health Info */}
+                            {animal.healthInfo && (
+                                <div className="bg-green-500/5 border border-green-500/10 p-4 rounded-xl space-y-2">
+                                    <h4 className="font-bold text-green-700 text-sm flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" /> Estado de Salud
+                                    </h4>
+                                    <p className="text-sm text-muted-foreground">{animal.healthInfo}</p>
+                                </div>
+                            )}
+
+                            {/* Tabs for extra details on Desktop primarily */}
+                            <Tabs defaultValue="history" className="w-full pt-2">
+                                <TabsList className="w-full bg-muted/50 rounded-xl p-1">
+                                    <TabsTrigger value="history" className="flex-1 rounded-lg text-xs font-bold">Libreta Sanitaria</TabsTrigger>
+                                </TabsList>
+                                <TabsContent value="history" className="pt-4">
+                                    <MedicalRecords
+                                        animalId={animal.id}
+                                        isOwner={animal.userId === currentUserId || isAdmin}
+                                    />
+                                </TabsContent>
+                            </Tabs>
                         </div>
-                    </div>
-
-                    {/* Scrollable Content Area */}
-                    <ScrollArea className="flex-1 p-6">
-                        <Tabs defaultValue="about" className="w-full space-y-6">
-                            <TabsList className="grid w-full grid-cols-2 rounded-xl h-12 bg-muted/50 p-1">
-                                <TabsTrigger value="about" className="rounded-lg text-sm font-bold">Sobre Mí</TabsTrigger>
-                                <TabsTrigger value="history" className="rounded-lg text-sm font-bold">Libreta Sanitaria</TabsTrigger>
-                            </TabsList>
-
-                            {/* TAB: About */}
-                            <TabsContent value="about" className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="bg-primary/5 p-4 rounded-2xl border border-primary/10 flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-                                            <Calendar className="w-5 h-5" />
-                                        </div>
-                                        <div>
-                                            <p className="text-xs uppercase font-bold text-muted-foreground">Edad</p>
-                                            <p className="font-black text-lg">{animal.age}</p>
-                                        </div>
-                                    </div>
-                                    <div className="bg-secondary/5 p-4 rounded-2xl border border-secondary/10 flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center text-secondary">
-                                            <Info className="w-5 h-5" />
-                                        </div>
-                                        <div>
-                                            <p className="text-xs uppercase font-bold text-muted-foreground">Tamaño</p>
-                                            <p className="font-black text-lg">{animal.size}</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="prose prose-sm dark:prose-invert max-w-none">
-                                    <h3 className="font-bold text-lg mb-2 flex items-center gap-2">
-                                        <HeartPulse className="w-5 h-5 text-primary" /> Personalidad & Historia
-                                    </h3>
-                                    <p className="text-muted-foreground text-base leading-relaxed">
-                                        {animal.fullDescription || animal.description}
-                                    </p>
-                                </div>
-
-                                {animal.healthInfo && (
-                                    <div className="bg-card border border-border/50 p-4 rounded-xl">
-                                        <h4 className="font-bold text-sm mb-2 text-primary">Estado de Salud</h4>
-                                        <p className="text-sm text-muted-foreground">{animal.healthInfo}</p>
-                                    </div>
-                                )}
-                            </TabsContent>
-
-                            {/* TAB: Medical History */}
-                            <TabsContent value="history" className="animate-in fade-in slide-in-from-bottom-2">
-                                <MedicalRecords
-                                    animalId={animal.id}
-                                    isOwner={animal.userId === currentUserId || isAdmin}
-                                />
-                            </TabsContent>
-                        </Tabs>
                     </ScrollArea>
 
-                    {/* Fixed Action Footer */}
-                    <div className="p-6 border-t border-border/50 bg-background/95 backdrop-blur-sm">
-                        <div className="grid grid-cols-2 gap-4">
+                    {/* FIXED BOTTOM ACTION BAR (Mobile & Desktop) */}
+                    <div className="fixed bottom-0 left-0 right-0 md:relative md:bottom-auto p-4 bg-background/80 backdrop-blur-xl border-t border-border/50 z-40 md:bg-transparent md:border-t">
+                        <div className="container md:px-0 flex gap-3 items-center max-w-7xl mx-auto">
+
                             <Button
                                 onClick={startConversation}
                                 size="lg"
-                                className="w-full h-14 text-lg font-bold rounded-xl shadow-xl hover:scale-[1.02] transition-transform"
+                                className="flex-1 h-14 text-base font-bold rounded-2xl shadow-xl shadow-primary/20 hover:scale-[1.02] transition-transform animate-in slide-in-from-bottom-5 duration-500"
                                 disabled={currentUserId === animal.userId}
                             >
                                 <MessageCircle className="w-5 h-5 mr-3" />
-                                {currentUserId === animal.userId ? "Tu publicación" : "Contactar"}
+                                {currentUserId === animal.userId ? "Tu publicación" : "Contactar Ahora"}
                             </Button>
 
-                            <div className="flex gap-2">
-                                <Button
-                                    variant="outline"
-                                    size="icon"
-                                    className="h-14 w-14 rounded-xl border-2 hover:bg-muted"
-                                    onClick={() => {
-                                        navigator.clipboard.writeText(window.location.href);
-                                        toast({ title: "Link copiado" });
-                                    }}
-                                >
-                                    <LinkIcon className="w-5 h-5" />
-                                </Button>
-                                <Button
-                                    variant="outline"
-                                    size="icon"
-                                    className="h-14 w-14 rounded-xl border-2 hover:bg-destructive/10 hover:border-destructive/30 text-destructive"
-                                    onClick={() => setReportModalOpen(true)}
-                                >
-                                    <Shield className="w-5 h-5" />
-                                </Button>
-                            </div>
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-14 w-14 rounded-2xl border-2 hover:bg-green-50 hover:text-green-600 hover:border-green-200 transition-colors"
+                                onClick={handleShare}
+                                aria-label="Compartir"
+                            >
+                                <Share2 className="w-5 h-5" />
+                            </Button>
+
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-14 w-14 rounded-2xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors hidden sm:flex"
+                                onClick={() => setReportModalOpen(true)}
+                                aria-label="Reportar"
+                            >
+                                <Shield className="w-5 h-5" />
+                            </Button>
+                        </div>
+                        {/* Mobile Report Link (since button is hidden on tiny screens to save space) */}
+                        <div className="sm:hidden text-center mt-3">
+                            <button
+                                onClick={() => setReportModalOpen(true)}
+                                className="text-[10px] text-muted-foreground underline decoration-dotted"
+                            >
+                                Reportar publicación
+                            </button>
                         </div>
                     </div>
+
                 </div>
             </main>
 

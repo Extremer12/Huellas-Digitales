@@ -11,6 +11,7 @@ import { z } from "zod";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import ImageCropper from "./ImageCropper";
 
 // Fix Leaflet icons
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -89,14 +90,38 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
         ) : null;
     }
 
+    // Cropper State
+    const [cropperOpen, setCropperOpen] = useState(false);
+    const [currentImageToCrop, setCurrentImageToCrop] = useState<string | null>(null);
+
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || []);
-        if (imageFiles.length + files.length > 5) return;
+        if (files.length === 0) return;
 
-        // Simple validation and preview logic
-        const newPreviews = files.map(file => URL.createObjectURL(file));
-        setImageFiles([...imageFiles, ...files]);
-        setImagePreviews([...imagePreviews, ...newPreviews]);
+        // Take the first file to crop (Limiting to 1 crop at a time for simplicity/UX)
+        const file = files[0];
+        const reader = new FileReader();
+        reader.addEventListener('load', () => {
+            setCurrentImageToCrop(reader.result?.toString() || null);
+            setCropperOpen(true);
+            // Clear input value to allow re-selecting same file
+            e.target.value = '';
+        });
+        reader.readAsDataURL(file);
+    };
+
+    const handleCropComplete = (croppedBlob: Blob) => {
+        // Convert Blob to File
+        const file = new File([croppedBlob], `cropped-${Date.now()}.jpg`, { type: 'image/jpeg' });
+
+        if (imageFiles.length >= 5) {
+            toast({ title: "Límite alcanzado", description: "Máximo 5 fotos.", variant: "destructive" });
+            return;
+        }
+
+        const previewUrl = URL.createObjectURL(file);
+        setImageFiles([...imageFiles, file]);
+        setImagePreviews([...imagePreviews, previewUrl]);
     };
 
     const removeImage = (index: number) => {
@@ -463,5 +488,19 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
         );
     }
 
-    return null;
+    return (
+        <>
+            {/* ... other steps ... */}
+            <ImageCropper
+                open={cropperOpen}
+                imageSrc={currentImageToCrop}
+                onClose={() => {
+                    setCropperOpen(false);
+                    setCurrentImageToCrop(null);
+                }}
+                onCropComplete={handleCropComplete}
+                aspectRatio={4 / 5} // Vertical aspect ratio for better mobile feed
+            />
+        </>
+    );
 }
