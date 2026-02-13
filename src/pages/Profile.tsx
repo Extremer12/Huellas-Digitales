@@ -17,6 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import PublicationForm from "@/components/PublicationForm";
+import OrgRequestModal from "@/components/OrgRequestModal";
 import { useNotifications } from "@/hooks/useNotifications";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import Footer from "@/components/Footer";
@@ -138,7 +139,7 @@ const Profile = () => {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    navigate("/");
+    window.location.href = "/";
   };
 
   const handleDelete = async (id: string) => {
