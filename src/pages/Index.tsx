@@ -13,6 +13,7 @@ import SmartPublicationWizard from "@/components/SmartPublicationWizard";
 import Hero from "@/components/Hero";
 import { motion } from "framer-motion";
 import OrgRequestModal from "@/components/OrgRequestModal";
+import RoleSelectionModal from "@/components/RoleSelectionModal";
 import { Building2 } from "lucide-react";
 import HowItWorks from "@/components/HowItWorks";
 import SeoHead from "@/components/SeoHead";
