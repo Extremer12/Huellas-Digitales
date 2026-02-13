@@ -142,51 +142,70 @@ const AdoptedSection = () => {
     }
   };
   return (
-    <section id="adoptados" className="py-24 bg-muted/20 scroll-reveal">
+    <section id="adoptados" className="py-24 bg-[#fafaf8] scroll-reveal overflow-hidden">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16 space-y-4">
-          <h2 className="text-4xl md:text-5xl font-black tracking-tight">Finales Felices</h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Historias reales de amor y segunda oportunidad.
-          </p>
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
+          <div className="space-y-4">
+            <h2 className="text-3xl md:text-5xl font-black tracking-tight flex items-center gap-3">
+              <Heart className="w-8 h-8 text-primary fill-primary animate-pulse" />
+              Impacto Real
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-xl font-medium">
+              Explora testimonios de familias que abrieron sus puertas y corazones.
+            </p>
+          </div>
+
+          {isAuthenticated && (
+            <Button
+              onClick={() => setShowForm(true)}
+              className="rounded-full px-8 h-12 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 font-bold transition-all hover:scale-105"
+            >
+              <Plus className="w-5 h-5 mr-2" /> Compartir mi Historia
+            </Button>
+          )}
         </div>
 
         {stories.length === 0 ? (
-          <div className="text-center py-20 bg-card/50 rounded-[3rem] border border-dashed">
-            <Heart className="w-16 h-16 mx-auto mb-4 text-muted-foreground/30" />
-            <p className="text-xl text-muted-foreground font-medium">
-              Aún no hay historias. ¡La tuya podría ser la primera!
+          <div className="text-center py-24 bg-white rounded-[3rem] border border-primary/10 shadow-sm">
+            <div className="w-20 h-20 bg-primary/5 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Heart className="w-10 h-10 text-primary/30" />
+            </div>
+            <p className="text-xl text-muted-foreground font-semibold">
+              Estamos esperando la primera historia...
             </p>
-            <Button onClick={() => setShowForm(true)} className="mt-6 rounded-full" variant="outline">
-              Publicar Historia
-            </Button>
+            {!isAuthenticated && (
+              <p className="text-sm text-muted-foreground mt-2">Inicia sesión para compartir la tuya.</p>
+            )}
           </div>
         ) : (
           <>
-            <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
+            <div className="columns-1 md:columns-2 lg:columns-3 gap-8 space-y-8">
               {(showAll ? stories : stories.slice(0, INITIAL_DISPLAY_COUNT)).map((story, index) => (
-                <div
+                <motion.div
                   key={story.id}
-                  className="break-inside-avoid animate-in fade-in zoom-in duration-700 fill-mode-backwards"
-                  style={{ animationDelay: `${index * 0.15}s` }}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="break-inside-avoid"
                 >
-                  <Card className="group overflow-hidden border-0 bg-background shadow-xl hover:shadow-2xl transition-all duration-500 rounded-[2rem]">
-                    <div className="relative overflow-hidden">
+                  <Card className="group overflow-hidden border-none bg-white shadow-[0_10px_30px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-500 rounded-[2.5rem]">
+                    <div className="relative overflow-hidden aspect-[4/5] sm:aspect-auto">
                       <img
                         src={story.story_image_url}
                         alt="Historia de adopción"
-                        className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
+                        className="w-full h-auto min-h-[300px] object-cover transition-transform duration-1000 group-hover:scale-110"
                         loading="lazy"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
 
-                      <div className="absolute bottom-0 left-0 p-6 w-full">
-                        <h3 className="text-2xl font-black text-white mb-1 drop-shadow-md">
+                      <div className="absolute bottom-0 left-0 p-8 w-full">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Badge className="bg-primary/90 backdrop-blur-md border-none text-[10px] font-black uppercase tracking-widest px-3">Testimonio</Badge>
+                        </div>
+                        <h3 className="text-3xl font-black text-white drop-shadow-md">
                           {story.animal_name}
                         </h3>
-                        <div className="flex items-center gap-2 text-white/80 text-sm font-medium">
-                          <Heart className="w-4 h-4 fill-white text-white" /> Adoptado
-                        </div>
                       </div>
 
                       {isAuthenticated && (
@@ -194,38 +213,41 @@ const AdoptedSection = () => {
                           variant="secondary"
                           size="icon"
                           onClick={() => setReportStoryId(story.id)}
-                          className="absolute top-4 right-4 rounded-full w-8 h-8 opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 text-white hover:bg-destructive hover:text-white backdrop-blur-md border-0"
+                          className="absolute top-6 right-6 rounded-full w-10 h-10 opacity-0 group-hover:opacity-100 transition-all bg-white/20 text-white hover:bg-destructive hover:text-white backdrop-blur-md border-transparent hover:scale-110"
                         >
-                          <AlertTriangle className="w-4 h-4" />
+                          <AlertTriangle className="w-5 h-5" />
                         </Button>
                       )}
                     </div>
 
-                    <CardContent className="p-6 relative">
-                      {/* Quote Icon Background */}
-                      <div className="absolute top-4 right-4 text-primary/10 select-none pointer-events-none">
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21L14.017 18C14.017 16.8954 14.9124 16 16.017 16H19.017C19.5693 16 20.017 15.5523 20.017 15V9C20.017 8.44772 19.5693 8 19.017 8H15.017C14.4647 8 14.017 8.44772 14.017 9V11C14.017 11.5523 13.5693 12 13.017 12H12.017V5H22.017V15C22.017 18.3137 19.3307 21 16.017 21H14.017ZM5.0166 21L5.0166 18C5.0166 16.8954 5.91203 16 7.0166 16H10.0166C10.5689 16 11.0166 15.5523 11.0166 15V9C11.0166 8.44772 10.5689 8 10.0166 8H6.0166C5.46432 8 5.0166 8.44772 5.0166 9V11C5.0166 11.5523 4.56889 12 4.0166 12H3.0166V5H13.0166V15C13.0166 18.3137 10.3303 21 7.0166 21H5.0166Z" /></svg>
+                    <CardContent className="p-8 relative bg-white">
+                      <div className="absolute -top-6 right-8 w-12 h-12 bg-primary rounded-full flex items-center justify-center shadow-lg transform transition-transform group-hover:scale-110 group-hover:rotate-12">
+                        <Heart className="w-6 h-6 text-white fill-white" />
                       </div>
-                      <p className="text-muted-foreground leading-relaxed italic relative z-10">
+                      <p className="text-foreground/80 leading-relaxed font-serif italic text-lg relative z-10">
                         "{story.story_text}"
                       </p>
+                      <div className="mt-6 flex items-center gap-3">
+                        <div className="w-10 h-0.5 bg-primary/20" />
+                        <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground">Historia Verificada</span>
+                      </div>
                     </CardContent>
                   </Card>
-                </div>
+                </motion.div>
               ))}
             </div>
 
             {stories.length > INITIAL_DISPLAY_COUNT && (
-              <div className="text-center mt-12 pb-12">
+              <div className="text-center mt-20">
                 <Button
                   onClick={() => setShowAll(!showAll)}
-                  variant="ghost"
+                  variant="outline"
                   size="lg"
-                  className="rounded-full text-muted-foreground hover:text-foreground hover:bg-muted font-bold group"
+                  className="rounded-full px-12 h-14 border-primary/20 text-primary hover:bg-primary hover:text-white font-black uppercase tracking-widest transition-all hover:scale-105 group"
                 >
-                  {showAll ? "Ver menos" : (
+                  {showAll ? "Colapsar Historias" : (
                     <>
-                      Ver más historias <Plus className="ml-2 w-4 h-4 group-hover:rotate-90 transition-transform" />
+                      Explorar más Crónicas <Plus className="ml-2 w-5 h-5 group-hover:rotate-90 transition-transform" />
                     </>
                   )}
                 </Button>

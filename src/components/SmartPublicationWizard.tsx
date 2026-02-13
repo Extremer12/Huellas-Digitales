@@ -59,6 +59,7 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
         salesAgreement: false,
         nameUnknown: false,
         ageApproximate: false,
+        sex: "desconocido" as "macho" | "hembra" | "desconocido",
     });
 
     useEffect(() => {
@@ -176,6 +177,7 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
                     personality: formData.personality,
                     image_url: uploadedUrls[0],
                     status: dbStatus,
+                    sex: formData.sex,
                     lat: type === "perdido" ? formData.lat : null,
                     lng: type === "perdido" ? formData.lng : null,
                 })
@@ -423,6 +425,23 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
                                     <SelectItem value="grande">Grande</SelectItem>
                                 </SelectContent>
                             </Select>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <Label>Sexo</Label>
+                            <Select value={formData.sex} onValueChange={(v) => setFormData({ ...formData, sex: v as any })}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="macho">Macho</SelectItem>
+                                    <SelectItem value="hembra">Hembra</SelectItem>
+                                    <SelectItem value="desconocido">Desconocido</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div>
+                            {/* Empty space or additional field if needed */}
                         </div>
                     </div>
 

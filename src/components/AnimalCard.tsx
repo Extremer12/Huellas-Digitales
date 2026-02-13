@@ -39,8 +39,13 @@ const AnimalCard = ({ animal, onClick }: AnimalCardProps) => {
               <AlertTriangle className="w-3 h-3" /> PERDIDO
             </Badge>
           ) : (
-            <Badge className="bg-primary text-primary-foreground shadow-lg">
-              DISPONIBLE
+            <Badge className="bg-primary text-primary-foreground shadow-lg font-bold">
+              EN ADOPCIÓN
+            </Badge>
+          )}
+          {animal.sex && (
+            <Badge variant="secondary" className="bg-white/90 backdrop-blur-md text-foreground shadow-sm flex items-center justify-center w-8 h-8 p-0 rounded-full text-lg border-none">
+              {animal.sex === "macho" ? "♂" : animal.sex === "hembra" ? "♀" : "?"}
             </Badge>
           )}
         </div>

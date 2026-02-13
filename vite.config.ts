@@ -19,7 +19,7 @@ export default defineConfig(({ mode }) => ({
     }),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["logo-192.png", "logo-512.png", "apple-touch-icon.png", "robots.txt"],
+      includeAssets: ["robots.txt"],
       manifest: {
         name: "Huellas Digitales",
         short_name: "Huellas",
