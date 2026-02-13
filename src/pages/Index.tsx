@@ -136,13 +136,25 @@ const Index = () => {
   }
 
   // LANDING MODE
+  const [showRoleSelection, setShowRoleSelection] = useState(false);
+
+  const handleStart = () => {
+    setShowRoleSelection(true);
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <SeoHead />
       <Header minimal={true} />
 
       <main className="flex-1">
-        <Hero />
+        <Hero onStart={handleStart} />
+
+        <RoleSelectionModal
+          open={showRoleSelection}
+          onOpenChange={setShowRoleSelection}
+          onSelectUser={() => navigate("/auth")}
+        />
 
         {/* IMPACT & INFO SECTION (Previously in Hero) */}
         <section className="py-20 bg-background relative z-10 -mt-10 rounded-t-[3rem] shadow-[0_-20px_40px_rgba(0,0,0,0.1)] border-t border-white/5">

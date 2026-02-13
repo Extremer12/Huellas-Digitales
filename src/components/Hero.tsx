@@ -4,7 +4,11 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import heroImage from "@/assets/hero-adoption.jpg";
 
-const Hero = () => {
+interface HeroProps {
+  onStart?: () => void;
+}
+
+const Hero = ({ onStart }: HeroProps) => {
   const navigate = useNavigate();
 
   return (
@@ -32,6 +36,7 @@ const Hero = () => {
           className="space-y-6 max-w-4xl"
         >
           <motion.div
+            className="flex flex-col items-center"
             initial="hidden"
             animate="visible"
             variants={{
@@ -39,11 +44,10 @@ const Hero = () => {
               visible: {
                 opacity: 1,
                 transition: {
-                  staggerChildren: 0.08, // Faster stagger
+                  staggerChildren: 0.08,
                 }
               }
             }}
-            className="flex flex-col items-center"
           >
             <h1 className="text-6xl md:text-8xl lg:text-[10rem] font-black tracking-tighter text-white leading-none mix-blend-overlay opacity-90 uppercase">
               {"HUELLAS".split("").map((char, i) => (
@@ -94,7 +98,7 @@ const Hero = () => {
           className="mt-12 flex flex-col sm:flex-row gap-6"
         >
           <Button
-            onClick={() => navigate("/auth")}
+            onClick={onStart ? onStart : () => navigate("/auth")}
             className="bg-white text-black hover:bg-white/90 text-lg h-14 px-10 rounded-full font-bold transition-all duration-300 hover:scale-105 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]"
           >
             Comenzar

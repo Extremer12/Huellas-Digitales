@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Trash2, Edit, User, Heart, PawPrint, LogOut, Home, MapPin, AlertTriangle, MessageCircle, Bell, BellOff, Plus, Settings, Calendar, Mail, Camera, Loader2 } from "lucide-react";
+import { Trash2, Edit, User, Heart, PawPrint, LogOut, Home, MapPin, AlertTriangle, MessageCircle, Bell, BellOff, Plus, Settings, Calendar, Mail, Camera, Loader2, Building2 } from "lucide-react";
 import RegionSelector from "@/components/RegionSelector";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -375,6 +375,21 @@ const Profile = () => {
               </Button>
             </div>
           </div>
+
+          {!profile?.is_verified_org && (
+            <div className="mt-8 p-6 rounded-[2rem] bg-primary/5 border border-primary/10 flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Building2 className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-lg">¿Eres una Veterinaria, Refugio u ONG?</h4>
+                  <p className="text-sm text-muted-foreground">Verifica tu perfil para aparecer en el mapa y generar confianza.</p>
+                </div>
+              </div>
+              <OrgRequestModal />
+            </div>
+          )}
         </section>
 
         {/* INTERACTIVE STATS GRID */}

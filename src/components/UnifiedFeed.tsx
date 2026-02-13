@@ -286,14 +286,14 @@ const UnifiedFeed = ({ onOpenWizard }: UnifiedFeedProps) => {
             {/* Quick Actions & Feed Grid */}
             <div className="container mx-auto px-4 py-6">
 
-                {/* Unified Publish Action */}
+                {/* Unified Compartir Action */}
                 <div className="flex justify-center mb-8">
                     <Button
                         onClick={() => onOpenWizard?.(null)}
                         className="rounded-full h-14 px-10 shadow-xl shadow-primary/20 hover:scale-105 transition-all font-black uppercase tracking-widest bg-primary hover:bg-primary/90 text-primary-foreground"
                     >
                         <Plus className="w-6 h-6 mr-3" />
-                        Comenzar a Publicar
+                        Compartir una Huella
                     </Button>
                 </div>
 

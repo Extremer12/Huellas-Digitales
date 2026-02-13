@@ -10,9 +10,18 @@ import { useToast } from "@/hooks/use-toast";
 import { MapPin, PlusCircle } from "lucide-react";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 
-export default function OrgRequestModal() {
+interface OrgRequestModalProps {
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
+    trigger?: React.ReactNode;
+}
+
+export default function OrgRequestModal({ open: externalOpen, onOpenChange: externalOnOpenChange, trigger }: OrgRequestModalProps) {
+    const [internalOpen, setInternalOpen] = useState(false);
+    const open = externalOpen !== undefined ? externalOpen : internalOpen;
+    const setOpen = externalOnOpenChange !== undefined ? externalOnOpenChange : setInternalOpen;
+
     const { toast } = useToast();
-    const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
