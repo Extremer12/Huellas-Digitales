@@ -54,8 +54,14 @@ const ZionCodeInfo = () => {
                     className="flex flex-col items-center gap-1 group"
                     title="TikTok"
                 >
-                    <div className="p-3 rounded-xl bg-[#000000] text-white group-hover:scale-110 group-hover:opacity-90 transition-all shadow-lg">
-                        <Music2 className="w-5 h-5" />
+                    <div className="p-3 rounded-xl bg-[#000000] text-white group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(255,0,80,0.5)] transition-all shadow-lg flex items-center justify-center">
+                        <svg
+                            viewBox="0 0 24 24"
+                            className="w-5 h-5 fill-current"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.01.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.17-2.89-.6-4.13-1.47V18.5c0 1.91-1.1 3.83-2.94 4.6-1.84.77-4.14.33-5.51-1.03-1.37-1.36-1.81-3.66-1.04-5.5.77-1.84 2.69-2.94 4.6-2.94.39 0 .78.04 1.16.12-.03-1.49-.03-2.98-.03-4.47-2.52-.31-5.06.84-6.3 3.03-1.24 2.19-.88 5.03.88 6.79 1.76 1.76 4.6 2.12 6.79.88 1.19-.68 2.06-1.78 2.44-3.08V0l.85.02Z" />
+                        </svg>
                     </div>
                 </a>
 
