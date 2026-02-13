@@ -10,7 +10,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Dog, Cat, PawPrint, Filter, Search, AlertTriangle, Heart, Loader2 } from "lucide-react";
+import { Dog, Cat, PawPrint, Filter, Search, AlertTriangle, Heart, Loader2, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Database } from "@/integrations/supabase/types";
 
