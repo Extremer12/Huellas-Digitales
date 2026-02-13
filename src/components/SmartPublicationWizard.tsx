@@ -330,6 +330,24 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
                     {/* LOST LOGIC (MAP) */}
                     {type === "perdido" && (
                         <div className="space-y-4">
+                            <div className="flex items-center justify-between gap-2">
+                                <Label>Punto del Encuentro (Mapa)</Label>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 text-[10px] font-bold uppercase tracking-wider gap-1.5"
+                                    onClick={() => {
+                                        if (navigator.geolocation) {
+                                            navigator.geolocation.getCurrentPosition((pos) => {
+                                                setFormData(prev => ({ ...prev, lat: pos.coords.latitude, lng: pos.coords.longitude }));
+                                                toast({ title: "Ubicación detectada", description: "El pin se ha movido a tu posición actual." });
+                                            });
+                                        }
+                                    }}
+                                >
+                                    <MapPin className="w-3 h-3 text-primary" /> Usar mi ubicación actual
+                                </Button>
+                            </div>
                             <div className="rounded-xl overflow-hidden h-[300px] border relative group">
                                 <MapContainer center={[formData.lat, formData.lng]} zoom={13} style={{ height: "100%", width: "100%" }}>
                                     <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />

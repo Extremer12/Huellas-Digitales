@@ -26,6 +26,7 @@ const Index = () => {
   const [viewLanding, setViewLanding] = useState(true);
   const [loadingUser, setLoadingUser] = useState(true);
   const [showWizard, setShowWizard] = useState(false);
+  const [showRoleSelection, setShowRoleSelection] = useState(false);
   const [stats, setStats] = useState({
     users: 0,
     animals: 0,
@@ -134,9 +135,6 @@ const Index = () => {
       </div>
     );
   }
-
-  // LANDING MODE
-  const [showRoleSelection, setShowRoleSelection] = useState(false);
 
   const handleStart = () => {
     setShowRoleSelection(true);
