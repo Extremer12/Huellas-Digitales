@@ -39,6 +39,7 @@ const App = () => {
                   <Route path="/mapa" element={<InteractiveMap />} />
                   {/* Pet Detail Route can assist both adoption and lost pets */}
                   <Route path="/mascota/:id" element={<PetDetail />} />
+                  <Route path="/pet/:id" element={<PetDetail />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
