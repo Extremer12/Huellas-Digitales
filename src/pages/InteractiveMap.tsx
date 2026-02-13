@@ -13,7 +13,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { MapPin, Navigation, Layers, Filter } from "lucide-react";
+import { MapPin, Navigation, Layers, Filter, Search } from "lucide-react";
 import CustomMarker from "@/components/map/CustomMarker";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -169,7 +169,7 @@ const InteractiveMap = () => {
                 lat: o.location_lat!,
                 lng: o.location_lng!,
                 title: o.name,
-                subtitle: o.type === "veterinaria" ? "Veterinaria" : "Refugio / Organización",
+                subtitle: o.type === "vet" ? "Veterinaria" : "Refugio / Organización",
                 image_url: o.logo_url,
             }));
 

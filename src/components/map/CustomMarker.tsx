@@ -12,9 +12,10 @@ interface CustomMarkerProps {
     title: string;
     id: string;
     onClick?: () => void;
+    children?: React.ReactNode;
 }
 
-const CustomMarker = ({ position, image, type, title, id, onClick }: CustomMarkerProps) => {
+const CustomMarker = ({ position, image, type, title, id, onClick, children }: CustomMarkerProps) => {
     const navigate = useNavigate();
 
     const getBorderColor = () => {
@@ -60,24 +61,26 @@ const CustomMarker = ({ position, image, type, title, id, onClick }: CustomMarke
                 click: () => onClick && onClick()
             }}
         >
-            <Popup>
-                <div className="text-center p-2 min-w-[150px]">
-                    <div className="w-16 h-16 mx-auto rounded-full overflow-hidden mb-2 border-2 border-muted">
-                        <img src={image || '/placeholder.svg'} alt={title} className="w-full h-full object-cover" />
+            {children || (
+                <Popup>
+                    <div className="text-center p-2 min-w-[150px]">
+                        <div className="w-16 h-16 mx-auto rounded-full overflow-hidden mb-2 border-2 border-muted">
+                            <img src={image || '/placeholder.svg'} alt={title} className="w-full h-full object-cover" />
+                        </div>
+                        <h3 className="font-bold text-lg mb-1">{title}</h3>
+                        <Badge variant="outline" className="mb-3 capitalize">{type}</Badge>
+                        <br />
+                        {type !== 'veterinaria' && type !== 'refugio' && (
+                            <button
+                                onClick={() => navigate(`/mascota/${id}`)}
+                                className="bg-primary text-primary-foreground text-xs px-3 py-1.5 rounded-full hover:bg-primary/90 transition-colors mt-2"
+                            >
+                                Ver Detalles
+                            </button>
+                        )}
                     </div>
-                    <h3 className="font-bold text-lg mb-1">{title}</h3>
-                    <Badge variant="outline" className="mb-3 capitalize">{type}</Badge>
-                    <br />
-                    {type !== 'veterinaria' && type !== 'refugio' && (
-                        <button
-                            onClick={() => navigate(`/mascota/${id}`)}
-                            className="bg-primary text-primary-foreground text-xs px-3 py-1.5 rounded-full hover:bg-primary/90 transition-colors mt-2"
-                        >
-                            Ver Detalles
-                        </button>
-                    )}
-                </div>
-            </Popup>
+                </Popup>
+            )}
         </Marker>
     );
 };

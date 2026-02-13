@@ -99,13 +99,6 @@ const Hero = () => {
           >
             Comenzar
           </Button>
-          <Button
-            onClick={() => navigate("/mapa")}
-            variant="outline"
-            className="border-white/20 text-white hover:bg-white/10 text-lg h-14 px-10 rounded-full backdrop-blur-md transition-all duration-300 hover:scale-105 hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:border-white/40"
-          >
-            Ver Mapa <ArrowRight className="ml-2 w-5 h-5" />
-          </Button>
         </motion.div>
 
       </div>

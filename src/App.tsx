@@ -17,6 +17,8 @@ const Adopcion = lazy(() => import("./pages/Adopcion"));
 const Perdidos = lazy(() => import("./pages/Perdidos"));
 const InteractiveMap = lazy(() => import("./pages/InteractiveMap"));
 const PetDetail = lazy(() => import("./components/PetDetail"));
+const Admin = lazy(() => import("./pages/Admin"));
+const Historias = lazy(() => import("./pages/Historias"));
 
 const queryClient = new QueryClient();
 
@@ -40,6 +42,8 @@ const App = () => {
                   {/* Pet Detail Route can assist both adoption and lost pets */}
                   <Route path="/mascota/:id" element={<PetDetail />} />
                   <Route path="/pet/:id" element={<PetDetail />} />
+                  <Route path="/admin" element={<Admin />} />
+                  <Route path="/historias" element={<Historias />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
