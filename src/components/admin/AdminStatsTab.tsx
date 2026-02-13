@@ -1,4 +1,4 @@
-import { Users, FileText, CheckCircle, Shield } from "lucide-react";
+import { Users, FileText, CheckCircle, Shield, AlertTriangle } from "lucide-react";
 import { StatsCard } from "./AdminSharedComponents";
 
 interface AdminStatsProps {
@@ -8,6 +8,7 @@ interface AdminStatsProps {
         storyReports: number;
         citizenReports: number;
         organizations: number;
+        flaggedAnimals: number;
     };
 }
 
@@ -45,6 +46,14 @@ export const AdminStatsTab = ({ stats }: AdminStatsProps) => {
                 color="text-amber-600"
                 bg="bg-amber-600/10"
                 desc="Avisos de maltrato/emergencia"
+            />
+            <StatsCard
+                title="Contenido Oculto"
+                value={stats.flaggedAnimals || 0}
+                icon={AlertTriangle}
+                color="text-red-600"
+                bg="bg-red-600/10"
+                desc="Auto-moderados por reportes"
             />
         </div>
     );

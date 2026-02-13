@@ -42,7 +42,8 @@ const Admin = () => {
     reports: 0,
     storyReports: 0,
     citizenReports: 0,
-    organizations: 0
+    organizations: 0,
+    flaggedAnimals: 0
   });
 
   const [reports, setReports] = useState<Report[]>([]);
@@ -106,12 +107,15 @@ const Admin = () => {
     const { count: citizenReportsCount } = await supabase.from("citizen_reports").select("*", { count: 'exact', head: true }).eq("status", "pending");
     const { count: orgsCount } = await supabase.from("organizations").select("*", { count: 'exact', head: true });
 
+    const { count: flaggedCount } = await supabase.from("animals").select("*", { count: 'exact', head: true }).eq("status", "flagged");
+
     setStats({
       users: usersCount || 0,
       reports: reportsCount || 0,
       storyReports: storyReportsCount || 0,
       citizenReports: citizenReportsCount || 0,
-      organizations: orgsCount || 0
+      organizations: orgsCount || 0,
+      flaggedAnimals: flaggedCount || 0
     });
   };
 

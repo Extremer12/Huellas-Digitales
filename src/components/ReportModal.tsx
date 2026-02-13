@@ -33,7 +33,7 @@ const ReportModal = ({ animalId, onClose }: ReportModalProps) => {
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user) {
         toast({
           title: "Error de autenticación",
@@ -42,6 +42,23 @@ const ReportModal = ({ animalId, onClose }: ReportModalProps) => {
         });
         setLoading(false);
         return;
+      }
+
+      // Capture metadata for "Intelligent Moderation"
+      let ip = "unknown";
+      try {
+        const ipRes = await fetch('https://api.ipify.org?format=json');
+        const ipData = await ipRes.json();
+        ip = ipData.ip;
+      } catch (e) {
+        console.warn("Could not capture IP", e);
+      }
+
+      // Simple fingerprint (stored in browser)
+      let fingerprint = localStorage.getItem('hd_fingerprint');
+      if (!fingerprint) {
+        fingerprint = Math.random().toString(36).substring(2) + Date.now().toString(36);
+        localStorage.setItem('hd_fingerprint', fingerprint);
       }
 
       // Check for duplicate report
@@ -62,16 +79,19 @@ const ReportModal = ({ animalId, onClose }: ReportModalProps) => {
         return;
       }
 
-      const { error } = await supabase
+      // Note: We use any here because we are injecting new columns (ip_address) 
+      // that might not be in the generated types yet
+      const { error } = await (supabase as any)
         .from("reports")
         .insert({
           animal_id: animalId,
           reporter_user_id: user.id,
           reason: reason.trim(),
+          ip_address: ip,
+          device_fingerprint: fingerprint
         });
 
       if (error) {
-        // Check if error is due to unique constraint
         if (error.code === '23505') {
           toast({
             title: "Reporte duplicado",
@@ -87,7 +107,7 @@ const ReportModal = ({ animalId, onClose }: ReportModalProps) => {
 
       toast({
         title: "Reporte enviado",
-        description: "Gracias por ayudarnos a mantener la comunidad segura",
+        description: "Gracias por ayudarnos a mantener la comunidad segura. Si hay múltiples reportes, la publicación será revisada automáticamente.",
       });
 
       onClose();

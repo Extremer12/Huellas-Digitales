@@ -8,7 +8,7 @@ const Historias = () => {
     useScrollAnimation();
 
     return (
-        <div className="min-h-screen bg-[#fafaf8]">
+        <div className="min-h-screen bg-background">
             <Header />
             <main className="pt-20">
                 <section className="relative py-24 overflow-hidden">

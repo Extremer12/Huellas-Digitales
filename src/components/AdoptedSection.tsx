@@ -142,7 +142,7 @@ const AdoptedSection = () => {
     }
   };
   return (
-    <section id="adoptados" className="py-24 bg-[#fafaf8] scroll-reveal overflow-hidden">
+    <section id="adoptados" className="py-24 bg-background scroll-reveal overflow-hidden">
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
           <div className="space-y-4">
@@ -166,7 +166,7 @@ const AdoptedSection = () => {
         </div>
 
         {stories.length === 0 ? (
-          <div className="text-center py-24 bg-white rounded-[3rem] border border-primary/10 shadow-sm">
+          <div className="text-center py-24 bg-card rounded-[3rem] border border-primary/10 shadow-sm transition-all duration-300">
             <div className="w-20 h-20 bg-primary/5 rounded-full flex items-center justify-center mx-auto mb-6">
               <Heart className="w-10 h-10 text-primary/30" />
             </div>
@@ -220,7 +220,7 @@ const AdoptedSection = () => {
                       )}
                     </div>
 
-                    <CardContent className="p-8 relative bg-white">
+                    <CardContent className="p-8 relative bg-card">
                       <div className="absolute -top-6 right-8 w-12 h-12 bg-primary rounded-full flex items-center justify-center shadow-lg transform transition-transform group-hover:scale-110 group-hover:rotate-12">
                         <Heart className="w-6 h-6 text-white fill-white" />
                       </div>

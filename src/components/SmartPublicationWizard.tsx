@@ -140,7 +140,42 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
         setLoading(true);
         try {
             const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error("No autenticado");
+            if (!user) throw new Error("No user found");
+
+            // Rate Limiting: Check if user has posted something in the last 5 minutes
+            const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+            const { data: recentPosts } = await supabase
+                .from("animals")
+                .select("id")
+                .eq("user_id", user.id)
+                .gt("created_at", fiveMinutesAgo);
+
+            if (recentPosts && recentPosts.length > 0) {
+                toast({
+                    title: "Publicación demasiado frecuente",
+                    description: "Por favor espera unos minutos antes de publicar de nuevo.",
+                    variant: "destructive"
+                });
+                setIsSubmitting(false);
+                return;
+            }
+
+            // Check if user is banned
+            const { data: profile } = await supabase
+                .from("profiles")
+                .select("is_banned")
+                .eq("id", user.id)
+                .maybeSingle();
+
+            if ((profile as any)?.is_banned) {
+                toast({
+                    title: "Cuenta restringida",
+                    description: "No tienes permisos para publicar debido a múltiples reportes.",
+                    variant: "destructive"
+                });
+                setLoading(false);
+                return;
+            }
 
             // 1. Upload Images
             const uploadedUrls: string[] = [];

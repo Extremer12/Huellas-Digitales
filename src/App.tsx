@@ -19,6 +19,7 @@ const InteractiveMap = lazy(() => import("./pages/InteractiveMap"));
 const PetDetail = lazy(() => import("./components/PetDetail"));
 const Admin = lazy(() => import("./pages/Admin"));
 const Historias = lazy(() => import("./pages/Historias"));
+const Messages = lazy(() => import("./pages/Messages"));
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ const App = () => {
                   <Route path="/pet/:id" element={<PetDetail />} />
                   <Route path="/admin" element={<Admin />} />
                   <Route path="/historias" element={<Historias />} />
+                  <Route path="/messages" element={<Messages />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
