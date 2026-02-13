@@ -17,7 +17,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import PublicationForm from "@/components/PublicationForm";
-import ChatList from "@/components/ChatList";
 import { useNotifications } from "@/hooks/useNotifications";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import Footer from "@/components/Footer";
@@ -409,9 +408,6 @@ const Profile = () => {
                 <TabsTrigger value="stories" className="rounded-xl px-8 h-full font-bold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground shadow-none transition-all">
                   Historias
                 </TabsTrigger>
-                <TabsTrigger value="chats" className="rounded-xl px-8 h-full font-bold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground shadow-none transition-all">
-                  Mensajes
-                </TabsTrigger>
               </TabsList>
 
               <Button
@@ -436,7 +432,7 @@ const Profile = () => {
               ) : (
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
                   {animals.map((animal) => (
-                  <Card key={animal.id} className="group overflow-hidden rounded-[2.5rem] border-none bg-card/80 shadow-2xl hover:shadow-primary/5 transition-all duration-500">
+                    <Card key={animal.id} className="group overflow-hidden rounded-[2.5rem] border-none bg-card/80 shadow-2xl hover:shadow-primary/5 transition-all duration-500">
                       <div className="relative aspect-[16/10] overflow-hidden">
                         <img src={animal.image_url} alt={animal.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
                         <div className="absolute top-4 right-4 z-20">
@@ -507,24 +503,6 @@ const Profile = () => {
             </TabsContent>
 
 
-            <TabsContent value="chats" className="pt-4 outline-none">
-              <div className="bg-card/40 rounded-[3rem] border border-primary/5 shadow-xl overflow-hidden">
-                <div className="p-10 border-b border-primary/5 bg-gradient-to-r from-primary/5 to-transparent">
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20">
-                      <MessageCircle className="w-7 h-7 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-3xl font-black tracking-tight text-foreground">Bandeja de Entrada</h3>
-                      <p className="text-muted-foreground font-medium">Gestiona tus conversaciones y procesos de adopción.</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-0">
-                  {user && <ChatList userId={user.id} />}
-                </div>
-              </div>
-            </TabsContent>
           </Tabs>
         </div>
       </main>

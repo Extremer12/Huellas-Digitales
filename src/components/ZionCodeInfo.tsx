@@ -52,7 +52,7 @@ const ZionCodeInfo = ({ compact = false }: ZionCodeInfoProps) => {
                 </a>
 
                 <a
-                    href="https://tiktok.com/@zioncode"
+                    href="https://tiktok.com/@zioncode.ar"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex flex-col items-center gap-1 group"
@@ -70,7 +70,7 @@ const ZionCodeInfo = ({ compact = false }: ZionCodeInfoProps) => {
                 </a>
 
                 <a
-                    href="mailto:info@zioncode.com"
+                    href="mailto:zioncode25@gmail.com"
                     className="flex flex-col items-center gap-1 group"
                     title="Email"
                 >

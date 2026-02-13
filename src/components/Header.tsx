@@ -257,60 +257,74 @@ const Header = ({ minimal = false }: HeaderProps) => {
 
                   <div className="h-px bg-border my-4"></div>
 
-                  {isAuthenticated ? (
-                    <>
-                      <Button
-                        onClick={() => { navigate("/profile?tab=chats"); setIsOpen(false); }}
-                        variant="ghost"
-                        className="justify-start text-lg h-12 hover:bg-primary/10"
-                      >
-                        <MessageSquare className="w-5 h-5 mr-3 text-primary" />
-                        Mensajes
-                      </Button>
+                  <div className="flex flex-col gap-4 mt-2">
+                    {isAuthenticated ? (
+                      <div className="space-y-6">
+                        {/* User Actions Section */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <Button
+                            onClick={() => { navigate("/messages"); setIsOpen(false); }}
+                            variant="secondary"
+                            className="flex flex-col items-center justify-center h-24 rounded-3xl gap-2 bg-primary/5 border border-primary/10 hover:bg-primary/10 transition-all group"
+                          >
+                            <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                              <MessageSquare className="w-5 h-5 text-primary" />
+                            </div>
+                            <span className="text-xs font-bold uppercase tracking-widest">Chat</span>
+                          </Button>
 
-                      <Button
-                        onClick={handleProfile}
-                        variant="ghost"
-                        className="justify-start text-lg h-12 hover:bg-primary/10"
-                      >
-                        <User className="w-5 h-5 mr-3" />
-                        Mi Perfil
-                      </Button>
+                          <Button
+                            onClick={handleProfile}
+                            variant="secondary"
+                            className="flex flex-col items-center justify-center h-24 rounded-3xl gap-2 bg-primary/5 border border-primary/10 hover:bg-primary/10 transition-all group"
+                          >
+                            <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                              <User className="w-5 h-5 text-primary" />
+                            </div>
+                            <span className="text-xs font-bold uppercase tracking-widest">Perfil</span>
+                          </Button>
+                        </div>
 
-                      {isAdmin && (
+                        {isAdmin && (
+                          <Button
+                            onClick={() => { navigate("/admin"); setIsOpen(false); }}
+                            variant="ghost"
+                            className="w-full justify-start text-lg h-14 rounded-2xl hover:bg-primary/10 group"
+                          >
+                            <Shield className="w-5 h-5 mr-4 text-primary" />
+                            Administración
+                          </Button>
+                        )}
+
+                        <div className="pt-4 border-t border-primary/5">
+                          {/* Zion Code / Dev Info Section */}
+                          <ZionCodeInfo compact />
+                        </div>
+
+                        <div className="sticky bottom-0 pt-4 pb-2 bg-card">
+                          <Button
+                            onClick={handleAuth}
+                            variant="destructive"
+                            className="w-full h-14 rounded-2xl font-black uppercase tracking-widest shadow-lg shadow-destructive/20 hover:scale-[1.02] transition-all"
+                          >
+                            <LogOut className="w-5 h-5 mr-3" />
+                            Cerrar Sesión
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-6">
+                        <ZionCodeInfo compact />
                         <Button
-                          onClick={() => { navigate("/admin"); setIsOpen(false); }}
-                          variant="ghost"
-                          className="justify-start text-lg h-12 hover:bg-primary/10"
+                          onClick={handleAuth}
+                          className="w-full h-14 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground font-black uppercase tracking-widest shadow-xl shadow-primary/20"
                         >
-                          <Shield className="w-5 h-5 mr-3" />
-                          Administración
+                          <LogIn className="w-5 h-5 mr-3" />
+                          Iniciar Sesión
                         </Button>
-                      )}
-
-                      <div className="h-px bg-border my-2"></div>
-
-                      {/* Zion Code / Dev Info Section */}
-                      <ZionCodeInfo compact />
-
-                      <Button
-                        onClick={handleAuth}
-                        variant="destructive"
-                        className="mt-4 h-12"
-                      >
-                        <LogOut className="w-5 h-5 mr-3" />
-                        Cerrar Sesión
-                      </Button>
-                    </>
-                  ) : (
-                    <Button
-                      onClick={handleAuth}
-                      className="mt-4 h-12 bg-primary hover:bg-primary/90"
-                    >
-                      <LogIn className="w-5 h-5 mr-3" />
-                      Iniciar Sesión
-                    </Button>
-                  )}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </SheetContent>
             </Sheet>

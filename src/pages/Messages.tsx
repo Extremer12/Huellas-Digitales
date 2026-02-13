@@ -195,49 +195,54 @@ const Messages = () => {
   return (
     <div className="h-screen bg-background overflow-hidden flex flex-col">
       <Header />
-      <div className="flex-1 flex overflow-hidden pt-20"> {/* PT-20 to account for fixed header */}
-        <div className="w-full max-w-[1600px] mx-auto flex h-[calc(100vh-80px)] shadow-2xl overflow-hidden bg-card">
+      <div className="flex-1 flex overflow-hidden lg:pt-20"> {/* PT-20 for fixed header on desktop */}
+        <div className="w-full max-w-[1600px] mx-auto flex h-full lg:h-[calc(100vh-100px)] lg:rounded-[3rem] lg:my-4 shadow-2xl overflow-hidden bg-card border border-primary/5">
           {/* Sidebar */}
-          <div className={`w-full md:w-[400px] border-r border-border flex flex-col bg-muted/10 ${selectedConversation ? 'hidden md:flex' : 'flex'}`}>
+          <div className={`w-full md:w-[400px] border-r border-border flex flex-col bg-muted/5 ${selectedConversation ? 'hidden md:flex' : 'flex'}`}>
             {/* Sidebar Header */}
-            <div className="h-16 px-4 border-b border-border flex items-center justify-between bg-muted/20">
-              <h2 className="text-xl font-bold">Mensajes</h2>
+            <div className="h-24 px-8 border-b border-border flex items-center justify-between bg-gradient-to-br from-primary/5 to-transparent">
+              <div>
+                <h2 className="text-3xl font-black tracking-tight">Chats</h2>
+                <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em]">Bandeja de Entrada</p>
+              </div>
               <div className="flex gap-2">
-                {/* Future buttons like status, new chat, menu could go here */}
+                <Button variant="ghost" size="icon" className="rounded-xl hover:bg-primary/10">
+                  <User className="w-5 h-5 text-muted-foreground" />
+                </Button>
               </div>
             </div>
 
-            {/* Search Bar */}
-            <div className="p-3 border-b border-border">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            {/* Search Bar - Premium Style */}
+            <div className="p-6">
+              <div className="relative group">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                 <input
                   type="text"
-                  placeholder="Buscar o empezar un nuevo chat"
-                  className="w-full pl-9 pr-4 py-2 rounded-lg bg-muted text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+                  placeholder="Buscar conversaciones..."
+                  className="w-full pl-12 pr-4 py-4 rounded-2xl bg-muted/50 border border-transparent focus:border-primary/20 focus:bg-background transition-all outline-none text-sm font-medium"
                 />
               </div>
             </div>
 
             {/* Conversations List */}
-            <ScrollArea className="flex-1">
+            <ScrollArea className="flex-1 px-3">
               {loading ? (
-                <div className="flex flex-col items-center justify-center py-10 gap-2">
-                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                  <p className="text-sm text-muted-foreground">Cargando chats...</p>
+                <div className="flex flex-col items-center justify-center py-20 gap-3">
+                  <Loader2 className="w-8 h-8 animate-spin text-primary opacity-20" />
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Sincronizando...</p>
                 </div>
               ) : conversations.length === 0 ? (
-                <div className="p-8 text-center">
-                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <MessageCircle className="w-8 h-8 text-primary" />
+                <div className="px-8 py-20 text-center">
+                  <div className="w-20 h-20 bg-primary/5 rounded-3xl flex items-center justify-center mx-auto mb-6 rotate-3">
+                    <MessageCircle className="w-10 h-10 text-primary/30" />
                   </div>
-                  <h3 className="font-semibold mb-2">No tienes mensajes</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Contacta a alguien en la sección de Adopción para comenzar.
+                  <h3 className="text-lg font-bold mb-2">Sin conversaciones</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Las personas interesadas en tus mascotas aparecerán aquí.
                   </p>
                 </div>
               ) : (
-                <div className="flex flex-col">
+                <div className="flex flex-col gap-1 pb-10">
                   {conversations.map((conv) => {
                     const isUnread = (conv.unread_count || 0) > 0;
                     const dateStr = formatConversationDate(conv.updated_at);
@@ -247,56 +252,55 @@ const Messages = () => {
                       <div
                         key={conv.id}
                         onClick={() => setSelectedConversation(conv)}
-                        className={`group px-4 py-3 cursor-pointer transition-colors relative flex gap-3 items-center border-b border-border/40 hover:bg-muted/30 ${isSelected ? 'bg-muted/50' : ''
+                        className={`group px-4 py-4 cursor-pointer transition-all relative flex gap-4 items-center rounded-[2rem] hover:bg-primary/5 ${isSelected ? 'bg-primary/10' : ''
                           }`}
                       >
                         <div className="relative flex-shrink-0">
-                          <Avatar className="h-12 w-12">
+                          <Avatar className="h-14 w-14 rounded-2xl border-2 border-background shadow-md">
                             <AvatarImage src={conv.other_user_avatar || undefined} className="object-cover" />
-                            <AvatarFallback className="bg-primary/10 text-primary font-bold">
+                            <AvatarFallback className="bg-primary/10 text-primary font-black text-xl">
                               {conv.other_user_name?.charAt(0).toUpperCase() || 'U'}
                             </AvatarFallback>
                           </Avatar>
-                          {/* Online status indicator mock - could be real later */}
+                          {isUnread && (
+                            <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full border-2 border-background animate-pulse" />
+                          )}
                         </div>
 
-                        <div className="flex-1 min-w-0 flex flex-col justify-center">
-                          <div className="flex justify-between items-baseline mb-0.5">
-                            <h3 className="font-medium truncate text-foreground text-[15px]">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex justify-between items-baseline mb-1">
+                            <h3 className="font-bold truncate text-foreground">
                               {conv.other_user_name}
                             </h3>
-                            <span className={`text-[11px] ${isUnread ? 'text-primary font-bold' : 'text-muted-foreground'}`}>
+                            <span className={`text-[10px] font-bold ${isUnread ? 'text-primary' : 'text-muted-foreground/50'}`}>
                               {dateStr}
                             </span>
                           </div>
 
-                          <div className="flex justify-between items-center">
-                            <p className={`text-[13px] truncate pr-2 ${isUnread ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
-                              {/* Checkmark icon for own last message logic could go here */}
-                              {conv.last_message ? conv.last_message : <span className="italic opacity-70">Imagen o adjunto</span>}
+                          <div className="flex flex-col gap-0.5">
+                            <p className={`text-[13px] truncate ${isUnread ? 'text-foreground font-bold' : 'text-muted-foreground'}`}>
+                              {conv.last_message || <span className="italic opacity-50">Multimeda</span>}
                             </p>
-                            {isUnread && (
-                              <span className="bg-primary text-primary-foreground text-[10px] font-bold h-5 min-w-[20px] px-1.5 flex items-center justify-center rounded-full">
-                                {conv.unread_count}
-                              </span>
-                            )}
-                            {/* Hidden delete button that shows on hover */}
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="w-7 h-7 absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-background/50 backdrop-blur-sm shadow-sm hover:bg-destructive hover:text-destructive-foreground"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setDeleteConfirm(conv.id);
-                              }}
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </Button>
+                            <div className="flex items-center gap-1.5 overflow-hidden">
+                              <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-primary/20 text-primary bg-primary/5 font-bold uppercase truncate max-w-[120px]">
+                                {conv.animal_name}
+                              </Badge>
+                            </div>
                           </div>
-                          <p className="text-[11px] text-muted-foreground/70 truncate mt-0.5">
-                            Interesado en: {conv.animal_name}
-                          </p>
                         </div>
+
+                        {/* Hover Action */}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="w-10 h-10 rounded-xl absolute right-2 opacity-0 group-hover:opacity-100 transition-all hover:bg-destructive hover:text-white"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDeleteConfirm(conv.id);
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </div>
                     );
                   })}
@@ -315,11 +319,6 @@ const Messages = () => {
 
             {selectedConversation ? (
               <div className="flex-1 flex flex-col h-full relative z-10">
-                {/* New ChatWindow Header is handled internally if 'embedded' is true? 
-                            Actually, the current ChatWindow 'embedded' mode brings its own header. 
-                            Let's rely on ChatWindow but maybe we need to tweak it to match the WhatsApp style 100%.
-                            For now, let's pass a prop or rely on the embedded mode styling.
-                        */}
                 <div className="h-full w-full">
                   <ChatWindow
                     conversationId={selectedConversation.id}
@@ -335,17 +334,22 @@ const Messages = () => {
               </div>
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center text-center p-10 bg-muted/5 z-10 relative">
-                <div className="w-64 h-64 bg-primary/5 rounded-full flex items-center justify-center mb-6 animate-pulse">
-                  <MessageCircle className="w-32 h-32 text-primary/20" />
+                <div className="relative mb-10">
+                  <div className="w-48 h-48 bg-primary/5 rounded-[3rem] flex items-center justify-center mb-6 animate-pulse rotate-6 border border-primary/10">
+                    <MessageCircle className="w-24 h-24 text-primary/20 -rotate-6" />
+                  </div>
+                  <div className="absolute -bottom-4 -right-4 w-20 h-20 bg-primary/10 rounded-full blur-2xl" />
                 </div>
-                <h2 className="text-3xl font-light text-foreground mb-4">Huellas Digitales Web</h2>
-                <p className="text-muted-foreground max-w-md text-lg">
-                  Envía y recibe mensajes para adoptar a tu próxima mascota.
-                  Conecta directamente con refugios y dueños.
+
+                <h2 className="text-4xl font-black tracking-tighter text-foreground mb-4">Huellas Digitales Web</h2>
+                <p className="text-muted-foreground max-w-md text-lg font-medium leading-relaxed">
+                  Selecciona una conversación para comenzar a chatear.
+                  Conecta directamente con refugios y dueños para adoptar o reportar mascotas.
                 </p>
-                <div className="mt-8 flex items-center gap-2 text-sm text-muted-foreground">
-                  <Lock className="w-3 h-3" />
-                  <span>Protegido y seguro</span>
+
+                <div className="mt-12 flex items-center gap-3 px-6 py-3 rounded-full bg-primary/5 border border-primary/10 text-xs font-bold text-primary uppercase tracking-[0.2em]">
+                  <Lock className="w-4 h-4" />
+                  <span>Mensajería Privada y Segura</span>
                 </div>
               </div>
             )}
