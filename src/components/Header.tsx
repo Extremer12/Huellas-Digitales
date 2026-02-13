@@ -173,6 +173,17 @@ const Header = ({ minimal = false }: HeaderProps) => {
                   </Button>
                 )}
                 <Button
+                  onClick={() => navigate("/messages")}
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center gap-2 hover:bg-primary/10 hover:text-primary transition-colors"
+                  title="Mensajes"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  <span className="hidden lg:inline">Mensajes</span>
+                </Button>
+
+                <Button
                   onClick={handleProfile}
                   variant="ghost"
                   size="sm"
@@ -299,17 +310,6 @@ const Header = ({ minimal = false }: HeaderProps) => {
                         <div className="pt-4 border-t border-primary/5">
                           {/* Zion Code / Dev Info Section */}
                           <ZionCodeInfo compact />
-                        </div>
-
-                        <div className="sticky bottom-0 pt-4 pb-2 bg-card">
-                          <Button
-                            onClick={handleAuth}
-                            variant="destructive"
-                            className="w-full h-14 rounded-2xl font-black uppercase tracking-widest shadow-lg shadow-destructive/20 hover:scale-[1.02] transition-all"
-                          >
-                            <LogOut className="w-5 h-5 mr-3" />
-                            Cerrar Sesión
-                          </Button>
                         </div>
                       </div>
                     ) : (

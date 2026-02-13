@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import MarkerClusterGroup from "react-leaflet-cluster";
@@ -193,12 +193,29 @@ const InteractiveMap = () => {
         }
     };
 
+    const [zoom, setZoom] = useState(12);
+
+    const ZoomTracker = () => {
+        const map = useMapEvents({
+            zoomend: () => {
+                setZoom(map.getZoom());
+            },
+        });
+        return null;
+    };
+
     const applyFilters = () => {
         let result = items;
         if (!filters.pets) result = result.filter((i) => i.type !== "pet");
         if (!filters.orgs) result = result.filter((i) => i.type !== "org");
         if (!filters.reports) result = result.filter((i) => i.type !== "report");
-        setFilteredItems(result);
+
+        // Zoom threshold filtering
+        if (zoom < 8) {
+            setFilteredItems([]);
+        } else {
+            setFilteredItems(result);
+        }
     };
 
     return (
@@ -362,11 +379,24 @@ const InteractiveMap = () => {
                                     style={{ height: "100%", width: "100%" }}
                                     className="interactive-map-container"
                                 >
+                                    <ZoomTracker />
                                     <TileLayer
                                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                                         className="map-tiles"
                                     />
+                                    
+                                    {zoom < 8 && (
+                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[400]">
+                                            <div className="bg-background/80 backdrop-blur-md px-6 py-3 rounded-full border border-primary/20 shadow-xl animate-bounce">
+                                                <p className="text-sm font-bold text-primary flex items-center gap-2">
+                                                    <Search className="w-4 h-4" />
+                                                    Acerca el zoom para ver mascotas y veterinarias
+                                                </p>
+                                            </div>
+                                        </div>
+                                    )}
+
                                     <MarkerClusterGroup
                                         chunkedLoading
                                         iconCreateFunction={(cluster) => {

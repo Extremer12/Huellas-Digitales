@@ -195,7 +195,7 @@ const Messages = () => {
   return (
     <div className="h-screen bg-background overflow-hidden flex flex-col">
       <Header />
-      <div className="flex-1 flex overflow-hidden lg:pt-20"> {/* PT-20 for fixed header on desktop */}
+      <div className="flex-1 flex overflow-hidden pt-24"> {/* Increased PT-24 for fixed header safety on all devices */}
         <div className="w-full max-w-[1600px] mx-auto flex h-full lg:h-[calc(100vh-100px)] lg:rounded-[3rem] lg:my-4 shadow-2xl overflow-hidden bg-card border border-primary/5">
           {/* Sidebar */}
           <div className={`w-full md:w-[400px] border-r border-border flex flex-col bg-muted/5 ${selectedConversation ? 'hidden md:flex' : 'flex'}`}>
