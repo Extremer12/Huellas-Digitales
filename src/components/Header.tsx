@@ -260,6 +260,15 @@ const Header = ({ minimal = false }: HeaderProps) => {
                   {isAuthenticated ? (
                     <>
                       <Button
+                        onClick={() => { navigate("/profile?tab=chats"); setIsOpen(false); }}
+                        variant="ghost"
+                        className="justify-start text-lg h-12 hover:bg-primary/10"
+                      >
+                        <MessageSquare className="w-5 h-5 mr-3 text-primary" />
+                        Mensajes
+                      </Button>
+
+                      <Button
                         onClick={handleProfile}
                         variant="ghost"
                         className="justify-start text-lg h-12 hover:bg-primary/10"
@@ -282,7 +291,7 @@ const Header = ({ minimal = false }: HeaderProps) => {
                       <div className="h-px bg-border my-2"></div>
 
                       {/* Zion Code / Dev Info Section */}
-                      <ZionCodeInfo />
+                      <ZionCodeInfo compact />
 
                       <Button
                         onClick={handleAuth}
