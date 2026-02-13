@@ -11,6 +11,7 @@ import ChatHeader from "./chat/ChatHeader";
 import ChatMessage from "./chat/ChatMessage";
 import ChatInput from "./chat/ChatInput";
 import ChatEmptyState from "./chat/ChatEmptyState";
+import PublicProfileModal from "./PublicProfileModal";
 
 interface Message {
   id: string;
@@ -45,6 +46,7 @@ const ChatWindow = ({
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [showPublicProfile, setShowPublicProfile] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -167,8 +169,8 @@ const ChatWindow = ({
       <div className="flex flex-col h-full bg-background/30 backdrop-blur-sm">
         {/* Helper header with profile access */}
         <div className="h-16 px-4 py-2 border-b border-border/60 bg-muted/30 backdrop-blur-sm flex items-center justify-between shadow-sm z-20">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => otherUserId && navigate(`/profile?user=${otherUserId}`)}>
-            <Avatar className="h-10 w-10 cursor-pointer">
+          <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setShowPublicProfile(true)}>
+            <Avatar className="h-10 w-10 cursor-pointer ring-0 group-hover:ring-2 ring-primary/20 transition-all">
               <AvatarImage src={otherUserAvatar || undefined} alt={otherUserName} className="object-cover" />
               <AvatarFallback className="bg-muted text-muted-foreground font-semibold">
                 {otherUserName?.charAt(0).toUpperCase() || 'U'}
@@ -214,6 +216,11 @@ const ChatWindow = ({
         <div className="p-3 bg-muted/30 border-t border-border/60">
           <ChatInput onSend={sendMessage} disabled={loading} />
         </div>
+
+        <PublicProfileModal
+          userId={showPublicProfile ? (otherUserId || null) : null}
+          onClose={() => setShowPublicProfile(false)}
+        />
       </div>
     );
   }
