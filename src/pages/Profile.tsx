@@ -292,13 +292,13 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#fafaf8] dark:bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       <Header />
 
       <main className="flex-1 container max-w-6xl mx-auto px-4 py-12 lg:py-20 space-y-16 mt-4">
 
         {/* PREMIUM PROFILE HERO */}
-        <section className="relative overflow-hidden rounded-[3rem] bg-white dark:bg-card border border-primary/10 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.05)] p-8 md:p-12">
+        <section className="relative overflow-hidden rounded-[3rem] bg-card/40 backdrop-blur-md border border-primary/10 shadow-2xl p-8 md:p-12">
           {/* Decorative background elements */}
           <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/5 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/2 pointer-events-none" />
@@ -315,7 +315,7 @@ const Profile = () => {
                   className="hidden"
                 />
                 <div className="relative">
-                  <Avatar className="w-32 h-32 md:w-40 md:h-40 rounded-[2.5rem] border-8 border-white dark:border-background shadow-2xl cursor-pointer transition-all duration-500 group-hover:scale-[1.02] group-hover:rotate-2" onClick={() => avatarInputRef.current?.click()}>
+                  <Avatar className="w-32 h-32 md:w-40 md:h-40 rounded-[2.5rem] border-8 border-card shadow-2xl cursor-pointer transition-all duration-500 group-hover:scale-[1.02] group-hover:rotate-2" onClick={() => avatarInputRef.current?.click()}>
                     {profile?.avatar_url && <AvatarImage src={profile.avatar_url} alt="Avatar" className="object-cover" />}
                     <AvatarFallback className="text-4xl font-black bg-gradient-to-br from-primary to-primary/60 text-white">
                       {getInitials(user?.email)}
@@ -324,7 +324,7 @@ const Profile = () => {
                   <button
                     onClick={() => avatarInputRef.current?.click()}
                     disabled={uploadingAvatar}
-                    className="absolute -bottom-2 -right-2 w-12 h-12 bg-primary text-white rounded-2xl shadow-xl flex items-center justify-center transition-all hover:scale-110 active:scale-90 border-4 border-white dark:border-background"
+                    className="absolute -bottom-2 -right-2 w-12 h-12 bg-primary text-primary-foreground rounded-2xl shadow-xl flex items-center justify-center transition-all hover:scale-110 active:scale-90 border-4 border-card"
                   >
                     {uploadingAvatar ? <Loader2 className="w-5 h-5 animate-spin" /> : <Camera className="w-5 h-5" />}
                   </button>
@@ -386,7 +386,7 @@ const Profile = () => {
             { label: "Adoptados", value: stats.adoptado, icon: Heart, color: "bg-rose-500", text: "text-rose-500" },
             { label: "Historias", value: adoptionStories.length, icon: Calendar, color: "bg-amber-500", text: "text-amber-500" }
           ].map((stat, idx) => (
-            <div key={idx} className="bg-white dark:bg-card p-6 rounded-[2rem] border border-primary/5 shadow-sm hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group">
+            <div key={idx} className="bg-card/60 backdrop-blur-sm p-6 rounded-[2rem] border border-primary/5 shadow-sm hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group">
               <div className={`${stat.color}/10 ${stat.text} w-12 h-12 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
                 <stat.icon className="w-6 h-6" />
               </div>
@@ -402,14 +402,14 @@ const Profile = () => {
         <div className="space-y-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
-              <TabsList className="bg-muted/50 p-1 rounded-2xl h-14 border border-border/50">
-                <TabsTrigger value="animals" className="rounded-xl px-8 h-full font-bold data-[state=active]:bg-white data-[state=active]:text-primary dark:data-[state=active]:bg-background shadow-none transition-all">
+              <TabsList className="bg-card/50 p-1 rounded-2xl h-14 border border-border/50">
+                <TabsTrigger value="animals" className="rounded-xl px-8 h-full font-bold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground shadow-none transition-all">
                   Mascotas
                 </TabsTrigger>
-                <TabsTrigger value="stories" className="rounded-xl px-8 h-full font-bold data-[state=active]:bg-white data-[state=active]:text-primary dark:data-[state=active]:bg-background shadow-none transition-all">
+                <TabsTrigger value="stories" className="rounded-xl px-8 h-full font-bold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground shadow-none transition-all">
                   Historias
                 </TabsTrigger>
-                <TabsTrigger value="chats" className="rounded-xl px-8 h-full font-bold data-[state=active]:bg-white data-[state=active]:text-primary dark:data-[state=active]:bg-background shadow-none transition-all">
+                <TabsTrigger value="chats" className="rounded-xl px-8 h-full font-bold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground shadow-none transition-all">
                   Mensajes
                 </TabsTrigger>
               </TabsList>
@@ -425,7 +425,7 @@ const Profile = () => {
 
             <TabsContent value="animals" className="pt-4 outline-none">
               {animals.length === 0 ? (
-                <div className="bg-white dark:bg-card border-2 border-dashed border-primary/10 rounded-[3rem] p-20 text-center space-y-6">
+                <div className="bg-card/40 border-2 border-dashed border-primary/10 rounded-[3rem] p-20 text-center space-y-6">
                   <div className="w-24 h-24 bg-primary/5 rounded-full flex items-center justify-center mx-auto">
                     <PawPrint className="w-12 h-12 text-primary/30" />
                   </div>
@@ -436,7 +436,7 @@ const Profile = () => {
               ) : (
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
                   {animals.map((animal) => (
-                    <Card key={animal.id} className="group overflow-hidden rounded-[2.5rem] border-none bg-white dark:bg-card shadow-[0_10px_30px_rgba(0,0,0,0.03)] hover:shadow-[0_20px_60px_rgba(0,0,0,0.08)] transition-all duration-500">
+                  <Card key={animal.id} className="group overflow-hidden rounded-[2.5rem] border-none bg-card/80 shadow-2xl hover:shadow-primary/5 transition-all duration-500">
                       <div className="relative aspect-[16/10] overflow-hidden">
                         <img src={animal.image_url} alt={animal.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
                         <div className="absolute top-4 right-4 z-20">
@@ -472,7 +472,7 @@ const Profile = () => {
 
             <TabsContent value="stories" className="pt-4 outline-none">
               {adoptionStories.length === 0 ? (
-                <div className="bg-white dark:bg-card border-2 border-dashed border-primary/10 rounded-[3rem] p-20 text-center space-y-6">
+                <div className="bg-card/40 border-2 border-dashed border-primary/10 rounded-[3rem] p-20 text-center space-y-6">
                   <div className="w-24 h-24 bg-rose-500/5 rounded-full flex items-center justify-center mx-auto">
                     <Heart className="w-12 h-12 text-rose-500/30" />
                   </div>
@@ -482,7 +482,7 @@ const Profile = () => {
               ) : (
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
                   {adoptionStories.map((story) => (
-                    <Card key={story.id} className="group overflow-hidden rounded-[2.5rem] border-none bg-white dark:bg-card shadow-[0_10px_30px_rgba(0,0,0,0.03)] hover:shadow-xl transition-all duration-500">
+                    <Card key={story.id} className="group overflow-hidden rounded-[2.5rem] border-none bg-card/80 shadow-2xl transition-all duration-500">
                       <div className="relative aspect-[16/10] overflow-hidden">
                         <img src={story.story_image_url} alt={story.animal_name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-6">
@@ -506,8 +506,9 @@ const Profile = () => {
               )}
             </TabsContent>
 
+
             <TabsContent value="chats" className="pt-4 outline-none">
-              <div className="bg-white dark:bg-card rounded-[3rem] border border-primary/5 shadow-xl overflow-hidden">
+              <div className="bg-card/40 rounded-[3rem] border border-primary/5 shadow-xl overflow-hidden">
                 <div className="p-10 border-b border-primary/5 bg-gradient-to-r from-primary/5 to-transparent">
                   <div className="flex items-center gap-4">
                     <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20">

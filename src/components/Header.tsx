@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import ZionCodeInfo from "./ZionCodeInfo";
 import logo from "@/assets/logo.png";
 
 interface HeaderProps {
@@ -179,6 +181,21 @@ const Header = ({ minimal = false }: HeaderProps) => {
                   <User className="w-4 h-4" />
                   Perfil
                 </Button>
+
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="ghost" size="sm" className="flex items-center gap-2 group hover:bg-white/5 transition-all">
+                      <div className="w-6 h-6 rounded-lg bg-white/10 p-1 group-hover:bg-primary transition-colors overflow-hidden">
+                        <img src="/logo-sinfondo .png" className="w-full h-full object-contain" alt="ZC" />
+                      </div>
+                      <span className="font-bold text-xs uppercase tracking-widest text-muted-foreground group-hover:text-primary">Zion Code</span>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 p-0 border-none bg-transparent shadow-none" align="end" sideOffset={10}>
+                    <ZionCodeInfo />
+                  </PopoverContent>
+                </Popover>
+
                 <Button
                   onClick={handleAuth}
                   variant="outline"
@@ -265,30 +282,7 @@ const Header = ({ minimal = false }: HeaderProps) => {
                       <div className="h-px bg-border my-2"></div>
 
                       {/* Zion Code / Dev Info Section */}
-                      <div className="p-4 rounded-2xl bg-primary/5 space-y-4">
-                        <div className="flex items-center gap-2 text-primary">
-                          <Info className="w-5 h-5" />
-                          <span className="font-black text-sm uppercase tracking-widest">Zion Code</span>
-                        </div>
-                        <p className="text-xs text-muted-foreground leading-relaxed">
-                          Huellas Digitales es un proyecto de innovación social desarrollado por <span className="font-bold text-foreground">Zion Code</span>.
-                          Nuestro objetivo es democratizar la tecnología para causas que importan.
-                        </p>
-                        <div className="flex items-center gap-3">
-                          <a href="https://zion-code.vercel.app/" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-white dark:bg-card hover:text-primary transition-colors border border-border/50">
-                            <Globe className="w-4 h-4" />
-                          </a>
-                          <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-white dark:bg-card hover:text-primary transition-colors border border-border/50">
-                            <Facebook className="w-4 h-4" />
-                          </a>
-                          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-white dark:bg-card hover:text-primary transition-colors border border-border/50">
-                            <Instagram className="w-4 h-4" />
-                          </a>
-                          <a href="mailto:info@zioncode.com" className="p-2 rounded-lg bg-white dark:bg-card hover:text-primary transition-colors border border-border/50">
-                            <Mail className="w-4 h-4" />
-                          </a>
-                        </div>
-                      </div>
+                      <ZionCodeInfo />
 
                       <Button
                         onClick={handleAuth}
