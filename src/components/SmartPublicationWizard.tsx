@@ -40,13 +40,21 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
     const [imageFiles, setImageFiles] = useState<File[]>([]);
     const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
-    // Form Data
+    const ARGENTINA_PROVINCES = [
+        "Buenos Aires", "Catamarca", "Chaco", "Chubut", "Córdoba", "Corrientes",
+        "Entre Ríos", "Formosa", "Jujuy", "La Pampa", "La Rioja", "Mendoza",
+        "Misiones", "Neuquén", "Río Negro", "Salta", "San Juan", "San Luis",
+        "Santa Cruz", "Santa Fe", "Santiago del Estero", "Tierra del Fuego", "Tucumán"
+    ];
+
+    // ... inside component
     const [formData, setFormData] = useState({
         name: "",
         animalType: "perro",
         age: "",
         size: "",
         location: "", // Default empty to encourage accuracy
+        province: "San Juan", // Default
         description: "",
         healthInfo: "",
         personality: "",
@@ -214,7 +222,8 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
                     sex: formData.sex,
                     lat: type === "perdido" ? formData.lat : null,
                     lng: type === "perdido" ? formData.lng : null,
-                })
+                    province: formData.province,
+                } as any) // Cast to any because 'province' might not be in types yet
                 .select()
                 .single();
 
@@ -315,9 +324,20 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <Label>Ubicación General</Label>
+                                <Label>Provincia</Label>
+                                <Select value={formData.province} onValueChange={(v) => setFormData({ ...formData, province: v })}>
+                                    <SelectTrigger><SelectValue placeholder="Selecciona" /></SelectTrigger>
+                                    <SelectContent>
+                                        {ARGENTINA_PROVINCES.map(p => (
+                                            <SelectItem key={p} value={p}>{p}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Ubicación General (Barrio/Ciudad)</Label>
                                 <Input
-                                    placeholder="Ciudad, Barrio..."
+                                    placeholder="Ej. Capital, Rivadavia..."
                                     value={formData.location}
                                     maxLength={60}
                                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
@@ -360,6 +380,17 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
                                 </div>
                             </div>
                             <div>
+                                <Label>Provincia</Label>
+                                <Select value={formData.province} onValueChange={(v) => setFormData({ ...formData, province: v })}>
+                                    <SelectTrigger><SelectValue placeholder="Selecciona" /></SelectTrigger>
+                                    <SelectContent>
+                                        {ARGENTINA_PROVINCES.map(p => (
+                                            <SelectItem key={p} value={p}>{p}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div>
                                 <Label>Referencia (Calle, Plaza, etc)</Label>
                                 <Input
                                     placeholder="Ej. Cerca de la estación..."
@@ -381,6 +412,17 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
                                 maxLength={60}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                             />
+                            <div className="text-left space-y-2">
+                                <Label>Provincia</Label>
+                                <Select value={formData.province} onValueChange={(v) => setFormData({ ...formData, province: v })}>
+                                    <SelectTrigger><SelectValue placeholder="Selecciona" /></SelectTrigger>
+                                    <SelectContent>
+                                        {ARGENTINA_PROVINCES.map(p => (
+                                            <SelectItem key={p} value={p}>{p}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
                         </div>
                     )}
 

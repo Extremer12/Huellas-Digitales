@@ -174,17 +174,22 @@ const PetDetail = () => {
     const handleShare = async () => {
         if (navigator.share) {
             try {
+                const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+                const shareUrl = `https://${projectId}.supabase.co/functions/v1/share-preview?id=${animal?.id}`;
+
                 await navigator.share({
                     title: `Adopta a ${animal?.name}`,
                     text: `Mira a ${animal?.name} en Huellas Digitales. ${animal?.status === 'perdido' ? '¡Ayúdalo a volver a casa!' : '¡Busca un hogar!'}`,
-                    url: window.location.href,
+                    url: shareUrl,
                 });
             } catch (error) {
                 console.log('Error sharing:', error);
             }
         } else {
             // Fallback
-            navigator.clipboard.writeText(window.location.href);
+            const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+            const shareUrl = `https://${projectId}.supabase.co/functions/v1/share-preview?id=${animal?.id}`;
+            navigator.clipboard.writeText(shareUrl);
             toast({ title: "Link copiado al portapapeles" });
         }
     };

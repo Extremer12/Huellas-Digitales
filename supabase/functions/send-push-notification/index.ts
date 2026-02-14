@@ -186,24 +186,120 @@ serve(async (req) => {
                 { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
             );
 
-        } else {
-            // Direct call payload (simplified fallback)
-            // This part was overwritten by the previous complex logic insertion which might have broken the 'else' structure.
-            // Given the context is mainly about the webhook, we can simplify or return 400 for non-webhook calls if needed, 
-            // but let's try to handle the direct call logic cleanly if it wasn't destroyed.
-            // Actually, the previous edit replaced the 'else' block inside the big if. 
-            // Let's just fix the flow for the webhook case first.
+        } else if (payload.record && payload.table === 'animals' && payload.type === 'INSERT') {
+            const animal = payload.record;
 
-            // The previous tool call messed up the nesting. 'subscriptions' is not defined inside the 'if' block yet.
-            // We need to fetch subscriptions AFTER determining userId.
-            // Let's rewrite the logic to be linear:
-            // 1. Determine userId and Payload based on source (Webhook vs Direct)
-            // 2. Fetch subscriptions
-            // 3. Send
+            // Only notify for "Perdido" status
+            if (animal.status !== 'perdido' || !animal.province) {
+                return new Response(
+                    JSON.stringify({ message: 'Not a lost pet or no province specified, skipping.' }),
+                    { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+                );
+            }
+
+            console.log(`Processing lost pet alert for province: ${animal.province}`);
+
+            // 1. Find users in the same province
+            const { data: profiles, error: profileError } = await supabase
+                .from('profiles')
+                .select('id')
+                .eq('province', animal.province);
+
+            if (profileError) throw profileError;
+
+            const userIds = profiles.map(p => p.id).filter(id => id !== animal.user_id); // Exclude sender
+
+            if (userIds.length === 0) {
+                return new Response(
+                    JSON.stringify({ message: 'No users found in this province.' }),
+                    { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+                );
+            }
+
+            // 2. Prepare payload
+            title = '¡Alerta de Mascota Perdida!';
+            body = `Se perdió un ${animal.type} en ${animal.location || animal.province}. ¡Ayuda a encontrarlo!`;
+            url = `/mascota/${animal.id}`;
+            const icon = animal.image_url || '/logo-192.png';
+            const tag = `lost-pet-${animal.province}`;
+
+            const pushPayload = JSON.stringify({
+                title,
+                body,
+                icon,
+                badge: '/logo-192.png',
+                image: animal.image_url,
+                url,
+                tag,
+                renotify: true,
+                timestamp: Date.now(),
+                data: {
+                    animalId: animal.id,
+                    type: 'lost_pet'
+                }
+            });
+
+            // 3. Get subscriptions for all these users
+            const { data: subscriptions, error: subError } = await supabase
+                .from('push_subscriptions')
+                .select('*')
+                .in('user_id', userIds);
+
+            if (subError) throw subError;
+
+            if (!subscriptions || subscriptions.length === 0) {
+                return new Response(
+                    JSON.stringify({ message: 'No subscriptions found for target users.' }),
+                    { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+                );
+            }
+
+            // Import web-push (re-import or move to top if possible, but keep here for now to match block)
+            const webPush = await import("https://esm.sh/web-push@3.6.7");
+            webPush.setVapidDetails(
+                'mailto:noreply@huellasdigitales.app',
+                VAPID_PUBLIC_KEY,
+                VAPID_PRIVATE_KEY
+            );
+
+            // 4. Send notifications
+            const results = await Promise.allSettled(
+                subscriptions.map(async (sub) => {
+                    try {
+                        const pushSubscription = {
+                            endpoint: sub.endpoint,
+                            keys: {
+                                p256dh: sub.p256dh,
+                                auth: sub.auth
+                            }
+                        };
+                        await webPush.sendNotification(pushSubscription, pushPayload);
+                        return { success: true };
+                    } catch (error: any) {
+                        if (error.statusCode === 410 || error.statusCode === 404) {
+                            await supabase.from('push_subscriptions').delete().eq('id', sub.id);
+                        }
+                        return { success: false, error: error.message };
+                    }
+                })
+            );
+
+            const successful = results.filter(r => r.status === 'fulfilled' && (r.value as any).success).length;
 
             return new Response(
-                JSON.stringify({ error: 'This function only handles database webhooks for now OR the logic needs to be restructured.' }),
-                { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+                JSON.stringify({
+                    message: 'Lost pet alerts sent',
+                    sent: successful,
+                    target_users: userIds.length,
+                    total_subs: subscriptions.length
+                }),
+                { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+
+        } else {
+            return new Response(
+                JSON.stringify({ message: 'Event type not handled or ignored.' }),
+                { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
             );
         }
 
