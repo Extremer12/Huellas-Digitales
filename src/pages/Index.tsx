@@ -313,6 +313,7 @@ const Index = () => {
         <RegionSelector
           open={showRegionSelector}
           userId={user.id}
+          userEmail={user.email} // Pass email here
           onRegionSet={() => {
             setShowRegionSelector(false);
             checkUser();

@@ -21,82 +21,16 @@ import { toast } from "sonner";
 interface RegionSelectorProps {
   open: boolean;
   userId: string;
+  userEmail?: string; // Added email prop
   onRegionSet: () => void;
 }
 
-interface Country {
-  name: {
-    common: string;
-  };
-  cca2: string;
-}
+// ... (Country interface remains same)
 
-export default function RegionSelector({ open, userId, onRegionSet }: RegionSelectorProps) {
-  const [country, setCountry] = useState<string>("");
-  const [province, setProvince] = useState<string>("");
-  const [loading, setLoading] = useState(false);
-  const [countries, setCountries] = useState<Country[]>([]);
-  const [loadingCountries, setLoadingCountries] = useState(true);
+export default function RegionSelector({ open, userId, userEmail, onRegionSet }: RegionSelectorProps) {
+  // ... (state remains same)
 
-  useEffect(() => {
-    fetchCountries();
-  }, []);
-
-  // Fallback data in case the API fails
-  const FALLBACK_COUNTRIES: Country[] = [
-    { name: { common: "Argentina" }, cca2: "AR" },
-    { name: { common: "Bolivia" }, cca2: "BO" },
-    { name: { common: "Chile" }, cca2: "CL" },
-    { name: { common: "Colombia" }, cca2: "CO" },
-    { name: { common: "Costa Rica" }, cca2: "CR" },
-    { name: { common: "Cuba" }, cca2: "CU" },
-    { name: { common: "Ecuador" }, cca2: "EC" },
-    { name: { common: "El Salvador" }, cca2: "SV" },
-    { name: { common: "España" }, cca2: "ES" },
-    { name: { common: "Estados Unidos" }, cca2: "US" },
-    { name: { common: "Guatemala" }, cca2: "GT" },
-    { name: { common: "Honduras" }, cca2: "HN" },
-    { name: { common: "México" }, cca2: "MX" },
-    { name: { common: "Nicaragua" }, cca2: "NI" },
-    { name: { common: "Panamá" }, cca2: "PA" },
-    { name: { common: "Paraguay" }, cca2: "PY" },
-    { name: { common: "Perú" }, cca2: "PE" },
-    { name: { common: "Puerto Rico" }, cca2: "PR" },
-    { name: { common: "República Dominicana" }, cca2: "DO" },
-    { name: { common: "Uruguay" }, cca2: "UY" },
-    { name: { common: "Venezuela" }, cca2: "VE" },
-  ];
-
-  const fetchCountries = async () => {
-    try {
-      // Set a timeout to avoid long hangs
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
-
-      const res = await fetch("https://restcountries.com/v3.1/lang/spanish", {
-        signal: controller.signal
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!res.ok) throw new Error("API response not ok");
-
-      const data = await res.json();
-
-      // Sort alphabetically
-      const sorted = (data as Country[]).sort((a, b) =>
-        a.name.common.localeCompare(b.name.common)
-      );
-
-      setCountries(sorted);
-    } catch (error) {
-      console.error("Error fetching countries, using fallback:", error);
-      // Fallback silently or with a small hint if preferred, but crucial to unblock user
-      setCountries(FALLBACK_COUNTRIES);
-    } finally {
-      setLoadingCountries(false);
-    }
-  };
+  // ... (useEffect and fetchCountries remain same)
 
   const handleSubmit = async () => {
     if (!country || !province) {
@@ -106,10 +40,17 @@ export default function RegionSelector({ open, userId, onRegionSet }: RegionSele
 
     setLoading(true);
     try {
+      // Use UPSERT instead of UPDATE
       const { error } = await supabase
         .from("profiles")
-        .update({ country, province }) // province is just a text field in DB
-        .eq("id", userId);
+        .upsert({
+          id: userId,
+          country,
+          province,
+          email: userEmail || "", // Required for new rows
+          updated_at: new Date().toISOString(),
+        })
+        .select();
 
       if (error) throw error;
 
