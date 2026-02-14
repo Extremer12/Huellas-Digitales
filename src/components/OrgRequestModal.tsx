@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { OrganizationRequest } from "@/types/supabase-custom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { useToast } from "@/hooks/use-toast";
 import { MapPin, PlusCircle } from "lucide-react";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import { DefaultIcon } from "@/utils/mapIcons";
 
 interface OrgRequestModalProps {
     open?: boolean;
@@ -40,7 +42,7 @@ export default function OrgRequestModal({ open: externalOpen, onOpenChange: exte
                 setFormData(prev => ({ ...prev, lat: e.latlng.lat, lng: e.latlng.lng }));
             },
         });
-        return <Marker position={[formData.lat, formData.lng]} />;
+        return <Marker position={[formData.lat, formData.lng]} icon={DefaultIcon} />;
     }
 
     const handleSubmit = async () => {
@@ -51,16 +53,22 @@ export default function OrgRequestModal({ open: externalOpen, onOpenChange: exte
 
         setLoading(true);
         try {
-            const { error } = await (supabase as any)
-                .from("organization_requests")
-                .insert({
-                    name: formData.name,
-                    type: formData.type,
-                    address: formData.address,
-                    contact_info: formData.contactInfo,
-                    location_lat: formData.lat,
-                    location_lng: formData.lng,
-                });
+
+            // We use a specific table casting or just avoid 'any' if possible.
+            // Since the table is missing from generated types, we might still need a cast for the table name access
+            // BUT we can validte the data structure against our interface.
+            const requestData: OrganizationRequest = {
+                name: formData.name,
+                type: formData.type as "veterinaria" | "refugio" | "ong",
+                address: formData.address,
+                contact_info: formData.contactInfo,
+                location_lat: formData.lat,
+                location_lng: formData.lng,
+            };
+
+            const { error } = await supabase
+                .from("organization_requests" as any) // Still need this entry point cast if it's missing from main types
+                .insert(requestData);
 
             if (error) throw error;
 

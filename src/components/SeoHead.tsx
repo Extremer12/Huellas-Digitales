@@ -10,7 +10,7 @@ interface SeoHeadProps {
 
 const SeoHead = ({
     title = 'Huellas Digitales - Bienestar Animal',
-    description = 'Encontrá tu nuevo amigo peludo o publica una mascota perdida. La plataforma líder en adopción responsable.',
+    description = 'Únete a la comunidad de bienestar animal más grande. Adopta, reporta perdidos y encuentra veterinarias. 100% Gratuito.',
     image = '/logo-512.png',
     url = window.location.href,
     type = 'website'

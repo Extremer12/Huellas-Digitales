@@ -174,13 +174,26 @@ const Index = () => {
                     transition={{ duration: 0.8, delay: 0.2 }}
                     className="grid grid-cols-2 gap-4"
                   >
-                    <div className="p-6 rounded-3xl bg-secondary/30 backdrop-blur-sm border border-border/50 hover:bg-secondary/50 transition-colors">
-                      <div className="text-4xl font-black mb-2 text-primary">+{stats.orgs}</div>
-                      <div className="text-sm text-muted-foreground uppercase tracking-wider font-semibold">Instituciones</div>
-                    </div>
-                    <div className="p-6 rounded-3xl bg-secondary/30 backdrop-blur-sm border border-border/50 hover:bg-secondary/50 transition-colors translate-y-8">
-                      <div className="text-4xl font-black mb-2 text-purple-500">+{stats.animals}</div>
-                      <div className="text-sm text-muted-foreground uppercase tracking-wider font-semibold">Mascotas</div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-6 rounded-3xl bg-secondary/30 backdrop-blur-sm border border-border/50 hover:bg-secondary/50 transition-colors">
+                        <div className="text-4xl font-black mb-2 text-primary">+{stats.orgs}</div>
+                        <div className="text-sm text-muted-foreground uppercase tracking-wider font-semibold">Instituciones</div>
+                      </div>
+                      <div className="p-6 rounded-3xl bg-secondary/30 backdrop-blur-sm border border-border/50 hover:bg-secondary/50 transition-colors translate-y-8">
+                        <div className="text-4xl font-black mb-2 text-purple-500">+{stats.animals}</div>
+                        <div className="text-sm text-muted-foreground uppercase tracking-wider font-semibold">Mascotas</div>
+                      </div>
+                      <div className="col-span-2 p-6 rounded-3xl bg-secondary/30 backdrop-blur-sm border border-border/50 hover:bg-secondary/50 transition-colors mt-8">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="text-4xl font-black mb-2 text-emerald-500">+{stats.users}</div>
+                            <div className="text-sm text-muted-foreground uppercase tracking-wider font-semibold">Usuarios Unidos</div>
+                          </div>
+                          <div className="bg-emerald-500/10 text-emerald-500 px-4 py-2 rounded-full text-sm font-bold border border-emerald-500/20">
+                            100% GRATUITO
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </motion.div>
                 </div>

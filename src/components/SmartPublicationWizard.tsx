@@ -13,13 +13,12 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import ImageCropper from "./ImageCropper";
 
+import { DefaultIcon } from "@/utils/mapIcons";
+
 // Fix Leaflet icons
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-    iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
-    iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
-    shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-});
+// We explicitly set the icon in the Marker component or globally via the utility if strictly needed.
+// For this component, we will use the DefaultIcon in the Marker.
+
 
 // Schemas (simplified for Wizard)
 const formSchema = z.object({
@@ -87,7 +86,7 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
         });
 
         return formData.lat ? (
-            <Marker position={[formData.lat, formData.lng]} />
+            <Marker position={[formData.lat, formData.lng]} icon={DefaultIcon} />
         ) : null;
     }
 
