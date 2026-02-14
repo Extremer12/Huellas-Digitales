@@ -17,6 +17,7 @@ import RoleSelectionModal from "@/components/RoleSelectionModal";
 import { Building2 } from "lucide-react";
 import HowItWorks from "@/components/HowItWorks";
 import SeoHead from "@/components/SeoHead";
+import StatisticsSection from "@/components/StatisticsSection";
 
 const Index = () => {
   useScrollAnimation();
@@ -139,13 +140,13 @@ const Index = () => {
             {/* IMPACT & INFO SECTION */}
             <section className="py-20 bg-background relative z-10 -mt-10 rounded-t-[3rem] shadow-[0_-20px_40px_rgba(0,0,0,0.1)] border-t border-white/5">
               <div className="container px-4 md:px-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <div className="flex flex-col gap-12 items-center">
                   <motion.div
-                    initial={{ opacity: 0, x: -30 }}
-                    whileInView={{ opacity: 1, x: 0 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.8 }}
-                    className="space-y-6"
+                    className="space-y-6 text-center max-w-3xl mx-auto"
                   >
                     <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-blue-500/10 text-blue-400 text-sm font-medium border border-blue-500/20">
                       <span className="relative flex h-2 w-2">
@@ -159,7 +160,7 @@ const Index = () => {
                       Huellas Digitales no es solo un sitio web, es una red viva de colaboración.
                     </p>
 
-                    <div className="flex items-center gap-4 p-4 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive">
+                    <div className="flex items-center justify-center gap-4 p-4 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive w-fit mx-auto">
                       <AlertTriangle className="w-6 h-6 flex-shrink-0" />
                       <p className="font-medium text-sm">
                         Prohibida estrictamente la venta de animales.
@@ -167,47 +168,7 @@ const Index = () => {
                     </div>
                   </motion.div>
 
-                  <motion.div
-                    initial={{ opacity: 0, x: 30 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.8, delay: 0.2 }}
-                    className="grid grid-cols-2 gap-4"
-                  >
-                    <div className="grid grid-cols-2 gap-4 w-full">
-                      <div className="p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 transition-all flex flex-col justify-center items-center text-center group">
-                        <div className="text-3xl lg:text-5xl font-black text-primary mb-1 group-hover:scale-110 transition-transform">
-                          +{stats.orgs}
-                        </div>
-                        <div className="text-xs text-muted-foreground uppercase tracking-wider font-bold truncate w-full">
-                          Instituciones
-                        </div>
-                      </div>
-
-                      <div className="p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 transition-all flex flex-col justify-center items-center text-center group">
-                        <div className="text-3xl lg:text-5xl font-black text-purple-500 mb-1 group-hover:scale-110 transition-transform">
-                          +{stats.animals}
-                        </div>
-                        <div className="text-xs text-muted-foreground uppercase tracking-wider font-bold truncate w-full">
-                          Mascotas
-                        </div>
-                      </div>
-
-                      <div className="col-span-2 p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 transition-all flex flex-col justify-center items-center text-center relative overflow-hidden group">
-                        <div className="absolute top-3 right-3 opacity-80">
-                          <div className="bg-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-500/30 animate-pulse">
-                            100% GRATIS
-                          </div>
-                        </div>
-                        <div className="text-3xl lg:text-5xl font-black text-emerald-500 mb-1 group-hover:scale-110 transition-transform">
-                          +{stats.users}
-                        </div>
-                        <div className="text-xs text-muted-foreground uppercase tracking-wider font-bold truncate w-full">
-                          Usuarios Unidos
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
+                  <StatisticsSection stats={stats} />
                 </div>
               </div>
             </section>
