@@ -75,7 +75,7 @@ const Index = () => {
             .from("profiles")
             .select("*")
             .eq("id", session.user.id)
-            .single();
+            .maybeSingle();
 
           if (!profileData?.country || !profileData?.province) {
             setShowRegionSelector(true);

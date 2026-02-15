@@ -100,7 +100,7 @@ export default function RegionSelector({ open, userId, userEmail, onRegionSet }:
       >
         <DialogHeader>
           <DialogTitle>Selecciona tu región</DialogTitle>
-          <DialogDescription>
+          <DialogDescription id="region-selector-description">
             Para ofrecerte mascotas cercanas a tu ubicación, necesitamos saber dónde estás.
           </DialogDescription>
         </DialogHeader>
