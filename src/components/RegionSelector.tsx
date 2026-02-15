@@ -25,12 +25,39 @@ interface RegionSelectorProps {
   onRegionSet: () => void;
 }
 
-// ... (Country interface remains same)
+interface Country {
+  name: {
+    common: string;
+  };
+  cca2: string;
+}
 
 export default function RegionSelector({ open, userId, userEmail, onRegionSet }: RegionSelectorProps) {
-  // ... (state remains same)
+  const [country, setCountry] = useState("");
+  const [province, setProvince] = useState("");
+  const [countries, setCountries] = useState<Country[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [loadingCountries, setLoadingCountries] = useState(true);
 
-  // ... (useEffect and fetchCountries remain same)
+  useEffect(() => {
+    fetchCountries();
+  }, []);
+
+  const fetchCountries = async () => {
+    try {
+      const response = await fetch("https://restcountries.com/v3.1/all?fields=name,cca2");
+      const data = await response.json();
+      const sortedCountries = data.sort((a: Country, b: Country) =>
+        a.name.common.localeCompare(b.name.common)
+      );
+      setCountries(sortedCountries);
+    } catch (error) {
+      console.error("Error fetching countries:", error);
+      toast.error("Error al cargar la lista de países");
+    } finally {
+      setLoadingCountries(false);
+    }
+  };
 
   const handleSubmit = async () => {
     if (!country || !province) {
