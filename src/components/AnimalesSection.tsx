@@ -22,6 +22,9 @@ export type Animal = {
   lat?: number;
   lng?: number;
   status: string;
+  sex?: string;
+  province?: string;
+  country?: string;
 };
 
 interface AnimalesSectionProps {
@@ -76,12 +79,11 @@ const AnimalesSection = ({ initialSelectedAnimalId }: AnimalesSectionProps) => {
 
   const fetchAnimals = async () => {
     try {
-      const {
-        data,
-        error
-      } = await supabase.from("animals").select("id, name, type, age, size, location, description, image_url, health_info, personality, user_id, status, created_at, lat, lng").eq("status", "disponible").order("created_at", {
-        ascending: false
-      });
+      const { data, error } = await supabase
+        .from("animals")
+        .select("id, name, type, age, size, location, description, image_url, health_info, personality, user_id, status, created_at, lat, lng, sex, province, country")
+        .eq("status", "disponible")
+        .order("created_at", { ascending: false });
       if (error) throw error;
       const formattedAnimals: Animal[] = (data as any[] || []).map(animal => ({
         id: animal.id,
@@ -97,7 +99,11 @@ const AnimalesSection = ({ initialSelectedAnimalId }: AnimalesSectionProps) => {
         personality: animal.personality || undefined,
         userId: animal.user_id,
         lat: animal.lat,
-        lng: animal.lng
+        lng: animal.lng,
+        sex: animal.sex || undefined,
+        province: animal.province || undefined,
+        country: animal.country || undefined,
+        status: animal.status || 'disponible',
       }));
       setAnimals(formattedAnimals);
     } catch (error: any) {

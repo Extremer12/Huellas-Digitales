@@ -33,19 +33,19 @@ const AnimalCard = ({ animal, onClick }: AnimalCardProps) => {
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           loading="lazy"
         />
-        <div className="absolute top-2 right-2 flex flex-col gap-2">
+        <div className="absolute top-2 right-2 flex flex-col gap-1.5 items-end">
           {animal.status === "perdido" ? (
-            <Badge variant="destructive" className="flex items-center gap-1 shadow-lg bg-red-600 animate-pulse">
+            <Badge variant="destructive" className="flex items-center gap-1 shadow-lg bg-red-600 animate-pulse text-xs">
               <AlertTriangle className="w-3 h-3" /> PERDIDO
             </Badge>
           ) : (
-            <Badge className="bg-primary text-primary-foreground shadow-lg font-bold">
+            <Badge className="bg-primary text-primary-foreground shadow-lg font-bold text-xs">
               EN ADOPCIÓN
             </Badge>
           )}
-          {animal.sex && (
-            <Badge variant="secondary" className="bg-white/90 backdrop-blur-md text-foreground shadow-sm flex items-center justify-center w-8 h-8 p-0 rounded-full text-lg border-none">
-              {animal.sex === "macho" ? "♂" : animal.sex === "hembra" ? "♀" : "?"}
+          {animal.sex && animal.sex !== "desconocido" && (
+            <Badge variant="secondary" className="bg-white/90 backdrop-blur-md text-foreground shadow-sm text-xs font-bold px-2 py-0.5">
+              {animal.sex === "macho" ? "♂ Macho" : "♀ Hembra"}
             </Badge>
           )}
         </div>

@@ -80,7 +80,11 @@ const PetDetail = () => {
                 personality: typedData.personality || undefined,
                 userId: typedData.user_id,
                 lat: typedData.lat,
-                lng: typedData.lng
+                lng: typedData.lng,
+                status: typedData.status,
+                sex: typedData.sex || undefined,
+                province: typedData.province || undefined,
+                country: typedData.country || undefined,
             };
 
             setAnimal(formattedAnimal);
@@ -333,7 +337,9 @@ const PetDetail = () => {
                                     </div>
                                     <div className="bg-blue-500/10 p-3 rounded-2xl text-center border border-blue-500/20">
                                         <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Sexo</p>
-                                        <p className="font-bold text-blue-700 text-sm">--</p> {/* Add sex if available later */}
+                                        <p className="font-bold text-blue-700 text-sm capitalize">
+                                            {animal.sex === 'macho' ? '♂ Macho' : animal.sex === 'hembra' ? '♀ Hembra' : '—'}
+                                        </p>
                                     </div>
                                     <div className="bg-purple-500/10 p-3 rounded-2xl text-center border border-purple-500/20">
                                         <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Publicado</p>
