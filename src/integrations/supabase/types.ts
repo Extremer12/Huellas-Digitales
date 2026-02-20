@@ -146,6 +146,9 @@ export type Database = {
           location_lat: number | null
           location_lng: number | null
           organization_id: string | null
+          sex: string | null
+          province: string | null
+          country: string | null
         }
         Insert: {
           age: string
@@ -167,6 +170,9 @@ export type Database = {
           location_lat?: number | null
           location_lng?: number | null
           organization_id?: string | null
+          sex?: string | null
+          province?: string | null
+          country?: string | null
         }
         Update: {
           age?: string
@@ -188,6 +194,9 @@ export type Database = {
           location_lat?: number | null
           location_lng?: number | null
           organization_id?: string | null
+          sex?: string | null
+          province?: string | null
+          country?: string | null
         }
         Relationships: []
       }

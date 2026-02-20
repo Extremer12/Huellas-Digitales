@@ -7,10 +7,11 @@ import {
     Select,
     SelectContent,
     SelectItem,
+    SelectItem,
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Dog, Cat, PawPrint, Filter, Search, AlertTriangle, Heart, Loader2, Plus } from "lucide-react";
+import { Dog, Cat, PawPrint, Filter, Search, AlertTriangle, Heart, Loader2, Plus, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Database } from "@/integrations/supabase/types";
 
@@ -34,6 +35,9 @@ export type Animal = {
     lat?: number;
     lng?: number;
     status: string;
+    sex?: string;
+    province?: string;
+    country?: string;
 };
 
 interface UnifiedFeedProps {
@@ -41,6 +45,12 @@ interface UnifiedFeedProps {
 }
 
 const PAGE_SIZE = 8;
+const ARGENTINA_PROVINCES = [
+    "Todas", "Buenos Aires", "Catamarca", "Chaco", "Chubut", "Córdoba", "Corrientes",
+    "Entre Ríos", "Formosa", "Jujuy", "La Pampa", "La Rioja", "Mendoza",
+    "Misiones", "Neuquén", "Río Negro", "Salta", "San Juan", "San Luis",
+    "Santa Cruz", "Santa Fe", "Santiago del Estero", "Tierra del Fuego", "Tucumán"
+];
 
 const UnifiedFeed = ({ onOpenWizard }: UnifiedFeedProps) => {
     const { toast } = useToast();
@@ -52,9 +62,32 @@ const UnifiedFeed = ({ onOpenWizard }: UnifiedFeedProps) => {
     // Filters
     const [activeTab, setActiveTab] = useState<"todos" | "adopcion" | "perdidos">("todos");
     const [typeFilter, setTypeFilter] = useState<"todos" | "perro" | "gato" | "otro">("todos");
+    const [provinceFilter, setProvinceFilter] = useState<string>("Todas"); // Added state
     const [searchQuery, setSearchQuery] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
     const [showFilters, setShowFilters] = useState(false);
+
+    // Load user's province preference on mount
+    useEffect(() => {
+        const loadUserPreference = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('province')
+                    .eq('id', user.id)
+                    .single();
+
+                if (profile?.province && ARGENTINA_PROVINCES.includes(profile.province)) {
+                    setProvinceFilter(profile.province); // Default to user's province
+                    toast({
+                        description: `Mostrando mascotas de ${profile.province}`,
+                    });
+                }
+            }
+        };
+        loadUserPreference();
+    }, []);
 
     // Debounce search
     useEffect(() => {
@@ -71,7 +104,7 @@ const UnifiedFeed = ({ onOpenWizard }: UnifiedFeedProps) => {
         setAnimals([]); // Clear current list to avoid mixing old/filtered results visually
         fetchAnimals(0, true);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [activeTab, typeFilter, debouncedSearch]);
+    }, [activeTab, typeFilter, provinceFilter, debouncedSearch]);
 
     // Setup Realtime subscription
     useEffect(() => {
@@ -114,6 +147,11 @@ const UnifiedFeed = ({ onOpenWizard }: UnifiedFeedProps) => {
                 query = query.eq("type", typeFilter);
             }
 
+            // 3. Location Filter
+            if (provinceFilter !== "Todas") {
+                query = query.eq("province", provinceFilter);
+            }
+
             // 3. Search Filter
             if (debouncedSearch) {
                 // ILIKE for case-insensitive partial match
@@ -153,7 +191,10 @@ const UnifiedFeed = ({ onOpenWizard }: UnifiedFeedProps) => {
                 // So we omit them or mock them. Previous code had them as optional.
                 lat: undefined,
                 lng: undefined,
-                status: animal.status
+                status: animal.status,
+                sex: animal.sex,
+                province: animal.province,
+                country: animal.country
             }));
 
             if (isNewFilter) {
@@ -231,14 +272,32 @@ const UnifiedFeed = ({ onOpenWizard }: UnifiedFeedProps) => {
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
                         </div>
-                        <Button
-                            variant={showFilters || typeFilter !== "todos" ? "secondary" : "ghost"}
-                            size="icon"
-                            onClick={() => setShowFilters(!showFilters)}
-                            className="rounded-xl shrink-0"
-                        >
-                            <Filter className={`w-4 h-4 ${typeFilter !== "todos" ? "text-primary" : ""}`} />
-                        </Button>
+
+                        {/* Location Selector */}
+                        <div className="flex gap-2">
+                            <Select value={provinceFilter} onValueChange={setProvinceFilter}>
+                                <SelectTrigger className="w-[180px] rounded-xl bg-secondary/50 border-transparent">
+                                    <div className="flex items-center gap-2">
+                                        <MapPin className="w-4 h-4 text-primary" />
+                                        <SelectValue placeholder="Ubicación" />
+                                    </div>
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {ARGENTINA_PROVINCES.map((p) => (
+                                        <SelectItem key={p} value={p}>{p}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+
+                            <Button
+                                variant={showFilters || typeFilter !== "todos" ? "secondary" : "ghost"}
+                                size="icon"
+                                onClick={() => setShowFilters(!showFilters)}
+                                className="rounded-xl shrink-0"
+                            >
+                                <Filter className={`w-4 h-4 ${typeFilter !== "todos" ? "text-primary" : ""}`} />
+                            </Button>
+                        </div>
                     </div>
 
                     {/* Expanded Filters */}
@@ -310,13 +369,18 @@ const UnifiedFeed = ({ onOpenWizard }: UnifiedFeedProps) => {
                             <Search className="w-8 h-8 text-muted-foreground" />
                         </div>
                         <h3 className="text-xl font-bold mb-2">No se encontraron resultados</h3>
-                        <p className="text-muted-foreground mb-6">Intenta con otros filtros o términos de búsqueda.</p>
+                        <p className="text-muted-foreground mb-6">
+                            {provinceFilter !== "Todas"
+                                ? `No hay huellas registradas en ${provinceFilter} todavía.`
+                                : "Intenta con otros filtros o términos de búsqueda."}
+                        </p>
                         <Button onClick={() => {
                             setSearchQuery("");
                             setTypeFilter("todos");
                             setActiveTab("todos");
+                            setProvinceFilter("Todas");
                         }}>
-                            Limpiar filtros
+                            Limpiar todo
                         </Button>
                     </div>
                 ) : (

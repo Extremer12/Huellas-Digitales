@@ -222,8 +222,10 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
                     sex: formData.sex,
                     lat: type === "perdido" ? formData.lat : null,
                     lng: type === "perdido" ? formData.lng : null,
+                    sex: formData.sex,
                     province: formData.province,
-                } as any) // Cast to any because 'province' might not be in types yet
+                    country: "Argentina" // Default code-side for now
+                })
                 .select()
                 .single();
 
