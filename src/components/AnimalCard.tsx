@@ -44,7 +44,7 @@ const AnimalCard = ({ animal, onClick }: AnimalCardProps) => {
             </Badge>
           )}
           {animal.sex && animal.sex !== "desconocido" && (
-            <Badge variant="secondary" className="bg-white/90 backdrop-blur-md text-foreground shadow-sm text-xs font-bold px-2 py-0.5">
+            <Badge variant="secondary" className="bg-white/90 backdrop-blur-md text-slate-900 shadow-sm text-xs font-bold px-2 py-0.5">
               {animal.sex === "macho" ? "♂ Macho" : "♀ Hembra"}
             </Badge>
           )}

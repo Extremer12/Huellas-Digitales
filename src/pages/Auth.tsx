@@ -157,14 +157,16 @@ const Auth = () => {
     <div className="min-h-screen grid lg:grid-cols-2 bg-background overflow-hidden">
       {/* Left side: Content & Form */}
       <div className="flex flex-col justify-center items-center px-6 py-12 lg:px-20 relative z-10 bg-background/80 backdrop-blur-sm lg:backdrop-blur-none">
-        <Button
-          variant="ghost"
-          className="absolute top-4 left-4 lg:top-8 lg:left-8 hover:bg-background/80 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 z-50 rounded-full pr-4 border border-transparent hover:border-primary/10"
-          onClick={() => navigate("/")}
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          <span className="hidden sm:inline">Volver al Inicio</span>
-        </Button>
+        <div className="w-full max-w-md mb-8 lg:mb-12">
+          <Button
+            variant="ghost"
+            className="hover:bg-background/80 hover:text-primary hover:shadow-lg transition-all duration-300 hover:-translate-y-1 z-50 rounded-full pr-4 border border-transparent hover:border-primary/10"
+            onClick={() => navigate("/")}
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            <span>Volver al Inicio</span>
+          </Button>
+        </div>
 
         <div className="w-full max-w-md space-y-8 animate-fade-in">
           <div className="text-center lg:text-left">
@@ -289,7 +291,7 @@ const Auth = () => {
               <Button
                 variant="outline"
                 type="button"
-                className="w-full h-12 font-medium rounded-xl border-primary/10 hover:bg-primary/5 transition-all"
+                className="w-full h-12 font-medium rounded-xl border-primary/10 hover:bg-primary/10 hover:text-primary transition-all"
                 onClick={handleGoogleLogin}
                 disabled={loading}
               >

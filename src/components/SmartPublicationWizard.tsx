@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Upload, X, MapPin, Heart, AlertTriangle, BookOpen, Check, ArrowLeft, ArrowRight } from "lucide-react";
 import { z } from "zod";
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import ImageCropper from "./ImageCropper";
@@ -83,6 +83,15 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
             });
         }
     }, []);
+
+    // Recenter map component
+    function RecenterMap({ lat, lng }: { lat: number, lng: number }) {
+        const map = useMap();
+        useEffect(() => {
+            map.setView([lat, lng], map.getZoom());
+        }, [lat, lng, map]);
+        return null;
+    }
 
     // Map Picker Component
     function LocationMarker() {
@@ -222,7 +231,6 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
                     sex: formData.sex,
                     lat: type === "perdido" ? formData.lat : null,
                     lng: type === "perdido" ? formData.lng : null,
-                    sex: formData.sex,
                     province: formData.province,
                     country: "Argentina" // Default code-side for now
                 })
@@ -373,6 +381,7 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
                                 <MapContainer center={[formData.lat, formData.lng]} zoom={13} style={{ height: "100%", width: "100%" }}>
                                     <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                                     <LocationMarker />
+                                    <RecenterMap lat={formData.lat} lng={formData.lng} />
                                 </MapContainer>
 
                                 {/* Overlay Instructions */}
