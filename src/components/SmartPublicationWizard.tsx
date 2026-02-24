@@ -42,9 +42,17 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
 
     const ARGENTINA_PROVINCES = [
         "Buenos Aires", "Catamarca", "Chaco", "Chubut", "Córdoba", "Corrientes",
-        "Entre Ríos", "Formosa", "Jujuy", "La Pampa", "La Rioja", "Mendoza",
+        "Entre Ríos", "Formosa", "Jujuy", "La Pampa", "La Rio_ja", "Mendoza",
         "Misiones", "Neuquén", "Río Negro", "Salta", "San Juan", "San Luis",
         "Santa Cruz", "Santa Fe", "Santiago del Estero", "Tierra del Fuego", "Tucumán"
+    ];
+
+    const MEXICO_STATES = [
+        "Aguascalientes", "Baja California", "Baja California Sur", "Campeche", "Chiapas",
+        "Chihuahua", "Ciudad de México", "Coahuila", "Colima", "Durango", "Estado de México",
+        "Guanajuato", "Guerrero", "Hidalgo", "Jalisco", "Michoacán", "Morelos", "Nayarit",
+        "Nuevo León", "Oaxaca", "Puebla", "Querétaro", "Quintana Roo", "San Luis Potosí",
+        "Sinaloa", "Sonora", "Tabasco", "Tamaulipas", "Tlaxcala", "Veracruz", "Yucatán", "Zacatecas"
     ];
 
     // ... inside component
@@ -54,13 +62,14 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
         age: "",
         size: "",
         location: "", // Default empty to encourage accuracy
-        province: "San Juan", // Default
+        province: "", // Default empty
+        country: "México", // Default based on user preference or common usage
         description: "",
         healthInfo: "",
         personality: "",
         isShelter: false,
-        lat: -34.6037 as number,
-        lng: -58.3816 as number,
+        lat: 19.4326 as number,
+        lng: -99.1332 as number,
         contactInfo: "",
         source: "rescatado" as "callejero" | "propio" | "rescatado",
         salesAgreement: false,
@@ -232,7 +241,7 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
                     lat: type === "perdido" ? formData.lat : null,
                     lng: type === "perdido" ? formData.lng : null,
                     province: formData.province,
-                    country: "Argentina" // Default code-side for now
+                    country: formData.country || "México"
                 })
                 .select()
                 .single();
@@ -334,15 +343,46 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <Label>Provincia</Label>
-                                <Select value={formData.province} onValueChange={(v) => setFormData({ ...formData, province: v })}>
-                                    <SelectTrigger><SelectValue placeholder="Selecciona" /></SelectTrigger>
+                                <Label>País</Label>
+                                <Select value={formData.country} onValueChange={(v) => setFormData({ ...formData, country: v, province: "" })}>
+                                    <SelectTrigger><SelectValue placeholder="Selecciona País" /></SelectTrigger>
                                     <SelectContent>
-                                        {ARGENTINA_PROVINCES.map(p => (
-                                            <SelectItem key={p} value={p}>{p}</SelectItem>
-                                        ))}
+                                        <SelectItem value="México">México</SelectItem>
+                                        <SelectItem value="Argentina">Argentina</SelectItem>
+                                        <SelectItem value="Chile">Chile</SelectItem>
+                                        <SelectItem value="Uruguay">Uruguay</SelectItem>
+                                        <SelectItem value="Colombia">Colombia</SelectItem>
+                                        <SelectItem value="Otros">Otros</SelectItem>
                                     </SelectContent>
                                 </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Provincia / Estado</Label>
+                                {formData.country === "México" ? (
+                                    <Select value={formData.province} onValueChange={(v) => setFormData({ ...formData, province: v })}>
+                                        <SelectTrigger><SelectValue placeholder="Selecciona Estado" /></SelectTrigger>
+                                        <SelectContent>
+                                            {MEXICO_STATES.map(p => (
+                                                <SelectItem key={p} value={p}>{p}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                ) : formData.country === "Argentina" ? (
+                                    <Select value={formData.province} onValueChange={(v) => setFormData({ ...formData, province: v })}>
+                                        <SelectTrigger><SelectValue placeholder="Selecciona Provincia" /></SelectTrigger>
+                                        <SelectContent>
+                                            {ARGENTINA_PROVINCES.map(p => (
+                                                <SelectItem key={p} value={p}>{p}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                ) : (
+                                    <Input
+                                        placeholder="Escribe tu provincia o estado"
+                                        value={formData.province}
+                                        onChange={(e) => setFormData({ ...formData, province: e.target.value })}
+                                    />
+                                )}
                             </div>
                             <div className="space-y-2">
                                 <Label>Ubicación General (Barrio/Ciudad)</Label>
@@ -390,16 +430,46 @@ export default function SmartPublicationWizard({ onSuccess }: SmartPublicationWi
                                     Toca en el mapa el lugar exacto
                                 </div>
                             </div>
-                            <div>
-                                <Label>Provincia</Label>
-                                <Select value={formData.province} onValueChange={(v) => setFormData({ ...formData, province: v })}>
-                                    <SelectTrigger><SelectValue placeholder="Selecciona" /></SelectTrigger>
-                                    <SelectContent>
-                                        {ARGENTINA_PROVINCES.map(p => (
-                                            <SelectItem key={p} value={p}>{p}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                            <div className="text-left space-y-4">
+                                <div className="space-y-2">
+                                    <Label>País</Label>
+                                    <Select value={formData.country} onValueChange={(v) => setFormData({ ...formData, country: v, province: "" })}>
+                                        <SelectTrigger><SelectValue placeholder="Selecciona País" /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="México">México</SelectItem>
+                                            <SelectItem value="Argentina">Argentina</SelectItem>
+                                            <SelectItem value="Otros">Otros</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Provincia / Estado</Label>
+                                    {formData.country === "México" ? (
+                                        <Select value={formData.province} onValueChange={(v) => setFormData({ ...formData, province: v })}>
+                                            <SelectTrigger><SelectValue placeholder="Selecciona Estado" /></SelectTrigger>
+                                            <SelectContent>
+                                                {MEXICO_STATES.map(p => (
+                                                    <SelectItem key={p} value={p}>{p}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    ) : formData.country === "Argentina" ? (
+                                        <Select value={formData.province} onValueChange={(v) => setFormData({ ...formData, province: v })}>
+                                            <SelectTrigger><SelectValue placeholder="Selecciona Provincia" /></SelectTrigger>
+                                            <SelectContent>
+                                                {ARGENTINA_PROVINCES.map(p => (
+                                                    <SelectItem key={p} value={p}>{p}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    ) : (
+                                        <Input
+                                            placeholder="Escribe tu provincia o estado"
+                                            value={formData.province}
+                                            onChange={(e) => setFormData({ ...formData, province: e.target.value })}
+                                        />
+                                    )}
+                                </div>
                             </div>
                             <div>
                                 <Label>Referencia (Calle, Plaza, etc)</Label>

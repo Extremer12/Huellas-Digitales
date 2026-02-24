@@ -52,6 +52,14 @@ const ARGENTINA_PROVINCES = [
     "Santa Cruz", "Santa Fe", "Santiago del Estero", "Tierra del Fuego", "Tucumán"
 ];
 
+const MEXICO_STATES = [
+    "Todas", "Aguascalientes", "Baja California", "Baja California Sur", "Campeche", "Chiapas",
+    "Chihuahua", "Ciudad de México", "Coahuila", "Colima", "Durango", "Estado de México",
+    "Guanajuato", "Guerrero", "Hidalgo", "Jalisco", "Michoacán", "Morelos", "Nayarit",
+    "Nuevo León", "Oaxaca", "Puebla", "Querétaro", "Quintana Roo", "San Luis Potosí",
+    "Sinaloa", "Sonora", "Tabasco", "Tamaulipas", "Tlaxcala", "Veracruz", "Yucatán", "Zacatecas"
+];
+
 const UnifiedFeed = ({ onOpenWizard }: UnifiedFeedProps) => {
     const { toast } = useToast();
     const [animals, setAnimals] = useState<Animal[]>([]);
@@ -62,6 +70,7 @@ const UnifiedFeed = ({ onOpenWizard }: UnifiedFeedProps) => {
     // Filters
     const [activeTab, setActiveTab] = useState<"todos" | "adopcion" | "perdidos">("todos");
     const [typeFilter, setTypeFilter] = useState<"todos" | "perro" | "gato" | "otro">("todos");
+    const [countryFilter, setCountryFilter] = useState<string>("México"); // Default to Mexico
     const [provinceFilter, setProvinceFilter] = useState<string>("Todas"); // Added state
     const [searchQuery, setSearchQuery] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -104,7 +113,7 @@ const UnifiedFeed = ({ onOpenWizard }: UnifiedFeedProps) => {
         setAnimals([]); // Clear current list to avoid mixing old/filtered results visually
         fetchAnimals(0, true);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [activeTab, typeFilter, provinceFilter, debouncedSearch]);
+    }, [activeTab, typeFilter, countryFilter, provinceFilter, debouncedSearch]);
 
     // Setup Realtime subscription
     useEffect(() => {
@@ -148,6 +157,9 @@ const UnifiedFeed = ({ onOpenWizard }: UnifiedFeedProps) => {
             }
 
             // 3. Location Filter
+            if (countryFilter !== "Todos") {
+                query = query.eq("country", countryFilter);
+            }
             if (provinceFilter !== "Todas") {
                 query = query.eq("province", provinceFilter);
             }
@@ -274,18 +286,38 @@ const UnifiedFeed = ({ onOpenWizard }: UnifiedFeedProps) => {
                         </div>
 
                         {/* Location Selector */}
-                        <div className="flex gap-2">
+                        <div className="flex flex-col sm:flex-row gap-2">
+                            <Select value={countryFilter} onValueChange={(v) => { setCountryFilter(v); setProvinceFilter("Todas"); }}>
+                                <SelectTrigger className="w-[140px] rounded-xl bg-secondary/50 border-transparent">
+                                    <SelectValue placeholder="País" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Todos">Todos</SelectItem>
+                                    <SelectItem value="México">México</SelectItem>
+                                    <SelectItem value="Argentina">Argentina</SelectItem>
+                                    <SelectItem value="Otros">Otros</SelectItem>
+                                </SelectContent>
+                            </Select>
+
                             <Select value={provinceFilter} onValueChange={setProvinceFilter}>
                                 <SelectTrigger className="w-[180px] rounded-xl bg-secondary/50 border-transparent">
                                     <div className="flex items-center gap-2">
                                         <MapPin className="w-4 h-4 text-primary" />
-                                        <SelectValue placeholder="Ubicación" />
+                                        <SelectValue placeholder="Estado/Provincia" />
                                     </div>
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {ARGENTINA_PROVINCES.map((p) => (
-                                        <SelectItem key={p} value={p}>{p}</SelectItem>
-                                    ))}
+                                    {countryFilter === "México" ? (
+                                        MEXICO_STATES.map((p) => (
+                                            <SelectItem key={p} value={p}>{p}</SelectItem>
+                                        ))
+                                    ) : countryFilter === "Argentina" ? (
+                                        ARGENTINA_PROVINCES.map((p) => (
+                                            <SelectItem key={p} value={p}>{p}</SelectItem>
+                                        ))
+                                    ) : (
+                                        <SelectItem value="Todas">Todas</SelectItem>
+                                    )}
                                 </SelectContent>
                             </Select>
 

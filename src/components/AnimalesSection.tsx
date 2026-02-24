@@ -246,7 +246,7 @@ const AnimalesSection = ({ initialSelectedAnimalId }: AnimalesSectionProps) => {
         {showFilters && (
           <div className="max-w-5xl mx-auto mb-12 grid grid-cols-1 md:grid-cols-3 gap-6 p-8 bg-card/30 backdrop-blur-xl rounded-3xl border border-white/5 animate-in fade-in slide-in-from-top-4">
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Buscador</label>
+              <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Buscar</label>
               <Input
                 placeholder="Nombre, descripción..."
                 value={searchQuery}
