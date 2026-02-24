@@ -268,15 +268,6 @@ const AnimalesSection = ({ initialSelectedAnimalId }: AnimalesSectionProps) => {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Ubicación</label>
-              <Input
-                placeholder="Ciudad, barrio..."
-                value={locationFilter}
-                onChange={(e) => setLocationFilter(e.target.value)}
-                className="bg-background/50 border-white/5 h-12"
-              />
-            </div>
           </div>
         )}
 

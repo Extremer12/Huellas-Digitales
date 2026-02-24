@@ -7,7 +7,6 @@ import {
     Select,
     SelectContent,
     SelectItem,
-    SelectItem,
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
@@ -45,20 +44,7 @@ interface UnifiedFeedProps {
 }
 
 const PAGE_SIZE = 8;
-const ARGENTINA_PROVINCES = [
-    "Todas", "Buenos Aires", "Catamarca", "Chaco", "Chubut", "Córdoba", "Corrientes",
-    "Entre Ríos", "Formosa", "Jujuy", "La Pampa", "La Rioja", "Mendoza",
-    "Misiones", "Neuquén", "Río Negro", "Salta", "San Juan", "San Luis",
-    "Santa Cruz", "Santa Fe", "Santiago del Estero", "Tierra del Fuego", "Tucumán"
-];
-
-const MEXICO_STATES = [
-    "Todas", "Aguascalientes", "Baja California", "Baja California Sur", "Campeche", "Chiapas",
-    "Chihuahua", "Ciudad de México", "Coahuila", "Colima", "Durango", "Estado de México",
-    "Guanajuato", "Guerrero", "Hidalgo", "Jalisco", "Michoacán", "Morelos", "Nayarit",
-    "Nuevo León", "Oaxaca", "Puebla", "Querétaro", "Quintana Roo", "San Luis Potosí",
-    "Sinaloa", "Sonora", "Tabasco", "Tamaulipas", "Tlaxcala", "Veracruz", "Yucatán", "Zacatecas"
-];
+// No longer using hardcoded lists for manual selection
 
 const UnifiedFeed = ({ onOpenWizard }: UnifiedFeedProps) => {
     const { toast } = useToast();
@@ -70,8 +56,8 @@ const UnifiedFeed = ({ onOpenWizard }: UnifiedFeedProps) => {
     // Filters
     const [activeTab, setActiveTab] = useState<"todos" | "adopcion" | "perdidos">("todos");
     const [typeFilter, setTypeFilter] = useState<"todos" | "perro" | "gato" | "otro">("todos");
-    const [countryFilter, setCountryFilter] = useState<string>("México"); // Default to Mexico
-    const [provinceFilter, setProvinceFilter] = useState<string>("Todas"); // Added state
+    const [countryFilter, setCountryFilter] = useState<string>("México");
+    const [provinceFilter, setProvinceFilter] = useState<string>("Todas");
     const [searchQuery, setSearchQuery] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
     const [showFilters, setShowFilters] = useState(false);
@@ -83,14 +69,16 @@ const UnifiedFeed = ({ onOpenWizard }: UnifiedFeedProps) => {
             if (user) {
                 const { data: profile } = await supabase
                     .from('profiles')
-                    .select('province')
+                    .select('country, province')
                     .eq('id', user.id)
                     .single();
 
-                if (profile?.province && ARGENTINA_PROVINCES.includes(profile.province)) {
-                    setProvinceFilter(profile.province); // Default to user's province
+                if (profile) {
+                    if (profile.country) setCountryFilter(profile.country);
+                    if (profile.province) setProvinceFilter(profile.province);
+
                     toast({
-                        description: `Mostrando mascotas de ${profile.province}`,
+                        description: `Cargando mascotas de ${profile.province || profile.country || "tu ubicación"}`,
                     });
                 }
             }
@@ -166,8 +154,6 @@ const UnifiedFeed = ({ onOpenWizard }: UnifiedFeedProps) => {
 
             // 3. Search Filter
             if (debouncedSearch) {
-                // ILIKE for case-insensitive partial match
-                // Note: basic ilike on single columns. multiple columns requires 'or' syntax
                 query = query.or(`name.ilike.%${debouncedSearch}%,description.ilike.%${debouncedSearch}%,location.ilike.%${debouncedSearch}%`);
             }
 
@@ -278,58 +264,21 @@ const UnifiedFeed = ({ onOpenWizard }: UnifiedFeedProps) => {
                         <div className="relative flex-1">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                             <Input
-                                placeholder="Buscar por nombre, raza, ubicación..."
+                                placeholder="Buscar por nombre, raza, descripción..."
                                 className="pl-9 bg-secondary/50 border-transparent focus:bg-background transition-all rounded-xl"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
                         </div>
 
-                        {/* Location Selector */}
-                        <div className="flex flex-col sm:flex-row gap-2">
-                            <Select value={countryFilter} onValueChange={(v) => { setCountryFilter(v); setProvinceFilter("Todas"); }}>
-                                <SelectTrigger className="w-[140px] rounded-xl bg-secondary/50 border-transparent">
-                                    <SelectValue placeholder="País" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="Todos">Todos</SelectItem>
-                                    <SelectItem value="México">México</SelectItem>
-                                    <SelectItem value="Argentina">Argentina</SelectItem>
-                                    <SelectItem value="Otros">Otros</SelectItem>
-                                </SelectContent>
-                            </Select>
-
-                            <Select value={provinceFilter} onValueChange={setProvinceFilter}>
-                                <SelectTrigger className="w-[180px] rounded-xl bg-secondary/50 border-transparent">
-                                    <div className="flex items-center gap-2">
-                                        <MapPin className="w-4 h-4 text-primary" />
-                                        <SelectValue placeholder="Estado/Provincia" />
-                                    </div>
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {countryFilter === "México" ? (
-                                        MEXICO_STATES.map((p) => (
-                                            <SelectItem key={p} value={p}>{p}</SelectItem>
-                                        ))
-                                    ) : countryFilter === "Argentina" ? (
-                                        ARGENTINA_PROVINCES.map((p) => (
-                                            <SelectItem key={p} value={p}>{p}</SelectItem>
-                                        ))
-                                    ) : (
-                                        <SelectItem value="Todas">Todas</SelectItem>
-                                    )}
-                                </SelectContent>
-                            </Select>
-
-                            <Button
-                                variant={showFilters || typeFilter !== "todos" ? "secondary" : "ghost"}
-                                size="icon"
-                                onClick={() => setShowFilters(!showFilters)}
-                                className="rounded-xl shrink-0"
-                            >
-                                <Filter className={`w-4 h-4 ${typeFilter !== "todos" ? "text-primary" : ""}`} />
-                            </Button>
-                        </div>
+                        <Button
+                            variant={showFilters || typeFilter !== "todos" ? "secondary" : "ghost"}
+                            size="icon"
+                            onClick={() => setShowFilters(!showFilters)}
+                            className="rounded-xl shrink-0"
+                        >
+                            <Filter className={`w-4 h-4 ${typeFilter !== "todos" ? "text-primary" : ""}`} />
+                        </Button>
                     </div>
 
                     {/* Expanded Filters */}

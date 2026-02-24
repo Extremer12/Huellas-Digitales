@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,8 +23,19 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
+  const location = useLocation();
+  const [mode, setMode] = useState<"login" | "signup" | "recovery">("login");
 
   useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    if (searchParams.get("type") === "recovery") {
+      setMode("recovery");
+    }
+  }, [location]);
+
+  useEffect(() => {
+    if (mode === "recovery") return; // Don't redirect if we are in recovery mode
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         navigate("/");
@@ -32,13 +43,13 @@ const Auth = () => {
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
+      if (session && event !== "PASSWORD_RECOVERY") {
         navigate("/");
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, mode]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -162,19 +173,24 @@ const Auth = () => {
     }
   };
 
-  const handleForgotPassword = async () => {
-    if (!email) {
-      toast({
-        title: "Email requerido",
-        description: "Por favor, ingresa tu correo electrónico para enviarte el enlace de recuperación.",
-        variant: "destructive",
-      });
-      return;
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      passwordSchema.parse(password);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast({
+          title: "Contraseña inválida",
+          description: error.errors[0].message,
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     setLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-      redirectTo: `${window.location.origin}/auth?type=recovery`,
+    const { error } = await supabase.auth.updateUser({
+      password: password,
     });
 
     if (error) {
@@ -185,9 +201,10 @@ const Auth = () => {
       });
     } else {
       toast({
-        title: "Correo enviado",
-        description: "Se ha enviado un enlace para restablecer tu contraseña a tu email.",
+        title: "Éxito",
+        description: "Tu contraseña ha sido actualizada correctamente.",
       });
+      navigate("/auth");
     }
     setLoading(false);
   };
@@ -219,182 +236,211 @@ const Auth = () => {
 
           <Card className="border-none shadow-none bg-transparent">
             <CardHeader className="px-0 pt-0">
-              <Tabs defaultValue="login" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-8 bg-muted/50 p-1 rounded-xl">
-                  <TabsTrigger value="login" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                    Iniciar Sesión
-                  </TabsTrigger>
-                  <TabsTrigger value="signup" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                    Registrarse
-                  </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="login" className="animate-in fade-in zoom-in-95 duration-300">
-                  <form onSubmit={handleLogin} className="space-y-5">
+              {mode === "recovery" ? (
+                <div className="space-y-4">
+                  <h2 className="text-2xl font-bold">Restablecer Contraseña</h2>
+                  <p className="text-muted-foreground">Ingresa tu nueva contraseña a continuación.</p>
+                  <form onSubmit={handleUpdatePassword} className="space-y-5">
                     <div className="space-y-2">
-                      <Label htmlFor="login-email">Correo Electrónico</Label>
+                      <Label htmlFor="update-password">Nueva Contraseña</Label>
                       <Input
-                        id="login-email"
-                        type="email"
-                        placeholder="ejemplo@correo.com"
+                        id="update-password"
+                        type="password"
+                        placeholder="••••••••"
                         className="h-12 bg-muted/30 border-primary/10 focus:border-primary/50 transition-all rounded-xl"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                         required
                         disabled={loading}
                       />
                     </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <Label htmlFor="login-password">Contraseña</Label>
-                        <button
-                          type="button"
-                          className="text-xs text-primary hover:underline font-medium"
-                          onClick={handleForgotPassword}
-                        >
-                          ¿Olvidaste tu contraseña?
-                        </button>
+                    <Button type="submit" className="w-full h-12 text-lg font-semibold rounded-xl btn-hero" disabled={loading}>
+                      {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Actualizar Contraseña"}
+                    </Button>
+                  </form>
+                </div>
+              ) : (
+                <Tabs value={mode} onValueChange={(v) => setMode(v as any)} className="w-full">
+                  <TabsList className="grid w-full grid-cols-2 mb-8 bg-muted/50 p-1 rounded-xl">
+                    <TabsTrigger value="login" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                      Iniciar Sesión
+                    </TabsTrigger>
+                    <TabsTrigger value="signup" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                      Registrarse
+                    </TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="login" className="animate-in fade-in zoom-in-95 duration-300">
+                    <form onSubmit={handleLogin} className="space-y-5">
+                      <div className="space-y-2">
+                        <Label htmlFor="login-email">Correo Electrónico</Label>
+                        <Input
+                          id="login-email"
+                          type="email"
+                          placeholder="ejemplo@correo.com"
+                          className="h-12 bg-muted/30 border-primary/10 focus:border-primary/50 transition-all rounded-xl"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                          disabled={loading}
+                        />
                       </div>
-                      <Input
-                        id="login-password"
-                        type="password"
-                        placeholder="••••••••"
-                        className="h-12 bg-muted/30 border-primary/10 focus:border-primary/50 transition-all rounded-xl"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        disabled={loading}
-                      />
-                    </div>
-                    <Button type="submit" className="w-full h-12 text-lg font-semibold rounded-xl btn-hero" disabled={loading}>
-                      {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Iniciar Sesión"}
-                    </Button>
-                  </form>
-                </TabsContent>
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <Label htmlFor="login-password">Contraseña</Label>
+                          <button
+                            type="button"
+                            className="text-xs text-primary hover:underline font-medium"
+                            onClick={handleForgotPassword}
+                          >
+                            ¿Olvidaste tu contraseña?
+                          </button>
+                        </div>
+                        <Input
+                          id="login-password"
+                          type="password"
+                          placeholder="••••••••"
+                          className="h-12 bg-muted/30 border-primary/10 focus:border-primary/50 transition-all rounded-xl"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                          disabled={loading}
+                        />
+                      </div>
+                      <Button type="submit" className="w-full h-12 text-lg font-semibold rounded-xl btn-hero" disabled={loading}>
+                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Iniciar Sesión"}
+                      </Button>
+                    </form>
+                  </TabsContent>
 
-                <TabsContent value="signup" className="animate-in fade-in zoom-in-95 duration-300">
-                  <form onSubmit={handleSignUp} className="space-y-5">
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-name">Nombre Completo</Label>
-                      <Input
-                        id="signup-name"
-                        type="text"
-                        placeholder="Juan Pérez"
-                        className="h-12 bg-muted/30 border-primary/10 focus:border-primary/50 transition-all rounded-xl"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        required
-                        disabled={loading}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-email">Correo Electrónico</Label>
-                      <Input
-                        id="signup-email"
-                        type="email"
-                        placeholder="ejemplo@correo.com"
-                        className="h-12 bg-muted/30 border-primary/10 focus:border-primary/50 transition-all rounded-xl"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        disabled={loading}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-password">Contraseña</Label>
-                      <Input
-                        id="signup-password"
-                        type="password"
-                        placeholder="••••••••"
-                        className="h-12 bg-muted/30 border-primary/10 focus:border-primary/50 transition-all rounded-xl"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        disabled={loading}
-                      />
-                    </div>
-                    <div className="flex items-start space-x-2 pt-2">
-                      <input
-                        id="terms"
-                        type="checkbox"
-                        checked={acceptTerms}
-                        onChange={(e) => setAcceptTerms(e.target.checked)}
-                        className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                        required
-                      />
-                      <Label htmlFor="terms" className="text-xs font-normal text-muted-foreground leading-tight">
-                        Acepto los{" "}
-                        <button type="button" onClick={() => window.open("/terms", "_blank")} className="text-primary hover:underline">
-                          Términos de Servicio
-                        </button>{" "}
-                        y la{" "}
-                        <button type="button" onClick={() => window.open("/privacy", "_blank")} className="text-primary hover:underline">
-                          Política de Privacidad
-                        </button>
-                      </Label>
-                    </div>
-                    <Button type="submit" className="w-full h-12 text-lg font-semibold rounded-xl btn-hero" disabled={loading}>
-                      {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Crear Cuenta"}
-                    </Button>
-                  </form>
-                </TabsContent>
-              </Tabs>
+                  <TabsContent value="signup" className="animate-in fade-in zoom-in-95 duration-300">
+                    <form onSubmit={handleSignUp} className="space-y-5">
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-name">Nombre Completo</Label>
+                        <Input
+                          id="signup-name"
+                          type="text"
+                          placeholder="Juan Pérez"
+                          className="h-12 bg-muted/30 border-primary/10 focus:border-primary/50 transition-all rounded-xl"
+                          value={fullName}
+                          onChange={(e) => setFullName(e.target.value)}
+                          required
+                          disabled={loading}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-email">Correo Electrónico</Label>
+                        <Input
+                          id="signup-email"
+                          type="email"
+                          placeholder="ejemplo@correo.com"
+                          className="h-12 bg-muted/30 border-primary/10 focus:border-primary/50 transition-all rounded-xl"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                          disabled={loading}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-password">Contraseña</Label>
+                        <Input
+                          id="signup-password"
+                          type="password"
+                          placeholder="••••••••"
+                          className="h-12 bg-muted/30 border-primary/10 focus:border-primary/50 transition-all rounded-xl"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                          disabled={loading}
+                        />
+                      </div>
+                      <div className="flex items-start space-x-2 pt-2">
+                        <input
+                          id="terms"
+                          type="checkbox"
+                          checked={acceptTerms}
+                          onChange={(e) => setAcceptTerms(e.target.checked)}
+                          className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                          required
+                        />
+                        <Label htmlFor="terms" className="text-xs font-normal text-muted-foreground leading-tight">
+                          Acepto los{" "}
+                          <button type="button" onClick={() => window.open("/terms", "_blank")} className="text-primary hover:underline">
+                            Términos de Servicio
+                          </button>{" "}
+                          y la{" "}
+                          <button type="button" onClick={() => window.open("/privacy", "_blank")} className="text-primary hover:underline">
+                            Política de Privacidad
+                          </button>
+                        </Label>
+                      </div>
+                      <Button type="submit" className="w-full h-12 text-lg font-semibold rounded-xl btn-hero" disabled={loading}>
+                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Crear Cuenta"}
+                      </Button>
+                    </form>
+                  </TabsContent>
+                </Tabs>
+              )}
             </CardHeader>
 
             <CardContent className="px-0 space-y-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-muted" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-4 text-muted-foreground font-medium">O continúa con</span>
-                </div>
-              </div>
+              {mode !== "recovery" && (
+                <>
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t border-muted" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-background px-4 text-muted-foreground font-medium">O continúa con</span>
+                    </div>
+                  </div>
 
-              <Button
-                variant="outline"
-                type="button"
-                className="w-full h-12 font-medium rounded-xl border-primary/10 hover:bg-primary/10 hover:text-primary transition-all"
-                onClick={handleGoogleLogin}
-                disabled={loading}
-              >
-                <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">
-                  <path
-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                    fill="#4285F4"
-                  />
-                  <path
-                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                    fill="#34A853"
-                  />
-                  <path
-                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"
-                    fill="#FBBC05"
-                  />
-                  <path
-                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                    fill="#EA4335"
-                  />
-                </svg>
-                Google
-              </Button>
+                  <Button
+                    variant="outline"
+                    type="button"
+                    className="w-full h-12 font-medium rounded-xl border-primary/10 hover:bg-primary/10 hover:text-primary transition-all"
+                    onClick={handleGoogleLogin}
+                    disabled={loading}
+                  >
+                    <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">
+                      <path
+                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                        fill="#4285F4"
+                      />
+                      <path
+                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                        fill="#34A853"
+                      />
+                      <path
+                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"
+                        fill="#FBBC05"
+                      />
+                      <path
+                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                        fill="#EA4335"
+                      />
+                    </svg>
+                    Google
+                  </Button>
 
-              <p className="text-center text-sm text-muted-foreground">
-                Al continuar, aceptas nuestros{" "}
-                <button
-                  onClick={() => window.open("/terms", "_blank")}
-                  className="text-primary hover:underline font-medium"
-                >
-                  Términos de Servicio
-                </button>{" "}
-                y{" "}
-                <button
-                  onClick={() => window.open("/privacy", "_blank")}
-                  className="text-primary hover:underline font-medium"
-                >
-                  Política de Privacidad
-                </button>
-              </p>
+                  <p className="text-center text-sm text-muted-foreground">
+                    Al continuar, aceptas nuestros{" "}
+                    <button
+                      onClick={() => window.open("/terms", "_blank")}
+                      className="text-primary hover:underline font-medium"
+                    >
+                      Términos de Servicio
+                    </button>{" "}
+                    y{" "}
+                    <button
+                      onClick={() => window.open("/privacy", "_blank")}
+                      className="text-primary hover:underline font-medium"
+                    >
+                      Política de Privacidad
+                    </button>
+                  </p>
+                </>
+              )}
             </CardContent>
           </Card>
         </div>
