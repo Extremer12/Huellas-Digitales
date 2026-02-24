@@ -173,6 +173,36 @@ const Auth = () => {
     }
   };
 
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast({
+        title: "Email requerido",
+        description: "Por favor, ingresa tu correo electrónico para enviarte el enlace de recuperación.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: `${window.location.origin}/auth?type=recovery`,
+    });
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Correo enviado",
+        description: "Se ha enviado un enlace para restablecer tu contraseña a tu email.",
+      });
+    }
+    setLoading(false);
+  };
+
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
