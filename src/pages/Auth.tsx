@@ -22,6 +22,7 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [acceptTerms, setAcceptTerms] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -86,6 +87,14 @@ const Auth = () => {
       emailSchema.parse(email);
       passwordSchema.parse(password);
       nameSchema.parse(fullName);
+      if (!acceptTerms) {
+        toast({
+          title: "Acción requerida",
+          description: "Debes aceptar los Términos de Servicio y la Política de Privacidad",
+          variant: "destructive",
+        });
+        return;
+      }
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast({
@@ -127,7 +136,7 @@ const Auth = () => {
     } else {
       toast({
         title: "¡Registro exitoso!",
-        description: "Tu cuenta ha sido creada. Bienvenido a Huellas Digitales.",
+        description: "Se ha enviado un correo de confirmación. Por favor, verifica tu bandeja de entrada para activar tu cuenta.",
       });
     }
 
@@ -151,6 +160,36 @@ const Auth = () => {
       });
       setLoading(false);
     }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast({
+        title: "Email requerido",
+        description: "Por favor, ingresa tu correo electrónico para enviarte el enlace de recuperación.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: `${window.location.origin}/auth?type=recovery`,
+    });
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Correo enviado",
+        description: "Se ha enviado un enlace para restablecer tu contraseña a tu email.",
+      });
+    }
+    setLoading(false);
   };
 
   return (
@@ -208,7 +247,11 @@ const Auth = () => {
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
                         <Label htmlFor="login-password">Contraseña</Label>
-                        <button type="button" className="text-xs text-primary hover:underline font-medium">
+                        <button
+                          type="button"
+                          className="text-xs text-primary hover:underline font-medium"
+                          onClick={handleForgotPassword}
+                        >
                           ¿Olvidaste tu contraseña?
                         </button>
                       </div>
@@ -270,6 +313,26 @@ const Auth = () => {
                         disabled={loading}
                       />
                     </div>
+                    <div className="flex items-start space-x-2 pt-2">
+                      <input
+                        id="terms"
+                        type="checkbox"
+                        checked={acceptTerms}
+                        onChange={(e) => setAcceptTerms(e.target.checked)}
+                        className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                        required
+                      />
+                      <Label htmlFor="terms" className="text-xs font-normal text-muted-foreground leading-tight">
+                        Acepto los{" "}
+                        <button type="button" onClick={() => window.open("/terms", "_blank")} className="text-primary hover:underline">
+                          Términos de Servicio
+                        </button>{" "}
+                        y la{" "}
+                        <button type="button" onClick={() => window.open("/privacy", "_blank")} className="text-primary hover:underline">
+                          Política de Privacidad
+                        </button>
+                      </Label>
+                    </div>
                     <Button type="submit" className="w-full h-12 text-lg font-semibold rounded-xl btn-hero" disabled={loading}>
                       {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Crear Cuenta"}
                     </Button>
@@ -319,14 +382,14 @@ const Auth = () => {
               <p className="text-center text-sm text-muted-foreground">
                 Al continuar, aceptas nuestros{" "}
                 <button
-                  onClick={() => navigate("/terms")}
+                  onClick={() => window.open("/terms", "_blank")}
                   className="text-primary hover:underline font-medium"
                 >
                   Términos de Servicio
                 </button>{" "}
                 y{" "}
                 <button
-                  onClick={() => navigate("/privacy")}
+                  onClick={() => window.open("/privacy", "_blank")}
                   className="text-primary hover:underline font-medium"
                 >
                   Política de Privacidad

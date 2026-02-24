@@ -20,6 +20,8 @@ const PetDetail = lazy(() => import("./components/PetDetail"));
 const Admin = lazy(() => import("./pages/Admin"));
 const Historias = lazy(() => import("./pages/Historias"));
 const Messages = lazy(() => import("./pages/Messages"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsAndConditions = lazy(() => import("./pages/TermsAndConditions"));
 
 const queryClient = new QueryClient();
 
@@ -46,6 +48,8 @@ const App = () => {
                   <Route path="/admin" element={<Admin />} />
                   <Route path="/historias" element={<Historias />} />
                   <Route path="/messages" element={<Messages />} />
+                  <Route path="/privacy" element={<PrivacyPolicy />} />
+                  <Route path="/terms" element={<TermsAndConditions />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
